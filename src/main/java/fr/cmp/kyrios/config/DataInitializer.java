@@ -47,7 +47,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== DIRECTIONS =====
         DirectionModel dir = new DirectionModel();
-        dir.setName("Direction des Systèmes d'Information");
+        dir.setName("Direction des Systemes d'Information");
         dir = directionRepository.save(dir);
 
         // ===== SERVICES =====
@@ -60,6 +60,17 @@ public class DataInitializer implements CommandLineRunner {
         domJava.setName("Java");
         domJava = domaineRepository.save(domJava);
 
+        // ===== PROFILS SI =====
+        ProfilSIModel profil1 = new ProfilSIModel();
+        profil1.setName("Developpeur fullstack");
+        profil1.setDateCreated(LocalDateTime.now());
+        profil1 = profilSIRepository.save(profil1);
+
+        ProfilSIModel profil2 = new ProfilSIModel();
+        profil2.setName("Developpeur windev");
+        profil2.setDateCreated(LocalDateTime.now());
+        profil2 = profilSIRepository.save(profil2);
+
         // ===== EMPLOIS =====
         EmploiModel emp = new EmploiModel();
         emp.setEmploiName("Developpeur informatique Fullstack (Java)");
@@ -67,6 +78,7 @@ public class DataInitializer implements CommandLineRunner {
         emp.setService(svcInfra);
         emp.setDomaine(domJava);
         emp.setStatus(EmploiModel.Status.PERMANENT);
+        emp.setProfilSI(profil1);
         emp.setDateCreated(LocalDateTime.now());
         emp = emploiRepository.save(emp);
         ;
@@ -76,21 +88,13 @@ public class DataInitializer implements CommandLineRunner {
         emp2.setService(null);
         emp2.setDomaine(null);
         emp2.setStatus(EmploiModel.Status.PERMANENT);
+        emp2.setProfilSI(profil2);
         emp2.setDateCreated(LocalDateTime.now());
         emp2 = emploiRepository.save(emp2);
         ;
 
-        // ===== PROFILS SI =====
-        ProfilSIModel profil1 = new ProfilSIModel();
-        profil1.setName("Développeur fullstack");
-        profil1.setDateCreated(LocalDateTime.now());
-        profil1.setEmploi(emp);
-        profil1 = profilSIRepository.save(profil1);
+        profil1.getEmplois().add(emp);
+        profil2.getEmplois().add(emp2);
 
-        ProfilSIModel profil2 = new ProfilSIModel();
-        profil2.setName("Développeur windev");
-        profil2.setDateCreated(LocalDateTime.now());
-        profil2.setEmploi(emp2);
-        profil2 = profilSIRepository.save(profil2);
     }
 }

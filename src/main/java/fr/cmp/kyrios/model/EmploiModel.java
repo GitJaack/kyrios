@@ -1,8 +1,8 @@
 package fr.cmp.kyrios.model;
 
 import java.time.LocalDateTime;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,7 +12,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -54,8 +53,8 @@ public class EmploiModel {
     @Column(nullable = false)
     private Status status;
 
-    @OneToOne(mappedBy = "emploi")
-    @JsonBackReference
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "profil_si_id", nullable = false)
     private ProfilSIModel profilSI;
 
     @Column(name = "date_created")

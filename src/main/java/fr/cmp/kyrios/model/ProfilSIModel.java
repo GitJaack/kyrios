@@ -1,6 +1,7 @@
 package fr.cmp.kyrios.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -12,7 +13,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -27,10 +27,9 @@ public class ProfilSIModel {
     @Column(nullable = false, length = 30)
     private String name;
 
-    @OneToOne(optional = false)
-    @JoinColumn(name = "emploi_id", nullable = false)
+    @OneToMany(mappedBy = "profilSI", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private EmploiModel emploi;
+    private List<EmploiModel> emplois;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "profil_si_id")
@@ -41,4 +40,9 @@ public class ProfilSIModel {
 
     @Column(name = "date_updated")
     private LocalDateTime dateUpdated;
+
+    public ProfilSIModel() {
+        this.emplois = new ArrayList<>();
+        this.ressourcesSI = new ArrayList<>();
+    }
 }

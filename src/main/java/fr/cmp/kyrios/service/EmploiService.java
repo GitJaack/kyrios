@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import fr.cmp.kyrios.exception.EmploiNotFoundException;
 import fr.cmp.kyrios.model.dto.EmploiDTO;
+import fr.cmp.kyrios.model.dto.EmploiDTOResponse;
+import fr.cmp.kyrios.model.dto.ProfilSISimpleDTO;
 import fr.cmp.kyrios.model.EmploiModel;
 import fr.cmp.kyrios.model.ProfilSIModel;
 import fr.cmp.kyrios.repository.EmploiRepository;
@@ -45,8 +47,10 @@ public class EmploiService {
 
     @Transactional
     public EmploiModel create(EmploiDTO dto) {
-        EmploiModel emploi = new EmploiModel();
+        ProfilSIModel profil = profilSIRepository.findByName(dto.getProfilSI())
+                .orElseThrow(() -> new IllegalArgumentException("ProfilSI introuvable"));
 
+        EmploiModel emploi = new EmploiModel();
         emploi.setEmploiName(dto.getEmploi());
 
         emploi.setDirection(directionRepository.findByName(dto.getDirection())
@@ -63,15 +67,10 @@ public class EmploiService {
         }
 
         emploi.setStatus(dto.getStatus());
+        emploi.setProfilSI(profil);
         emploi.setDateCreated(LocalDateTime.now());
 
-        EmploiModel saved = emploiRepository.save(emploi);
-
-        ProfilSIModel profil = profilSIRepository.findById(dto.getProfilSIid())
-                .orElseThrow(() -> new IllegalArgumentException("ProfilSI introuvable"));
-        profil.setEmploi(saved);
-        profilSIRepository.save(profil);
-        return saved;
+        return emploiRepository.save(emploi);
     }
 
     @Transactional
@@ -101,19 +100,36 @@ public class EmploiService {
         emploi.setStatus(dto.getStatus());
         emploi.setDateUpdated(LocalDateTime.now());
 
-        EmploiModel updated = emploiRepository.save(emploi);
-
-        ProfilSIModel profil = profilSIRepository.findById(dto.getProfilSIid())
+        ProfilSIModel profil = profilSIRepository.findByName(dto.getProfilSI())
                 .orElseThrow(() -> new IllegalArgumentException("ProfilSI introuvable"));
-        profil.setEmploi(updated);
-        profilSIRepository.save(profil);
-        return updated;
+        emploi.setProfilSI(profil);
+
+        return emploiRepository.save(emploi);
     }
 
     public void delete(int id) {
         EmploiModel emploi = emploiRepository.findById(id)
                 .orElseThrow(() -> new EmploiNotFoundException("Emploi avec l'ID " + id + " non trouvé"));
         emploiRepository.delete(emploi);
+    }
+
+    public EmploiDTOResponse toDTO(EmploiModel emploi) {
+        ProfilSISimpleDTO profilDTO = null;
+        if (emploi.getProfilSI() != null) {
+            profilDTO = new ProfilSISimpleDTO(emploi.getProfilSI().getId(), emploi.getProfilSI().getName());
+        }
+
+        return EmploiDTOResponse.builder()
+                .id(emploi.getId())
+                .emploi(emploi.getEmploiName())
+                .direction(emploi.getDirection() != null ? emploi.getDirection().getName() : null)
+                .service(emploi.getService() != null ? emploi.getService().getName() : null)
+                .domaine(emploi.getDomaine() != null ? emploi.getDomaine().getName() : null)
+                .status(emploi.getStatus())
+                .profilSI(profilDTO)
+                .dateCreated(emploi.getDateCreated())
+                .dateUpdated(emploi.getDateUpdated())
+                .build();
     }
 
 }

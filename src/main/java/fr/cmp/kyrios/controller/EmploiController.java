@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import jakarta.validation.Valid;
 import fr.cmp.kyrios.model.EmploiModel;
 import fr.cmp.kyrios.model.dto.EmploiDTO;
+import fr.cmp.kyrios.model.dto.EmploiDTOResponse;
 import fr.cmp.kyrios.service.EmploiService;
 
 @RestController
@@ -37,57 +38,57 @@ public class EmploiController {
     }
 
     @GetMapping
-    @Operation(summary = "Récupérer tous les emplois", description = "Retourne la liste de tous les emplois")
+    @Operation(summary = "Récupérer tous les emplois")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Liste des emplois récupérée avec succès"),
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
 
     })
-    public List<EmploiModel> list() {
-        return emploiService.listAll();
+    public List<EmploiDTOResponse> list() {
+        return emploiService.listAll().stream()
+                .map(emploiService::toDTO)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Récupérer un emploi par ID", description = "Retourne un emploi spécifique par son identifiant")
+    @Operation(summary = "Récupérer un emploi par ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Emploi trouvé"),
             @ApiResponse(responseCode = "404", description = "Emploi non trouvé", content = @Content()),
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
-    public EmploiModel get(@PathVariable int id) {
-        return emploiService.get(id);
+    public EmploiDTOResponse get(@PathVariable int id) {
+        return emploiService.toDTO(emploiService.get(id));
     }
 
     @PostMapping
-    @Operation(summary = "Créer un nouvel emploi", description = "Crée un nouvel emploi avec les informations fournies")
+    @Operation(summary = "Créer un nouvel emploi")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Emploi créé avec succès"),
-            @ApiResponse(responseCode = "400", description = "Données invalides"),
-            @ApiResponse(responseCode = "404", description = "Ressource liée non trouvée", content = @Content()),
+            @ApiResponse(responseCode = "201", description = "Emploi créé avec succès", content = @Content()),
+            @ApiResponse(responseCode = "400", description = "Données invalides", content = @Content()),
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
-    public ResponseEntity<EmploiModel> create(@Valid @RequestBody EmploiDTO dto) {
+    public ResponseEntity<EmploiDTOResponse> create(@Valid @RequestBody EmploiDTO dto) {
         EmploiModel created = emploiService.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        return ResponseEntity.status(HttpStatus.CREATED).body(emploiService.toDTO(created));
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Mettre à jour un emploi", description = "Modifie un emploi existant")
+    @Operation(summary = "Mettre à jour un emploi")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Emploi mis à jour avec succès"),
             @ApiResponse(responseCode = "400", description = "Données invalides", content = @Content()),
-            @ApiResponse(responseCode = "404", description = "Emploi ou ressource liée non trouvés", content = @Content()),
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
-    public ResponseEntity<EmploiModel> update(@PathVariable int id, @Valid @RequestBody EmploiDTO dto) {
+    public ResponseEntity<EmploiDTOResponse> update(@PathVariable int id, @Valid @RequestBody EmploiDTO dto) {
         EmploiModel updated = emploiService.update(id, dto);
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(emploiService.toDTO(updated));
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Supprimer un emploi", description = "Supprime un emploi par son identifiant")
+    @Operation(summary = "Supprimer un emploi")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Emploi supprimé avec succès"),
+            @ApiResponse(responseCode = "204", description = "Emploi supprimé avec succès", content = @Content()),
             @ApiResponse(responseCode = "404", description = "Emploi non trouvé", content = @Content()),
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
