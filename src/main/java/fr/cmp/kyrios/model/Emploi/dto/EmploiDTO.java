@@ -1,8 +1,8 @@
-package fr.cmp.kyrios.model.dto;
+package fr.cmp.kyrios.model.Emploi.dto;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import fr.cmp.kyrios.model.EmploiModel;
+import fr.cmp.kyrios.model.Emploi.EmploiModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

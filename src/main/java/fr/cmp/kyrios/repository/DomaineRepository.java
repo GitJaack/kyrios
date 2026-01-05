@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import fr.cmp.kyrios.model.DomaineModel;
+import fr.cmp.kyrios.model.Emploi.DomaineModel;
 
 @Repository
 public interface DomaineRepository extends JpaRepository<DomaineModel, Integer> {

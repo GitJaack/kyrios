@@ -2,7 +2,6 @@ package fr.cmp.kyrios.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -61,36 +60,4 @@ public class GlobalExceptionHandler {
 
                 return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        @ExceptionHandler(HttpMessageNotReadableException.class)
-        public ResponseEntity<ErrorResponse> handleInvalidEnum(HttpMessageNotReadableException ex, WebRequest request) {
-                String message = "JSON invalide";
-
-                Throwable cause = ex.getCause();
-                if (cause instanceof com.fasterxml.jackson.databind.exc.InvalidFormatException invalidEx) {
-                        Object invalidValue = invalidEx.getValue();
-                        Class<?> targetType = invalidEx.getTargetType();
-
-                        if (targetType.isEnum()) {
-                                // Nom du champ JSON
-                                String fieldName = "inconnu";
-                                if (!invalidEx.getPath().isEmpty()) {
-                                        fieldName = invalidEx.getPath().get(0).getFieldName();
-                                }
-
-                                // Toutes les valeurs possibles
-                                Object[] possibleValues = targetType.getEnumConstants();
-                                message = "Valeur invalide pour le champ \""
-                                                + fieldName + "\": \"" + invalidValue + "\". "
-                                                + "Valeurs possibles : " + java.util.Arrays.toString(possibleValues);
-                        }
-                }
-
-                ErrorResponse errorResponse = ErrorResponse.builder()
-                                .message(message)
-                                .build();
-
-                return ResponseEntity.badRequest().body(errorResponse);
-        }
-
 }

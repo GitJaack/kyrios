@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import fr.cmp.kyrios.exception.EmploiNotFoundException;
-import fr.cmp.kyrios.model.dto.EmploiDTO;
-import fr.cmp.kyrios.model.dto.EmploiDTOResponse;
-import fr.cmp.kyrios.model.dto.ProfilSISimpleDTO;
-import fr.cmp.kyrios.model.EmploiModel;
 import fr.cmp.kyrios.model.ProfilSIModel;
+import fr.cmp.kyrios.model.Emploi.EmploiModel;
+import fr.cmp.kyrios.model.Emploi.dto.EmploiDTO;
+import fr.cmp.kyrios.model.Emploi.dto.EmploiDTOResponse;
+import fr.cmp.kyrios.model.Emploi.dto.ProfilSISimpleDTO;
 import fr.cmp.kyrios.repository.EmploiRepository;
 import fr.cmp.kyrios.repository.DirectionRepository;
 import fr.cmp.kyrios.repository.DomaineRepository;

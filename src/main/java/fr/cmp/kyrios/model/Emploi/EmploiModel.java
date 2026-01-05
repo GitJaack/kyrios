@@ -1,8 +1,9 @@
-package fr.cmp.kyrios.model;
+package fr.cmp.kyrios.model.Emploi;
 
 import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import fr.cmp.kyrios.model.ProfilSIModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

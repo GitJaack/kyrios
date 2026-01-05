@@ -1,4 +1,4 @@
-package fr.cmp.kyrios.model.dto;
+package fr.cmp.kyrios.model.Emploi.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
