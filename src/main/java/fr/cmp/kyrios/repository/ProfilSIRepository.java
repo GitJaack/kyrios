@@ -10,4 +10,6 @@ import fr.cmp.kyrios.model.Si.ProfilSIModel;
 @Repository
 public interface ProfilSIRepository extends JpaRepository<ProfilSIModel, Integer> {
     Optional<ProfilSIModel> findByName(String name);
+
+    Optional<ProfilSIModel> findById(Integer id);
 }

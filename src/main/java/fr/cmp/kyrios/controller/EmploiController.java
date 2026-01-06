@@ -88,13 +88,13 @@ public class EmploiController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Supprimer un emploi")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Emploi supprimé avec succès", content = @Content()),
+            @ApiResponse(responseCode = "200", description = "Emploi supprimé avec succès", content = @Content()),
             @ApiResponse(responseCode = "404", description = "Emploi non trouvé", content = @Content()),
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
-    public ResponseEntity<Void> delete(@PathVariable int id) {
+    public ResponseEntity<String> delete(@PathVariable int id) {
         emploiService.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Emploi avec l'ID " + id + " supprimé avec succès");
     }
 
 }

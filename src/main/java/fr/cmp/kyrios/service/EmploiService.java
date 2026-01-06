@@ -47,22 +47,22 @@ public class EmploiService {
 
     @Transactional
     public EmploiModel create(EmploiDTO dto) {
-        ProfilSIModel profil = profilSIRepository.findByName(dto.getProfilSI())
+        ProfilSIModel profil = profilSIRepository.findById(dto.getProfilSI())
                 .orElseThrow(() -> new IllegalArgumentException("ProfilSI introuvable"));
 
         EmploiModel emploi = new EmploiModel();
         emploi.setEmploiName(dto.getEmploi());
 
-        emploi.setDirection(directionRepository.findByName(dto.getDirection())
+        emploi.setDirection(directionRepository.findById(dto.getDirection())
                 .orElseThrow(() -> new IllegalArgumentException("Direction introuvable")));
 
         if (dto.getService() != null) {
-            emploi.setService(serviceRepository.findByName(dto.getService())
+            emploi.setService(serviceRepository.findById(dto.getService())
                     .orElseThrow(() -> new IllegalArgumentException("Service introuvable")));
         }
 
         if (dto.getDomaine() != null) {
-            emploi.setDomaine(domaineService.findByName(dto.getDomaine())
+            emploi.setDomaine(domaineService.findById(dto.getDomaine())
                     .orElseThrow(() -> new IllegalArgumentException("Domaine introuvable")));
         }
 
@@ -80,18 +80,18 @@ public class EmploiService {
 
         emploi.setEmploiName(dto.getEmploi());
 
-        emploi.setDirection(directionRepository.findByName(dto.getDirection())
+        emploi.setDirection(directionRepository.findById(dto.getDirection())
                 .orElseThrow(() -> new IllegalArgumentException("Direction introuvable")));
 
         if (dto.getService() != null) {
-            emploi.setService(serviceRepository.findByName(dto.getService())
+            emploi.setService(serviceRepository.findById(dto.getService())
                     .orElseThrow(() -> new IllegalArgumentException("Service introuvable")));
         } else {
             emploi.setService(null);
         }
 
         if (dto.getDomaine() != null) {
-            emploi.setDomaine(domaineService.findByName(dto.getDomaine())
+            emploi.setDomaine(domaineService.findById(dto.getDomaine())
                     .orElseThrow(() -> new IllegalArgumentException("Domaine introuvable")));
         } else {
             emploi.setDomaine(null);
@@ -100,7 +100,7 @@ public class EmploiService {
         emploi.setStatus(dto.getStatus());
         emploi.setDateUpdated(LocalDateTime.now());
 
-        ProfilSIModel profil = profilSIRepository.findByName(dto.getProfilSI())
+        ProfilSIModel profil = profilSIRepository.findById(dto.getProfilSI())
                 .orElseThrow(() -> new IllegalArgumentException("ProfilSI introuvable"));
         emploi.setProfilSI(profil);
 

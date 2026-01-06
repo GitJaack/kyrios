@@ -10,4 +10,6 @@ import fr.cmp.kyrios.model.Emploi.DirectionModel;
 @Repository
 public interface DirectionRepository extends JpaRepository<DirectionModel, Integer> {
     Optional<DirectionModel> findByName(String name);
+
+    Optional<DirectionModel> findById(String id);
 }

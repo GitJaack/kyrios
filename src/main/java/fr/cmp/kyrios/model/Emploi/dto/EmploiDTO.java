@@ -24,20 +24,20 @@ public class EmploiDTO {
     private String emploi;
 
     @NotNull(message = "La direction est requise")
-    @Schema(description = "Direction associée", example = "Direction des Systemes d'Information")
-    private String direction;
+    @Schema(description = "Direction associée", example = "1")
+    private int direction;
 
     @Schema(description = "Service associé (optionnel)", example = "null")
-    private String service;
+    private Integer service;
 
     @Schema(description = "Domaine associé (optionnel)", example = "null")
-    private String domaine;
+    private Integer domaine;
 
     @NotNull(message = "Le statut est requis")
     @Schema(description = "Statut de l'emploi", example = "PERMANENT")
     private EmploiModel.Status status;
 
     @NotNull(message = "Le profil SI est requis")
-    @Schema(description = "Profil SI associé", example = "Developpeur fullstack")
-    private String profilSI;
+    @Schema(description = "Profil SI associé", example = "1")
+    private int profilSI;
 }
