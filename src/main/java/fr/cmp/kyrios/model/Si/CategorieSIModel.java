@@ -1,21 +1,27 @@
-package fr.cmp.kyrios.model;
+package fr.cmp.kyrios.model.Si;
+
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "applications")
+@Table(name = "categories")
 @Data
-public class ApplicationModel {
+public class CategorieSIModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(nullable = false, length = 16)
+    @Column(nullable = false, unique = true, length = 50)
     private String name;
+
+    @OneToMany(mappedBy = "categorie")
+    private List<RessourceSIModel> ressources;
 }

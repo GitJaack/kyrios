@@ -1,4 +1,4 @@
-package fr.cmp.kyrios.model;
+package fr.cmp.kyrios.model.Si;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import fr.cmp.kyrios.model.Emploi.DirectionModel;
 import fr.cmp.kyrios.model.Emploi.EmploiModel;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -14,6 +15,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -29,13 +33,17 @@ public class ProfilSIModel {
     @Column(nullable = false, length = 30)
     private String name;
 
+    @ManyToOne
+    @JoinColumn(name = "direction_id")
+    private DirectionModel direction;
+
     @OneToMany(mappedBy = "profilSI", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<EmploiModel> emplois;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "profil_si_id")
-    private List<RessourceSIModel> ressourcesSI;
+    @ManyToMany
+    @JoinTable(name = "profil_si_ressources", joinColumns = @JoinColumn(name = "profil_si_id"), inverseJoinColumns = @JoinColumn(name = "ressource_id"))
+    private List<RessourceSIModel> ressources;
 
     @Column(name = "date_created")
     private LocalDateTime dateCreated;
@@ -45,6 +53,6 @@ public class ProfilSIModel {
 
     public ProfilSIModel() {
         this.emplois = new ArrayList<>();
-        this.ressourcesSI = new ArrayList<>();
+        this.ressources = new ArrayList<>();
     }
 }

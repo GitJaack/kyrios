@@ -10,6 +10,4 @@ import fr.cmp.kyrios.model.Emploi.EmploiModel;
 @Repository
 public interface EmploiRepository extends JpaRepository<EmploiModel, Integer> {
     Optional<EmploiModel> findById(int id);
-
-    boolean existsById(int id);
 }

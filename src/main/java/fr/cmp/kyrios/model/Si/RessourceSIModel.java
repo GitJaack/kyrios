@@ -1,4 +1,4 @@
-package fr.cmp.kyrios.model;
+package fr.cmp.kyrios.model.Si;
 
 // import java.time.LocalDate;
 
@@ -9,6 +9,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -26,13 +28,17 @@ public class RessourceSIModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "libelle_acces", nullable = false, length = 16)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "categorie_id", nullable = false)
+    private CategorieSIModel categorie;
+
+    @Column(name = "libelle_acces", nullable = false, length = 50)
     private String libelleAcces;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type_acces", nullable = false)
     private TypeAcces typeAcces;
 
-    // @Column(name = "date_expiration")
-    // private LocalDate dateExpiration;
+    @Column(name = "is_default")
+    private boolean isDefault = false;
 }

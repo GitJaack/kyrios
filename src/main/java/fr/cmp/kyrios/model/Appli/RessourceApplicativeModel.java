@@ -1,4 +1,4 @@
-package fr.cmp.kyrios.model;
+package fr.cmp.kyrios.model.Appli;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
