@@ -40,7 +40,7 @@ public class EmploiService {
         return emploiRepository.findAll();
     }
 
-    public EmploiModel get(int id) {
+    public EmploiModel getById(int id) {
         return emploiRepository.findById(id)
                 .orElseThrow(() -> new EmploiNotFoundException("Emploi avec l'ID " + id + " non trouvé"));
     }

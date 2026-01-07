@@ -19,6 +19,25 @@ public class GlobalExceptionHandler {
                 return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
 
+        @ExceptionHandler(ProfilSINotFoundException.class)
+        public ResponseEntity<ErrorResponse> handleProfilSINotFound(ProfilSINotFoundException ex, WebRequest request) {
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .message(ex.getMessage())
+                                .build();
+
+                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+
+        @ExceptionHandler(RessourceSINotFoundException.class)
+        public ResponseEntity<ErrorResponse> handleRessourceSINotFound(RessourceSINotFoundException ex,
+                        WebRequest request) {
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .message(ex.getMessage())
+                                .build();
+
+                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+
         @ExceptionHandler(IllegalArgumentException.class)
         public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex, WebRequest request) {
                 ErrorResponse errorResponse = ErrorResponse.builder()

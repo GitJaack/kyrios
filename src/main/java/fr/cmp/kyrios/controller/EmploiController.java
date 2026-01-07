@@ -58,14 +58,14 @@ public class EmploiController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public EmploiDTOResponse get(@PathVariable int id) {
-        return emploiService.toDTO(emploiService.get(id));
+        return emploiService.toDTO(emploiService.getById(id));
     }
 
     @PostMapping
     @Operation(summary = "Créer un nouvel emploi")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Emploi créé avec succès", content = @Content()),
-            @ApiResponse(responseCode = "400", description = "Données manquantes", content = @Content()),
+            @ApiResponse(responseCode = "400", description = "Données invalides", content = @Content()),
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public ResponseEntity<EmploiDTOResponse> create(@Valid @RequestBody EmploiDTO dto) {
@@ -77,7 +77,7 @@ public class EmploiController {
     @Operation(summary = "Mettre à jour un emploi")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Emploi mis à jour avec succès"),
-            @ApiResponse(responseCode = "400", description = "Données manquantes", content = @Content()),
+            @ApiResponse(responseCode = "400", description = "Données invalides", content = @Content()),
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public ResponseEntity<EmploiDTOResponse> update(@PathVariable int id, @Valid @RequestBody EmploiDTO dto) {

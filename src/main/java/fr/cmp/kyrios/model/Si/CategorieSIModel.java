@@ -1,5 +1,6 @@
 package fr.cmp.kyrios.model.Si;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -24,4 +25,8 @@ public class CategorieSIModel {
 
     @OneToMany(mappedBy = "categorie")
     private List<RessourceSIModel> ressources;
+
+    public CategorieSIModel() {
+        this.ressources = new ArrayList<>();
+    }
 }
