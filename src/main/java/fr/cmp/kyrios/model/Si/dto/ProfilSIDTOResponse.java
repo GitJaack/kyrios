@@ -1,9 +1,11 @@
-package fr.cmp.kyrios.model.Emploi.dto;
+package fr.cmp.kyrios.model.Si.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import fr.cmp.kyrios.model.Emploi.EmploiModel;
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,10 +15,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
-public class EmploiDTOResponse {
+public class ProfilSIDTOResponse {
+    // Informations de l'emploi créé et lié
     @Schema(description = "ID unique de l'emploi", example = "1")
-    private int id;
+    private int idEmploi;
 
     @Schema(description = "Nom de l'emploi", example = "Developpeur informatique")
     private String emploi;
@@ -33,12 +35,18 @@ public class EmploiDTOResponse {
     @Schema(description = "Statut de l'emploi", example = "PERMANENT")
     private EmploiModel.Status status;
 
-    @Schema(description = "Profil SI associé avec ID et nom")
-    private ProfilSISimpleDTO profilSI;
+    // Informations du profil SI
+    @Schema(description = "ID unique du profil SI", example = "1")
+    private int idProfilSI;
 
-    @Schema(description = "Date de création de l'emploi", example = "2026-01-15T10:00:00")
+    @Schema(description = "Nom du profil SI", example = "Developpeur fullstack")
+    private String name;
+
+    private List<RessourceSIDTO> ressources;
+
+    @Schema(description = "Date de création du profil SI", example = "2026-01-15T10:00:00")
     private LocalDateTime dateCreated;
 
-    @Schema(description = "Date de la dernière mise à jour de l'emploi", example = "2026-02-20T15:30:00")
+    @Schema(description = "Date de la dernière mise à jour du profil SI", example = "2026-02-20T15:30:00")
     private LocalDateTime dateUpdated;
 }

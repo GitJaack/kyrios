@@ -55,7 +55,7 @@ public class EmploiModel {
     private Status status;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "profil_si_id", nullable = false)
+    @JoinColumn(name = "profil_si_id")
     private ProfilSIModel profilSI;
 
     @Column(name = "date_created")

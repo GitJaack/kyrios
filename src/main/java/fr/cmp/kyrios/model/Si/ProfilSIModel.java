@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import fr.cmp.kyrios.model.Emploi.DirectionModel;
 import fr.cmp.kyrios.model.Emploi.EmploiModel;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,14 +29,14 @@ public class ProfilSIModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, unique = true, length = 50)
     private String name;
 
     @ManyToOne
     @JoinColumn(name = "direction_id")
     private DirectionModel direction;
 
-    @OneToMany(mappedBy = "profilSI", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "profilSI")
     @JsonManagedReference
     private List<EmploiModel> emplois;
 

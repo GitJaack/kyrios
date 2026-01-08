@@ -22,7 +22,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 
 import jakarta.validation.Valid;
 import fr.cmp.kyrios.model.Emploi.EmploiModel;
-import fr.cmp.kyrios.model.Emploi.dto.EmploiDTO;
+import fr.cmp.kyrios.model.Emploi.dto.EmploiDTOCreate;
 import fr.cmp.kyrios.model.Emploi.dto.EmploiDTOResponse;
 import fr.cmp.kyrios.service.EmploiService;
 
@@ -68,7 +68,7 @@ public class EmploiController {
             @ApiResponse(responseCode = "400", description = "Données invalides", content = @Content()),
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
-    public ResponseEntity<EmploiDTOResponse> create(@Valid @RequestBody EmploiDTO dto) {
+    public ResponseEntity<EmploiDTOResponse> create(@Valid @RequestBody EmploiDTOCreate dto) {
         EmploiModel created = emploiService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(emploiService.toDTO(created));
     }
@@ -80,7 +80,7 @@ public class EmploiController {
             @ApiResponse(responseCode = "400", description = "Données invalides", content = @Content()),
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
-    public ResponseEntity<EmploiDTOResponse> update(@PathVariable int id, @Valid @RequestBody EmploiDTO dto) {
+    public ResponseEntity<EmploiDTOResponse> update(@PathVariable int id, @Valid @RequestBody EmploiDTOCreate dto) {
         EmploiModel updated = emploiService.update(id, dto);
         return ResponseEntity.ok(emploiService.toDTO(updated));
     }

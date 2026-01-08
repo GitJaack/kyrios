@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import fr.cmp.kyrios.exception.EmploiNotFoundException;
 import fr.cmp.kyrios.model.Emploi.EmploiModel;
-import fr.cmp.kyrios.model.Emploi.dto.EmploiDTO;
+import fr.cmp.kyrios.model.Emploi.dto.EmploiDTOCreate;
 import fr.cmp.kyrios.model.Emploi.dto.EmploiDTOResponse;
 import fr.cmp.kyrios.model.Emploi.dto.ProfilSISimpleDTO;
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
@@ -46,27 +46,27 @@ public class EmploiService {
     }
 
     @Transactional
-    public EmploiModel create(EmploiDTO dto) {
+    public EmploiModel create(EmploiDTOCreate dto) {
         ProfilSIModel profil = profilSIRepository.findById(dto.getProfilSI())
                 .orElseThrow(() -> new IllegalArgumentException("ProfilSI introuvable"));
 
         EmploiModel emploi = new EmploiModel();
-        emploi.setEmploiName(dto.getEmploi());
+        emploi.setEmploiName(dto.getEmploi().getEmploi());
 
-        emploi.setDirection(directionRepository.findById(dto.getDirection())
+        emploi.setDirection(directionRepository.findById(dto.getEmploi().getDirection())
                 .orElseThrow(() -> new IllegalArgumentException("Direction introuvable")));
 
-        if (dto.getService() != null) {
-            emploi.setService(serviceRepository.findById(dto.getService())
+        if (dto.getEmploi().getService() != null) {
+            emploi.setService(serviceRepository.findById(dto.getEmploi().getService())
                     .orElseThrow(() -> new IllegalArgumentException("Service introuvable")));
         }
 
-        if (dto.getDomaine() != null) {
-            emploi.setDomaine(domaineService.findById(dto.getDomaine())
+        if (dto.getEmploi().getDomaine() != null) {
+            emploi.setDomaine(domaineService.findById(dto.getEmploi().getDomaine())
                     .orElseThrow(() -> new IllegalArgumentException("Domaine introuvable")));
         }
 
-        emploi.setStatus(dto.getStatus());
+        emploi.setStatus(dto.getEmploi().getStatus());
         emploi.setProfilSI(profil);
         emploi.setDateCreated(LocalDateTime.now());
 
@@ -74,30 +74,30 @@ public class EmploiService {
     }
 
     @Transactional
-    public EmploiModel update(int id, EmploiDTO dto) {
+    public EmploiModel update(int id, EmploiDTOCreate dto) {
         EmploiModel emploi = emploiRepository.findById(id)
                 .orElseThrow(() -> new EmploiNotFoundException("Emploi avec l'ID " + id + " non trouvé"));
 
-        emploi.setEmploiName(dto.getEmploi());
+        emploi.setEmploiName(dto.getEmploi().getEmploi());
 
-        emploi.setDirection(directionRepository.findById(dto.getDirection())
+        emploi.setDirection(directionRepository.findById(dto.getEmploi().getDirection())
                 .orElseThrow(() -> new IllegalArgumentException("Direction introuvable")));
 
-        if (dto.getService() != null) {
-            emploi.setService(serviceRepository.findById(dto.getService())
+        if (dto.getEmploi().getService() != null) {
+            emploi.setService(serviceRepository.findById(dto.getEmploi().getService())
                     .orElseThrow(() -> new IllegalArgumentException("Service introuvable")));
         } else {
             emploi.setService(null);
         }
 
-        if (dto.getDomaine() != null) {
-            emploi.setDomaine(domaineService.findById(dto.getDomaine())
+        if (dto.getEmploi().getDomaine() != null) {
+            emploi.setDomaine(domaineService.findById(dto.getEmploi().getDomaine())
                     .orElseThrow(() -> new IllegalArgumentException("Domaine introuvable")));
         } else {
             emploi.setDomaine(null);
         }
 
-        emploi.setStatus(dto.getStatus());
+        emploi.setStatus(dto.getEmploi().getStatus());
         emploi.setDateUpdated(LocalDateTime.now());
 
         ProfilSIModel profil = profilSIRepository.findById(dto.getProfilSI())

@@ -15,9 +15,10 @@ import fr.cmp.kyrios.model.Emploi.EmploiModel;
 import fr.cmp.kyrios.model.Emploi.ServiceModel;
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
 import fr.cmp.kyrios.model.Si.RessourceSIModel;
-import fr.cmp.kyrios.model.Si.dto.EmploiSimpleDTO;
+import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOCreate;
 import fr.cmp.kyrios.model.Si.dto.ProfilSIDTO;
-import fr.cmp.kyrios.model.Si.dto.ProfilSIResponseDTO;
+import fr.cmp.kyrios.model.Si.dto.ProfilSIUpdateDTO;
+import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOResponse;
 import fr.cmp.kyrios.model.Si.dto.RessourceSIDTO;
 import fr.cmp.kyrios.repository.DirectionRepository;
 import fr.cmp.kyrios.repository.DomaineRepository;
@@ -70,30 +71,34 @@ public class ProfilSIService {
     }
 
     @Transactional
-    public ProfilSIResponseDTO create(ProfilSIDTO dto) {
+    public ProfilSIDTOResponse create(ProfilSIDTOCreate dto) {
         DirectionModel direction = directionRepository.findById(dto.getEmploi().getDirection())
                 .orElseThrow(() -> new EmploiNotFoundException("Direction introuvable"));
 
+        if (profilSIRepository.findByName(dto.getProfilSI().getProfilSI()).isPresent()) {
+            throw new IllegalArgumentException(
+                    "Un profil SI avec le nom '" + dto.getProfilSI().getProfilSI() + "' existe déjà");
+        }
+
         ProfilSIModel profilSI = new ProfilSIModel();
-        profilSI.setName(dto.getProfilSI());
+        profilSI.setName(dto.getProfilSI().getProfilSI());
         profilSI.setDirection(direction);
         profilSI.setDateCreated(LocalDateTime.now());
 
         List<RessourceSIModel> ressourcesFinales;
 
-        if (dto.getRessourceIds() != null && !dto.getRessourceIds().isEmpty()) {
+        if (dto.getProfilSI().getRessourceIds() != null && !dto.getProfilSI().getRessourceIds().isEmpty()) {
             // L'utilisateur a sélectionné des ressources spécifiques
-            ressourcesFinales = ressourceSIRepository.findAllById(dto.getRessourceIds());
+            ressourcesFinales = ressourceSIRepository.findAllById(dto.getProfilSI().getRessourceIds());
         } else {
             // Pas de sélection : utiliser les ressources par défaut selon le mode
-            if (dto.getModeCreation() == ProfilSIDTO.ModeCreation.COPIER) {
+            if (dto.getProfilSI().getModeCreation() == ProfilSIDTO.ModeCreation.COPIER) {
                 // Mode COPIER : récupérer les ressources du profil source
-                if (dto.getProfilSISourceId() == null) {
+                if (dto.getProfilSI().getProfilSISourceId() == null) {
                     throw new IllegalArgumentException("L'ID du profil source est requis en mode COPIER");
                 }
 
-                ProfilSIModel profilSource = getById(dto.getProfilSISourceId());
-
+                ProfilSIModel profilSource = getById(dto.getProfilSI().getProfilSISourceId());
                 // Vérifier que le profil source est bien dans la même direction
                 if (profilSource.getDirection() != null &&
                         !profilSource.getDirection().equals(direction)) {
@@ -141,7 +146,31 @@ public class ProfilSIService {
         return toResponseDTO(profilSI, emploi);
     }
 
-    public ProfilSIResponseDTO toResponseDTO(ProfilSIModel profilSI, EmploiModel emploi) {
+    @Transactional
+    public ProfilSIModel update(int id, ProfilSIUpdateDTO dto) {
+        ProfilSIModel profilSI = getById(id);
+        if (!profilSI.getName().equals(dto.getProfilSI())) {
+            profilSIRepository.findByName(dto.getProfilSI()).ifPresent(existing -> {
+                throw new IllegalArgumentException("Un profil SI avec le nom '" + dto.getProfilSI() + "' existe déjà");
+            });
+        }
+        profilSI.setName(dto.getProfilSI());
+        profilSI.setDateUpdated(LocalDateTime.now());
+
+        List<RessourceSIModel> ressources = ressourceSIRepository.findAllById(dto.getRessourceIds());
+        profilSI.setRessources(ressources);
+
+        return profilSIRepository.save(profilSI);
+
+    }
+
+    @Transactional
+    public void delete(int id) {
+        ProfilSIModel profilSI = getById(id);
+        profilSIRepository.delete(profilSI);
+    }
+
+    public ProfilSIDTOResponse toResponseDTO(ProfilSIModel profilSI, EmploiModel emploi) {
         List<RessourceSIDTO> ressourcesDTO = profilSI.getRessources().stream()
                 .map(r -> RessourceSIDTO.builder()
                         .id(r.getId())
@@ -153,25 +182,18 @@ public class ProfilSIService {
                         .build())
                 .collect(Collectors.toList());
 
-        EmploiSimpleDTO emploiDTO = null;
-        if (emploi != null) {
-            emploiDTO = EmploiSimpleDTO.builder()
-                    .id(emploi.getId())
-                    .emploi(emploi.getEmploiName())
-                    .direction(emploi.getDirection().getId())
-                    .service(emploi.getService() != null ? emploi.getService().getId() : null)
-                    .domaine(emploi.getDomaine() != null ? emploi.getDomaine().getId() : null)
-                    .status(emploi.getStatus())
-                    .build();
-        }
-
-        return ProfilSIResponseDTO.builder()
-                .id(profilSI.getId())
+        return ProfilSIDTOResponse.builder()
+                .idProfilSI(profilSI.getId())
                 .name(profilSI.getName())
                 .ressources(ressourcesDTO)
                 .dateCreated(profilSI.getDateCreated())
                 .dateUpdated(profilSI.getDateUpdated())
-                .emploi(emploiDTO)
+                .idEmploi(emploi != null ? emploi.getId() : 0)
+                .emploi(emploi != null ? emploi.getEmploiName() : null)
+                .direction(emploi != null && emploi.getDirection() != null ? emploi.getDirection().getName() : null)
+                .service(emploi != null && emploi.getService() != null ? emploi.getService().getName() : null)
+                .domaine(emploi != null && emploi.getDomaine() != null ? emploi.getDomaine().getName() : null)
+                .status(emploi != null ? emploi.getStatus() : null)
                 .build();
     }
 }
