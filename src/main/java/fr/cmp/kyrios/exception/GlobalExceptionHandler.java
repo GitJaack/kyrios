@@ -2,6 +2,7 @@ package fr.cmp.kyrios.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -63,6 +64,35 @@ public class GlobalExceptionHandler {
                                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                                 .reduce((a, b) -> a + ", " + b)
                                 .orElse("Erreur de validation");
+
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .message(message)
+                                .build();
+
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+
+        @ExceptionHandler(HttpMessageNotReadableException.class)
+        public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+                        WebRequest request) {
+                String message = "Format JSON invalide";
+
+                Throwable cause = ex.getCause();
+
+                if (cause != null) {
+                        // Cas générique pour toutes les autres causes
+                        String causeMessage = cause.getMessage();
+                        if (causeMessage != null && causeMessage.contains("not one of the values accepted for Enum")) {
+                                // Extraire le nom du champ et les valeurs de l'enum depuis le message
+                                int valuesStart = causeMessage.indexOf('[');
+                                int valuesEnd = causeMessage.indexOf(']');
+                                if (valuesStart != -1 && valuesEnd != -1) {
+                                        String values = causeMessage.substring(valuesStart + 1, valuesEnd);
+                                        message = String.format("status: Valeurs acceptées: %s",
+                                                        values);
+                                }
+                        }
+                }
 
                 ErrorResponse errorResponse = ErrorResponse.builder()
                                 .message(message)

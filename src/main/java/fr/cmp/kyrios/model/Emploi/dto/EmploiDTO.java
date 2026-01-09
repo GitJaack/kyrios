@@ -22,7 +22,7 @@ public class EmploiDTO {
 
     @NotNull(message = "La direction est requise")
     @Schema(description = "Direction de l'emploi", example = "1")
-    private int direction;
+    private Integer direction;
 
     @Schema(description = "Service de l'emploi (optionnel)", example = "null")
     private Integer service;

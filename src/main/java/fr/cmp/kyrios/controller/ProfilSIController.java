@@ -1,7 +1,6 @@
 package fr.cmp.kyrios.controller;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,10 +11,10 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import fr.cmp.kyrios.model.Emploi.EmploiModel;
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
 import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOCreate;
 import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOResponse;
+import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOResponseCreate;
 import fr.cmp.kyrios.model.Si.dto.ProfilSIUpdateDTO;
 import fr.cmp.kyrios.service.ProfilSIService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,10 +35,6 @@ public class ProfilSIController {
     @Autowired
     private ProfilSIService profilSIService;
 
-    ProfilSIController(ProfilSIService profilSIService) {
-        this.profilSIService = profilSIService;
-    }
-
     @GetMapping()
     @Operation(summary = "Recuperer tous les profils SI")
     @ApiResponses(value = {
@@ -48,11 +43,8 @@ public class ProfilSIController {
     })
     public List<ProfilSIDTOResponse> list() {
         return profilSIService.listAll().stream()
-                .map(profil -> {
-                    return profilSIService.toResponseDTO(profil,
-                            profil.getEmplois().isEmpty() ? null : profil.getEmplois().get(0));
-                })
-                .collect(Collectors.toList());
+                .map(profilSIService::toResponseDTO)
+                .toList();
     }
 
     @GetMapping("/{id}")
@@ -64,8 +56,7 @@ public class ProfilSIController {
     })
     public ProfilSIDTOResponse get(@PathVariable int id) {
         ProfilSIModel profil = profilSIService.getById(id);
-        EmploiModel emploi = profil.getEmplois().isEmpty() ? null : profil.getEmplois().get(0);
-        return profilSIService.toResponseDTO(profil, emploi);
+        return profilSIService.toResponseDTO(profil);
     }
 
     @PostMapping()
@@ -75,8 +66,8 @@ public class ProfilSIController {
             @ApiResponse(responseCode = "400", description = "Données invalides", content = @Content()),
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
-    public ResponseEntity<ProfilSIDTOResponse> create(@Valid @RequestBody ProfilSIDTOCreate dto) {
-        ProfilSIDTOResponse created = profilSIService.create(dto);
+    public ResponseEntity<ProfilSIDTOResponseCreate> create(@Valid @RequestBody ProfilSIDTOCreate dto) {
+        ProfilSIDTOResponseCreate created = profilSIService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -91,8 +82,7 @@ public class ProfilSIController {
     public ResponseEntity<ProfilSIDTOResponse> update(@PathVariable int id,
             @Valid @RequestBody ProfilSIUpdateDTO dto) {
         ProfilSIModel updated = profilSIService.update(id, dto);
-        EmploiModel emploi = updated.getEmplois().isEmpty() ? null : updated.getEmplois().get(0);
-        return ResponseEntity.ok(profilSIService.toResponseDTO(updated, emploi));
+        return ResponseEntity.ok(profilSIService.toResponseDTO(updated));
     }
 
     @DeleteMapping("/{id}")

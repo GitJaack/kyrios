@@ -54,8 +54,8 @@ public class EmploiModel {
     @Column(nullable = false)
     private Status status;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "profil_si_id")
+    @ManyToOne
+    @JoinColumn(name = "profil_si_id", nullable = true)
     private ProfilSIModel profilSI;
 
     @Column(name = "date_created")

@@ -1,6 +1,7 @@
 package fr.cmp.kyrios.model.Emploi.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,9 +14,11 @@ import lombok.NoArgsConstructor;
 @Builder
 
 public class EmploiDTOCreate {
+    @Valid
+    @NotNull(message = "L'emploi est requis")
     private EmploiDTO emploi;
 
     @NotNull(message = "Le profil SI est requis")
     @Schema(description = "Profil SI associé", example = "1")
-    private int profilSI;
+    private Integer profilSI;
 }
