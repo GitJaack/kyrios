@@ -20,5 +20,6 @@ public class ProfilSIUpdateDTO {
     @Schema(description = "Nom du profil SI", example = "Developpeur fullstack")
     private String profilSI;
 
+    @Schema(description = "Liste des IDs des ressources SI associées au profil SI", example = "[1, 2, 3]")
     private List<Integer> ressourceIds;
 }

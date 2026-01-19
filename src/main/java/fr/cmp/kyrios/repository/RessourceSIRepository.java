@@ -9,5 +9,5 @@ import fr.cmp.kyrios.model.Si.RessourceSIModel;
 
 @Repository
 public interface RessourceSIRepository extends JpaRepository<RessourceSIModel, Integer> {
-    List<RessourceSIModel> findByCategorieName(String categorieName);
+    List<RessourceSIModel> findByCategorieId(int id);
 }

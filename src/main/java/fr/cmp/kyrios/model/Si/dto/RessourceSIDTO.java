@@ -23,6 +23,4 @@ public class RessourceSIDTO {
 
     @Schema(description = "Type d'accès de la ressource SI", example = "LECTURE")
     private TypeAcces typeAcces;
-    private boolean isDefault;
-    // private boolean selected;
 }

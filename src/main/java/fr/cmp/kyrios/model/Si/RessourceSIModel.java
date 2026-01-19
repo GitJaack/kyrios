@@ -38,7 +38,4 @@ public class RessourceSIModel {
     @Enumerated(EnumType.STRING)
     @Column(name = "type_acces", nullable = false)
     private TypeAcces typeAcces;
-
-    @Column(name = "is_default")
-    private boolean isDefault = false;
 }

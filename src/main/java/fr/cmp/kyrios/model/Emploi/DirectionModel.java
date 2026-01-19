@@ -1,5 +1,6 @@
 package fr.cmp.kyrios.model.Emploi;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import fr.cmp.kyrios.model.Si.RessourceSIModel;
@@ -28,4 +29,8 @@ public class DirectionModel {
     @ManyToMany
     @JoinTable(name = "direction_ressources_default", joinColumns = @JoinColumn(name = "direction_id"), inverseJoinColumns = @JoinColumn(name = "ressource_id"))
     private List<RessourceSIModel> ressourcesDefault;
+
+    public DirectionModel() {
+        this.ressourcesDefault = new ArrayList<>();
+    }
 }

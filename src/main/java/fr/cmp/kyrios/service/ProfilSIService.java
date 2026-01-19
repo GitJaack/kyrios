@@ -94,31 +94,33 @@ public class ProfilSIService {
         profilSI.setDirection(direction);
         profilSI.setDateCreated(LocalDateTime.now());
 
-        List<RessourceSIModel> ressourcesFinales;
+        List<RessourceSIModel> ressourcesFinales = new ArrayList<>();
 
-        if (dto.getProfilSI().getRessourceIds() != null && !dto.getProfilSI().getRessourceIds().isEmpty()) {
-            // L'utilisateur a sélectionné des ressources spécifiques
-            ressourcesFinales = ressourceSIRepository.findAllById(dto.getProfilSI().getRessourceIds());
+        // Étape 1 : Charger les ressources de base selon le mode
+        if (dto.getProfilSI().getModeCreation() == ProfilSIDTO.ModeCreation.COPIER) {
+            // Mode COPIER : partir des ressources du profil source
+            ProfilSIModel profilSource = getById(dto.getProfilSI().getProfilSISourceId());
+            // Vérifier que le profil source est bien dans la même direction
+            if (profilSource.getDirection() != null &&
+                    !profilSource.getDirection().equals(direction)) {
+                throw new IllegalArgumentException("Le profil source doit être dans la même direction");
+            }
+            ressourcesFinales.addAll(profilSource.getRessources());
         } else {
-            // Pas de sélection : utilise les ressources par défaut selon le mode
-            if (dto.getProfilSI().getModeCreation() == ProfilSIDTO.ModeCreation.COPIER) {
-                // Mode COPIER : récupére les ressources du profil source
-                if (dto.getProfilSI().getProfilSISourceId() == null) {
-                    throw new IllegalArgumentException("L'ID du profil source est requis en mode COPIER");
-                }
+            // Mode NOUVEAU : partir des ressources par défaut de la direction
+            ressourcesFinales.addAll(getRessourcesParDefautByDirection(dto.getEmploi().getDirection()));
+        }
 
-                ProfilSIModel profilSource = getById(dto.getProfilSI().getProfilSISourceId());
-                // Vérifier que le profil source est bien dans la même direction
-                if (profilSource.getDirection() != null &&
-                        !profilSource.getDirection().equals(direction)) {
-                    throw new IllegalArgumentException("Le profil source doit être dans la même direction");
+        // Étape 2 : Ajouter les ressources supplémentaires sélectionnées par
+        // l'utilisateur
+        if (dto.getProfilSI().getRessourceIds() != null && !dto.getProfilSI().getRessourceIds().isEmpty()) {
+            List<RessourceSIModel> ressourcesSupplementaires = ressourceSIRepository
+                    .findAllById(dto.getProfilSI().getRessourceIds());
+            // Éviter les doublons
+            for (RessourceSIModel ressource : ressourcesSupplementaires) {
+                if (!ressourcesFinales.contains(ressource)) {
+                    ressourcesFinales.add(ressource);
                 }
-
-                // Copie les ressources du profil source
-                ressourcesFinales = new ArrayList<>(profilSource.getRessources());
-            } else {
-                // Mode NOUVEAU : utilise les ressources par défaut de la direction
-                ressourcesFinales = new ArrayList<>(getRessourcesParDefautByDirection(dto.getEmploi().getDirection()));
             }
         }
 
@@ -128,7 +130,7 @@ public class ProfilSIService {
         // Sauvegarde le Profil SI
         profilSI = profilSIRepository.save(profilSI);
 
-        // Créer l'emploi et le lier au profil SI
+        // Créer l'emploi et le lie au profil SI
         EmploiModel emploi = new EmploiModel();
         emploi.setEmploiName(dto.getEmploi().getEmploi());
         emploi.setDirection(direction);
@@ -205,7 +207,6 @@ public class ProfilSIService {
                         .categorie(r.getCategorie().getName())
                         .libelleAcces(r.getLibelleAcces())
                         .typeAcces(r.getTypeAcces())
-                        .isDefault(r.isDefault())
                         .build())
                 .collect(Collectors.toList());
 
