@@ -3,6 +3,8 @@ package fr.cmp.kyrios.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -68,5 +70,17 @@ public class RessourceSIController {
     })
     public List<RessourceSIDTO> getByCategorie(@RequestParam int id) {
         return ressourceSIService.toDTOList(ressourceSIService.getRessourcesByCategorie(id));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Supprimer une ressource SI")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ressource supprimée avec succès", content = @Content()),
+            @ApiResponse(responseCode = "404", description = "Ressource non trouvée", content = @Content()),
+            @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
+    })
+    public ResponseEntity<String> delete(@PathVariable int id) {
+        ressourceSIService.delete(id);
+        return ResponseEntity.ok("Ressource SI avec l'ID " + id + " supprimée avec succès");
     }
 }

@@ -15,6 +15,7 @@ import fr.cmp.kyrios.model.Si.dto.RessourceSIDTO;
 import fr.cmp.kyrios.repository.CategorieSIRepository;
 import fr.cmp.kyrios.repository.DirectionRepository;
 import fr.cmp.kyrios.repository.RessourceSIRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 public class RessourceSIService {
@@ -47,6 +48,12 @@ public class RessourceSIService {
                 .orElseThrow(() -> new CategorieNotFoundException("Catégorie avec l'ID " + id + " non trouvée"));
 
         return ressourceSIRepository.findByCategorieId(id);
+    }
+
+    @Transactional
+    public void delete(int id) {
+        RessourceSIModel ressource = getById(id);
+        ressourceSIRepository.delete(ressource);
     }
 
     public RessourceSIDTO toDTO(RessourceSIModel ressource) {
