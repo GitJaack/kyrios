@@ -32,8 +32,8 @@ public class RessourceSIModel {
     @JoinColumn(name = "categorie_id", nullable = false)
     private CategorieSIModel categorie;
 
-    @Column(name = "libelle_acces", nullable = false, length = 50)
-    private String libelleAcces;
+    @Column(nullable = false, length = 50)
+    private String name;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type_acces", nullable = false)

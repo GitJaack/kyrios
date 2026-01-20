@@ -122,50 +122,50 @@ public class DataInitializer implements CommandLineRunner {
         // ===== RESSOURCES SI - Répertoires de service =====
         RessourceSIModel resAgenceComptable = new RessourceSIModel();
         resAgenceComptable.setCategorie(catRepertoiresService);
-        resAgenceComptable.setLibelleAcces("SVC_Agence Comptable");
+        resAgenceComptable.setName("SVC_Agence Comptable");
         resAgenceComptable.setTypeAcces(RessourceSIModel.TypeAcces.LECTURE_ECRITURE);
         ressourceSIRepository.save(resAgenceComptable);
 
         RessourceSIModel resAssesseurs = new RessourceSIModel();
         resAssesseurs.setCategorie(catRepertoiresService);
-        resAssesseurs.setLibelleAcces("SVC_Assesseurs");
+        resAssesseurs.setName("SVC_Assesseurs");
         resAssesseurs.setTypeAcces(RessourceSIModel.TypeAcces.LECTURE_ECRITURE);
         ressourceSIRepository.save(resAssesseurs);
 
         RessourceSIModel resBureau = new RessourceSIModel();
         resBureau.setCategorie(catRepertoiresService);
-        resBureau.setLibelleAcces("SVC_Bureau");
+        resBureau.setName("SVC_Bureau");
         resBureau.setTypeAcces(RessourceSIModel.TypeAcces.LECTURE_ECRITURE);
         ressourceSIRepository.save(resBureau);
 
         RessourceSIModel resComptabilite = new RessourceSIModel();
         resComptabilite.setCategorie(catRepertoiresService);
-        resComptabilite.setLibelleAcces("SVC_Comptabilité");
+        resComptabilite.setName("SVC_Comptabilité");
         resComptabilite.setTypeAcces(RessourceSIModel.TypeAcces.LECTURE_ECRITURE);
         ressourceSIRepository.save(resComptabilite);
 
         // ===== RESSOURCES SI - Répertoires fonctionnels / transverses =====
         RessourceSIModel resComitesCos = new RessourceSIModel();
         resComitesCos.setCategorie(catRepertoiresFonctionnels);
-        resComitesCos.setLibelleAcces("FON_COMITES\\COS");
+        resComitesCos.setName("FON_COMITES\\COS");
         resComitesCos.setTypeAcces(RessourceSIModel.TypeAcces.LECTURE_ECRITURE);
         ressourceSIRepository.save(resComitesCos);
 
         RessourceSIModel resComitesAlm = new RessourceSIModel();
         resComitesAlm.setCategorie(catRepertoiresFonctionnels);
-        resComitesAlm.setLibelleAcces("FON_COMITES\\COMITE ALM");
+        resComitesAlm.setName("FON_COMITES\\COMITE ALM");
         resComitesAlm.setTypeAcces(RessourceSIModel.TypeAcces.LECTURE_ECRITURE);
         ressourceSIRepository.save(resComitesAlm);
 
         RessourceSIModel resComitesCodir = new RessourceSIModel();
         resComitesCodir.setCategorie(catRepertoiresFonctionnels);
-        resComitesCodir.setLibelleAcces("FON_COMITES\\CODIR");
+        resComitesCodir.setName("FON_COMITES\\CODIR");
         resComitesCodir.setTypeAcces(RessourceSIModel.TypeAcces.LECTURE_ECRITURE);
         ressourceSIRepository.save(resComitesCodir);
 
         RessourceSIModel resComitesCopil = new RessourceSIModel();
         resComitesCopil.setCategorie(catRepertoiresFonctionnels);
-        resComitesCopil.setLibelleAcces("FON_COMITES\\COPIL");
+        resComitesCopil.setName("FON_COMITES\\COPIL");
         resComitesCopil.setTypeAcces(RessourceSIModel.TypeAcces.LECTURE_ECRITURE);
         ressourceSIRepository.save(resComitesCopil);
 

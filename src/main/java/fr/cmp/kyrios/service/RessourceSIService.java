@@ -13,6 +13,7 @@ import fr.cmp.kyrios.model.Emploi.DirectionModel;
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
 import fr.cmp.kyrios.model.Si.RessourceSIModel;
 import fr.cmp.kyrios.model.Si.dto.RessourceSIDTO;
+import fr.cmp.kyrios.model.Si.dto.RessourceSIDTOCreate;
 import fr.cmp.kyrios.repository.CategorieSIRepository;
 import fr.cmp.kyrios.repository.DirectionRepository;
 import fr.cmp.kyrios.repository.ProfilSIRepository;
@@ -56,6 +57,23 @@ public class RessourceSIService {
     }
 
     @Transactional
+    public RessourceSIModel create(RessourceSIDTOCreate dto) {
+        if (categorieSIRepository.findById(dto.getCategorie()).isEmpty()) {
+            throw new CategorieNotFoundException("Catégorie avec l'ID " + dto.getCategorie() + " non trouvée");
+        }
+
+        if (ressourceSIRepository.findByName(dto.getName()).isPresent()) {
+            throw new IllegalArgumentException("Une ressource avec le nom '" + dto.getName() + "' existe déjà");
+        }
+
+        RessourceSIModel ressource = new RessourceSIModel();
+        ressource.setCategorie(categorieSIRepository.findById(dto.getCategorie()).get());
+        ressource.setName(dto.getName());
+        ressource.setTypeAcces(dto.getTypeAcces());
+        return ressourceSIRepository.save(ressource);
+    }
+
+    @Transactional
     public void delete(int id) {
         RessourceSIModel ressource = getById(id);
 
@@ -79,7 +97,7 @@ public class RessourceSIService {
         return RessourceSIDTO.builder()
                 .id(ressource.getId())
                 .categorie(ressource.getCategorie().getName())
-                .libelleAcces(ressource.getLibelleAcces())
+                .name(ressource.getName())
                 .typeAcces(ressource.getTypeAcces())
                 .build();
     }

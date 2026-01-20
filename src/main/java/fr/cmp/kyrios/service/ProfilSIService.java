@@ -205,7 +205,7 @@ public class ProfilSIService {
                 .map(r -> RessourceSIDTO.builder()
                         .id(r.getId())
                         .categorie(r.getCategorie().getName())
-                        .libelleAcces(r.getLibelleAcces())
+                        .name(r.getName())
                         .typeAcces(r.getTypeAcces())
                         .build())
                 .collect(Collectors.toList());

@@ -2,6 +2,8 @@ package fr.cmp.kyrios.model.Si.dto;
 
 import fr.cmp.kyrios.model.Si.RessourceSIModel.TypeAcces;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,16 +13,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RessourceSIDTO {
-    @Schema(description = "ID unique de la ressource SI", example = "1")
-    private int id;
+public class RessourceSIDTOCreate {
+    @NotNull(message = "La catégorie est obligatoire")
+    @Schema(description = "Catégorie de la ressource SI", example = "1")
+    private Integer categorie;
 
-    @Schema(description = "Catégorie de la ressource SI", example = "Repertoire de services")
-    private String categorie;
-
+    @NotBlank(message = "Le nom est obligatoire")
     @Schema(description = "Libellé d'accès de la ressource SI", example = "SVC_Agence Comptable")
     private String name;
 
+    @NotNull(message = "Le type d'accès est obligatoire")
     @Schema(description = "Type d'accès de la ressource SI", example = "LECTURE")
     private TypeAcces typeAcces;
 }
