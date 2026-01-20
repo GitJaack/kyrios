@@ -10,10 +10,12 @@ import fr.cmp.kyrios.exception.CategorieNotFoundException;
 import fr.cmp.kyrios.exception.EmploiNotFoundException;
 import fr.cmp.kyrios.exception.RessourceSINotFoundException;
 import fr.cmp.kyrios.model.Emploi.DirectionModel;
+import fr.cmp.kyrios.model.Si.ProfilSIModel;
 import fr.cmp.kyrios.model.Si.RessourceSIModel;
 import fr.cmp.kyrios.model.Si.dto.RessourceSIDTO;
 import fr.cmp.kyrios.repository.CategorieSIRepository;
 import fr.cmp.kyrios.repository.DirectionRepository;
+import fr.cmp.kyrios.repository.ProfilSIRepository;
 import fr.cmp.kyrios.repository.RessourceSIRepository;
 import jakarta.transaction.Transactional;
 
@@ -27,6 +29,9 @@ public class RessourceSIService {
 
     @Autowired
     private DirectionRepository directionRepository;
+
+    @Autowired
+    private ProfilSIRepository profilSIRepository;
 
     public List<RessourceSIModel> listAll() {
         return ressourceSIRepository.findAll();
@@ -53,6 +58,20 @@ public class RessourceSIService {
     @Transactional
     public void delete(int id) {
         RessourceSIModel ressource = getById(id);
+
+        List<DirectionModel> directions = directionRepository.findAll();
+        for (DirectionModel direction : directions) {
+            if (direction.getRessourcesDefault().remove(ressource)) {
+                directionRepository.save(direction);
+            }
+        }
+
+        List<ProfilSIModel> profils = profilSIRepository.findAll();
+        for (ProfilSIModel profil : profils) {
+            if (profil.getRessources().remove(ressource)) {
+                profilSIRepository.save(profil);
+            }
+        }
         ressourceSIRepository.delete(ressource);
     }
 

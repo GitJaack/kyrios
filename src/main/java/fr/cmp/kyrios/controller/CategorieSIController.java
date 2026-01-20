@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -79,4 +80,17 @@ public class CategorieSIController {
                 CategorieSIModel updated = categorieSIService.update(id, dto.getName());
                 return ResponseEntity.ok(categorieSIService.toDTO(updated));
         }
+
+        @DeleteMapping("/{id}")
+        @Operation(summary = "Supprimer une catégorie SI")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Catégorie supprimée avec succès", content = @Content()),
+                        @ApiResponse(responseCode = "404", description = "Catégorie non trouvée", content = @Content()),
+                        @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
+        })
+        public ResponseEntity<String> delete(@PathVariable int id) {
+                categorieSIService.delete(id);
+                return ResponseEntity.ok("Catégorie avec l'ID " + id + " supprimée avec succès");
+        }
+
 }

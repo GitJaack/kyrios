@@ -6,16 +6,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import fr.cmp.kyrios.exception.CategorieNotFoundException;
+import fr.cmp.kyrios.model.Emploi.DirectionModel;
 import fr.cmp.kyrios.model.Si.CategorieSIModel;
+import fr.cmp.kyrios.model.Si.ProfilSIModel;
+import fr.cmp.kyrios.model.Si.RessourceSIModel;
 import fr.cmp.kyrios.model.Si.dto.CategorieSIDTOCreate;
 import fr.cmp.kyrios.model.Si.dto.CategorieSIDTOResponse;
 import fr.cmp.kyrios.repository.CategorieSIRepository;
+import fr.cmp.kyrios.repository.DirectionRepository;
+import fr.cmp.kyrios.repository.ProfilSIRepository;
+import fr.cmp.kyrios.repository.RessourceSIRepository;
 import jakarta.transaction.Transactional;
 
 @Service
 public class CategorieSIService {
     @Autowired
     private CategorieSIRepository categorieSIRepository;
+
+    @Autowired
+    private DirectionRepository directionRepository;
+
+    @Autowired
+    private RessourceSIRepository ressourceSIRepository;
+
+    @Autowired
+    private ProfilSIRepository profilSIRepository;
 
     public List<CategorieSIModel> listAll() {
         return categorieSIRepository.findAll();
@@ -49,6 +64,45 @@ public class CategorieSIService {
 
         categorie.setName(name);
         return categorieSIRepository.save(categorie);
+    }
+
+    @Transactional
+    public void delete(int id) {
+        CategorieSIModel categorie = getById(id);
+
+        List<RessourceSIModel> ressources = categorie.getRessources();
+
+        if (ressources != null && !ressources.isEmpty()) {
+            List<DirectionModel> directions = directionRepository.findAll();
+            for (DirectionModel direction : directions) {
+                boolean modified = false;
+                for (RessourceSIModel ressource : ressources) {
+                    if (direction.getRessourcesDefault().remove(ressource)) {
+                        modified = true;
+                    }
+                }
+                if (modified) {
+                    directionRepository.save(direction);
+                }
+            }
+
+            List<ProfilSIModel> profils = profilSIRepository.findAll();
+            for (ProfilSIModel profil : profils) {
+                boolean modified = false;
+                for (RessourceSIModel ressource : ressources) {
+                    if (profil.getRessources().remove(ressource)) {
+                        modified = true;
+                    }
+                }
+                if (modified) {
+                    profilSIRepository.save(profil);
+                }
+            }
+
+            ressourceSIRepository.deleteAll(ressources);
+        }
+
+        categorieSIRepository.delete(categorie);
     }
 
     public CategorieSIDTOResponse toDTO(CategorieSIModel categorie) {
