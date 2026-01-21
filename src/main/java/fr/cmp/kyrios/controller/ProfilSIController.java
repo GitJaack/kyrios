@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
 import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOCreate;
 import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOResponse;
-import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOResponseCreate;
+import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOCreateResponse;
 import fr.cmp.kyrios.model.Si.dto.ProfilSIUpdateDTO;
+import fr.cmp.kyrios.model.Si.dto.ProfilSIDTODeleteResponse;
 import fr.cmp.kyrios.service.ProfilSIService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,69 +33,69 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/api/profils-si")
 @Tag(name = "Profils SI", description = "Gestion des profils SI")
 public class ProfilSIController {
-    @Autowired
-    private ProfilSIService profilSIService;
+        @Autowired
+        private ProfilSIService profilSIService;
 
-    @GetMapping()
-    @Operation(summary = "Recuperer tous les profils SI")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Liste des profils SI récupérée avec succès"),
-            @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
-    })
-    public List<ProfilSIDTOResponse> list() {
-        return profilSIService.listAll().stream()
-                .map(profilSIService::toResponseDTO)
-                .toList();
-    }
+        @GetMapping()
+        @Operation(summary = "Recuperer tous les profils SI")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Liste des profils SI récupérée avec succès"),
+                        @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
+        })
+        public List<ProfilSIDTOResponse> list() {
+                return profilSIService.listAll().stream()
+                                .map(profilSIService::toResponseDTO)
+                                .toList();
+        }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Récupérer un profil si par ID")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Profil si trouvé"),
-            @ApiResponse(responseCode = "404", description = "Profil si non trouvé", content = @Content()),
-            @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
-    })
-    public ProfilSIDTOResponse get(@PathVariable int id) {
-        ProfilSIModel profil = profilSIService.getById(id);
-        return profilSIService.toResponseDTO(profil);
-    }
+        @GetMapping("/{id}")
+        @Operation(summary = "Récupérer un profil si par ID")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Profil si trouvé"),
+                        @ApiResponse(responseCode = "404", description = "Profil si non trouvé", content = @Content()),
+                        @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
+        })
+        public ProfilSIDTOResponse get(@PathVariable int id) {
+                ProfilSIModel profil = profilSIService.getById(id);
+                return profilSIService.toResponseDTO(profil);
+        }
 
-    @PostMapping()
-    @Operation(summary = "Créer un nouveau profil SI")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Profil SI créé avec succès"),
-            @ApiResponse(responseCode = "400", description = "Données invalides", content = @Content()),
-            @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
-    })
-    public ResponseEntity<ProfilSIDTOResponseCreate> create(@Valid @RequestBody ProfilSIDTOCreate dto) {
-        ProfilSIDTOResponseCreate created = profilSIService.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
-    }
+        @PostMapping()
+        @Operation(summary = "Créer un nouveau profil SI")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "201", description = "Profil SI créé avec succès"),
+                        @ApiResponse(responseCode = "400", description = "Données invalides", content = @Content()),
+                        @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
+        })
+        public ResponseEntity<ProfilSIDTOCreateResponse> create(@Valid @RequestBody ProfilSIDTOCreate dto) {
+                ProfilSIDTOCreateResponse created = profilSIService.create(dto);
+                return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        }
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Mettre à jour un profil SI")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Profil SI mis à jour avec succès"),
-            @ApiResponse(responseCode = "404", description = "Profil SI non trouvé", content = @Content()),
-            @ApiResponse(responseCode = "400", description = "Données invalides", content = @Content()),
-            @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
-    })
-    public ResponseEntity<ProfilSIDTOResponse> update(@PathVariable int id,
-            @Valid @RequestBody ProfilSIUpdateDTO dto) {
-        ProfilSIModel updated = profilSIService.update(id, dto);
-        return ResponseEntity.ok(profilSIService.toResponseDTO(updated));
-    }
+        @PutMapping("/{id}")
+        @Operation(summary = "Mettre à jour un profil SI")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Profil SI mis à jour avec succès"),
+                        @ApiResponse(responseCode = "404", description = "Profil SI non trouvé", content = @Content()),
+                        @ApiResponse(responseCode = "400", description = "Données invalides", content = @Content()),
+                        @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
+        })
+        public ResponseEntity<ProfilSIDTOResponse> update(@PathVariable int id,
+                        @Valid @RequestBody ProfilSIUpdateDTO dto) {
+                ProfilSIModel updated = profilSIService.update(id, dto);
+                return ResponseEntity.ok(profilSIService.toResponseDTO(updated));
+        }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Supprimer un profil SI")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Profil SI supprimé avec succès", content = @Content()),
-            @ApiResponse(responseCode = "404", description = "Profil SI non trouvé", content = @Content()),
-            @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
-    })
-    public ResponseEntity<String> delete(@PathVariable int id) {
-        profilSIService.delete(id);
-        return ResponseEntity.ok("Profil SI avec l'ID " + id + " supprimé avec succès");
-    }
+        @DeleteMapping("/{id}")
+        @Operation(summary = "Supprimer un profil SI")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Profil SI supprimé avec succès"),
+                        @ApiResponse(responseCode = "404", description = "Profil SI non trouvé", content = @Content()),
+                        @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
+        })
+        public ResponseEntity<ProfilSIDTODeleteResponse> delete(@PathVariable int id) {
+                ProfilSIDTODeleteResponse response = profilSIService.delete(id);
+                return ResponseEntity.ok(response);
+        }
 
 }

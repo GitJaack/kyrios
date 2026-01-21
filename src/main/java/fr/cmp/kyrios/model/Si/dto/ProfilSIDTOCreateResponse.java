@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProfilSIDTOResponseCreate {
+public class ProfilSIDTOCreateResponse {
     // Informations de l'emploi créé et lié
     @Schema(description = "ID unique de l'emploi", example = "1")
     private int idEmploi;

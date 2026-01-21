@@ -20,6 +20,9 @@ public class ProfilSIDTOResponse {
     @Schema(description = "Nom du profil SI", example = "Developpeur fullstack")
     private String name;
 
+    @Schema(description = "ID de la direction associée", example = "1")
+    private int directionId;
+
     private List<RessourceSIDTO> ressources;
 
     @Schema(description = "Date de création du profil SI", example = "2026-01-15T10:00:00")

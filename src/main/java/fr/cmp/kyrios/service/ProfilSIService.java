@@ -20,7 +20,8 @@ import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOCreate;
 import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOResponse;
 import fr.cmp.kyrios.model.Si.dto.ProfilSIDTO;
 import fr.cmp.kyrios.model.Si.dto.ProfilSIUpdateDTO;
-import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOResponseCreate;
+import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOCreateResponse;
+import fr.cmp.kyrios.model.Si.dto.ProfilSIDTODeleteResponse;
 import fr.cmp.kyrios.model.Si.dto.RessourceSIDTO;
 import fr.cmp.kyrios.repository.DirectionRepository;
 import fr.cmp.kyrios.repository.DomaineRepository;
@@ -73,7 +74,7 @@ public class ProfilSIService {
     }
 
     @Transactional
-    public ProfilSIDTOResponseCreate create(ProfilSIDTOCreate dto) {
+    public ProfilSIDTOCreateResponse create(ProfilSIDTOCreate dto) {
         DirectionModel direction = directionRepository.findById(dto.getEmploi().getDirection())
                 .orElseThrow(() -> new EmploiNotFoundException("Direction introuvable"));
 
@@ -153,7 +154,6 @@ public class ProfilSIService {
 
         emploi = emploiRepository.save(emploi);
 
-        // Retourne le DTO de réponse
         return toResponseDTOCreate(profilSI, emploi);
     }
 
@@ -176,20 +176,38 @@ public class ProfilSIService {
     }
 
     @Transactional
-    public void delete(int id) {
+    public ProfilSIDTODeleteResponse delete(int id) {
         ProfilSIModel profilSI = getById(id);
-        if (profilSI.getEmplois() != null) {
+
+        List<ProfilSIDTODeleteResponse.EmploiInfo> emploisDetaches = new ArrayList<>();
+
+        if (profilSI.getEmplois() != null && !profilSI.getEmplois().isEmpty()) {
             for (EmploiModel emploi : profilSI.getEmplois()) {
+                emploisDetaches.add(ProfilSIDTODeleteResponse.EmploiInfo.builder()
+                        .id(emploi.getId())
+                        .nom(emploi.getEmploiName())
+                        .build());
+
                 emploi.setProfilSI(null);
                 emploiRepository.save(emploi);
             }
         }
 
         profilSIRepository.delete(profilSI);
+
+        String message = emploisDetaches.isEmpty()
+                ? "Profil SI '" + profilSI.getName() + "' supprimé avec succès. Aucun emploi n'était lié."
+                : "Profil SI '" + profilSI.getName() + "' supprimé avec succès. " + emploisDetaches.size()
+                        + " emploi(s) ont été détaché(s).";
+
+        return ProfilSIDTODeleteResponse.builder()
+                .message(message)
+                .emploisDetaches(emploisDetaches)
+                .build();
     }
 
-    public ProfilSIDTOResponseCreate toResponseDTOCreate(ProfilSIModel profilSI, EmploiModel emploi) {
-        return ProfilSIDTOResponseCreate.builder()
+    public ProfilSIDTOCreateResponse toResponseDTOCreate(ProfilSIModel profilSI, EmploiModel emploi) {
+        return ProfilSIDTOCreateResponse.builder()
                 .profilSI(toResponseDTO(profilSI))
                 .idEmploi(emploi != null ? emploi.getId() : 0)
                 .emploi(emploi != null ? emploi.getEmploiName() : null)
@@ -213,6 +231,7 @@ public class ProfilSIService {
         return ProfilSIDTOResponse.builder()
                 .idProfilSI(profilSI.getId())
                 .name(profilSI.getName())
+                .directionId(profilSI.getDirection().getId())
                 .ressources(ressourcesDTO)
                 .dateCreated(profilSI.getDateCreated())
                 .dateUpdated(profilSI.getDateUpdated())
