@@ -23,7 +23,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/emplois/**").authenticated()
-                        .requestMatchers("/api/profil-si/**").authenticated()
+                        .requestMatchers("/api/profils-si/**").authenticated()
+                        .requestMatchers("/api/categories-si/**").authenticated()
+                        .requestMatchers("/api/ressources-si/**").authenticated()
                         .anyRequest().permitAll())
                 .httpBasic(basic -> {
                 });

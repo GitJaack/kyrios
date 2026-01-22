@@ -1,8 +1,10 @@
-package fr.cmp.kyrios.model.Si.dto;
+package fr.cmp.kyrios.model.Si.dto.profilSI;
 
 import java.util.List;
 
+import fr.cmp.kyrios.model.Si.dto.ressourceSI.RessourceTypeAccesDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -20,6 +22,7 @@ public class ProfilSIUpdateDTO {
     @Schema(description = "Nom du profil SI", example = "Developpeur fullstack")
     private String profilSI;
 
-    @Schema(description = "Liste des IDs des ressources SI associées au profil SI", example = "[1, 2, 3]")
-    private List<Integer> ressourceIds;
+    @Valid
+    @Schema(description = "Liste des ressources SI avec leur type d'accès spécifique")
+    private List<RessourceTypeAccesDTO> ressources;
 }

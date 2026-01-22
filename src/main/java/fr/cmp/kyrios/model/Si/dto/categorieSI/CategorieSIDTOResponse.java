@@ -1,4 +1,4 @@
-package fr.cmp.kyrios.model.Si.dto;
+package fr.cmp.kyrios.model.Si.dto.categorieSI;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

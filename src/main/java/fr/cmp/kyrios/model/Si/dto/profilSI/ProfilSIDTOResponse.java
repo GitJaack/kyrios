@@ -1,8 +1,9 @@
-package fr.cmp.kyrios.model.Si.dto;
+package fr.cmp.kyrios.model.Si.dto.profilSI;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import fr.cmp.kyrios.model.Si.dto.ressourceSI.RessourceSIDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.AllArgsConstructor;

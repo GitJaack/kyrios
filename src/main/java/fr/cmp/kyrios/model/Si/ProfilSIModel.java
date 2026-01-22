@@ -14,8 +14,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -40,9 +38,8 @@ public class ProfilSIModel {
     @JsonManagedReference
     private List<EmploiModel> emplois;
 
-    @ManyToMany
-    @JoinTable(name = "profil_si_ressources", joinColumns = @JoinColumn(name = "profil_si_id"), inverseJoinColumns = @JoinColumn(name = "ressource_id"))
-    private List<RessourceSIModel> ressources;
+    @OneToMany(mappedBy = "profilSI", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+    private List<ProfilSIRessource> profilSIRessources;
 
     @Column(name = "date_created")
     private LocalDateTime dateCreated;
@@ -52,6 +49,6 @@ public class ProfilSIModel {
 
     public ProfilSIModel() {
         this.emplois = new ArrayList<>();
-        this.ressources = new ArrayList<>();
+        this.profilSIRessources = new ArrayList<>();
     }
 }

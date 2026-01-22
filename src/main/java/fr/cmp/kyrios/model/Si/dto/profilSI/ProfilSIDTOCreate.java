@@ -1,4 +1,4 @@
-package fr.cmp.kyrios.model.Si.dto;
+package fr.cmp.kyrios.model.Si.dto.profilSI;
 
 import fr.cmp.kyrios.model.Emploi.dto.EmploiDTO;
 import jakarta.validation.Valid;

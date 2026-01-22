@@ -1,9 +1,10 @@
-package fr.cmp.kyrios.model.Si.dto;
+package fr.cmp.kyrios.model.Si.dto.ressourceSI;
 
 import fr.cmp.kyrios.model.Si.RessourceSIModel.TypeAcces;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class RessourceSIDTOCreate {
     @NotNull(message = "La catégorie est obligatoire")
+    @Positive(message = "L'ID de la catégorie doit être positif")
     @Schema(description = "Catégorie de la ressource SI", example = "1")
     private Integer categorie;
 

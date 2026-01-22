@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
-import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOCreate;
-import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOResponse;
-import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOCreateResponse;
-import fr.cmp.kyrios.model.Si.dto.ProfilSIUpdateDTO;
-import fr.cmp.kyrios.model.Si.dto.ProfilSIDTODeleteResponse;
+import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTOCreate;
+import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTOCreateResponse;
+import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTODeleteResponse;
+import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTOResponse;
+import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIUpdateDTO;
 import fr.cmp.kyrios.service.ProfilSIService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -1,4 +1,4 @@
-package fr.cmp.kyrios.model.Si.dto;
+package fr.cmp.kyrios.model.Si.dto.ressourceSI;
 
 import fr.cmp.kyrios.model.Si.RessourceSIModel.TypeAcces;
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -33,10 +33,6 @@ public class EmploiController {
     @Autowired
     private EmploiService emploiService;
 
-    public EmploiController(EmploiService emploiService) {
-        this.emploiService = emploiService;
-    }
-
     @GetMapping
     @Operation(summary = "Récupérer tous les emplois")
     @ApiResponses(value = {
@@ -78,6 +74,7 @@ public class EmploiController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Emploi mis à jour avec succès"),
             @ApiResponse(responseCode = "400", description = "Données invalides", content = @Content()),
+            @ApiResponse(responseCode = "404", description = "Emploi non trouvé", content = @Content()),
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public ResponseEntity<EmploiDTOResponse> update(@PathVariable int id, @Valid @RequestBody EmploiDTOCreate dto) {

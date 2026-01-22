@@ -13,5 +13,4 @@ public interface RessourceSIRepository extends JpaRepository<RessourceSIModel, I
     List<RessourceSIModel> findByCategorieId(int id);
 
     Optional<RessourceSIModel> findByName(String name);
-
 }

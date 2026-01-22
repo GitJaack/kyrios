@@ -6,18 +6,15 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import fr.cmp.kyrios.exception.CategorieNotFoundException;
-import fr.cmp.kyrios.exception.EmploiNotFoundException;
-import fr.cmp.kyrios.exception.RessourceSINotFoundException;
 import fr.cmp.kyrios.model.Emploi.DirectionModel;
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
 import fr.cmp.kyrios.model.Si.RessourceSIModel;
-import fr.cmp.kyrios.model.Si.dto.RessourceSIDTO;
-import fr.cmp.kyrios.model.Si.dto.RessourceSIDTOCreate;
-import fr.cmp.kyrios.repository.CategorieSIRepository;
+import fr.cmp.kyrios.model.Si.dto.ressourceSI.RessourceSIDTO;
+import fr.cmp.kyrios.model.Si.dto.ressourceSI.RessourceSIDTOCreate;
 import fr.cmp.kyrios.repository.DirectionRepository;
 import fr.cmp.kyrios.repository.ProfilSIRepository;
 import fr.cmp.kyrios.repository.RessourceSIRepository;
+import fr.cmp.kyrios.util.EntityFinder;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -26,48 +23,40 @@ public class RessourceSIService {
     private RessourceSIRepository ressourceSIRepository;
 
     @Autowired
-    private CategorieSIRepository categorieSIRepository;
-
-    @Autowired
     private DirectionRepository directionRepository;
 
     @Autowired
     private ProfilSIRepository profilSIRepository;
+
+    @Autowired
+    private EntityFinder entityFinder;
 
     public List<RessourceSIModel> listAll() {
         return ressourceSIRepository.findAll();
     }
 
     public RessourceSIModel getById(int id) {
-        return ressourceSIRepository.findById(id)
-                .orElseThrow(() -> new RessourceSINotFoundException("Ressource SI avec l'ID " + id + " non trouvée"));
+        return entityFinder.findRessourceOrThrow(id);
     }
 
     public List<RessourceSIModel> getRessourcesParDefautByDirection(int directionId) {
-        DirectionModel direction = directionRepository.findById(directionId)
-                .orElseThrow(() -> new EmploiNotFoundException("Direction introuvable"));
+        DirectionModel direction = entityFinder.findDirectionOrThrow(directionId);
         return direction.getRessourcesDefault();
     }
 
     public List<RessourceSIModel> getRessourcesByCategorie(int id) {
-        categorieSIRepository.findById(id)
-                .orElseThrow(() -> new CategorieNotFoundException("Catégorie avec l'ID " + id + " non trouvée"));
-
+        entityFinder.findCategorieOrThrow(id);
         return ressourceSIRepository.findByCategorieId(id);
     }
 
     @Transactional
     public RessourceSIModel create(RessourceSIDTOCreate dto) {
-        if (categorieSIRepository.findById(dto.getCategorie()).isEmpty()) {
-            throw new CategorieNotFoundException("Catégorie avec l'ID " + dto.getCategorie() + " non trouvée");
-        }
-
         if (ressourceSIRepository.findByName(dto.getName()).isPresent()) {
             throw new IllegalArgumentException("Une ressource avec le nom '" + dto.getName() + "' existe déjà");
         }
 
         RessourceSIModel ressource = new RessourceSIModel();
-        ressource.setCategorie(categorieSIRepository.findById(dto.getCategorie()).get());
+        ressource.setCategorie(entityFinder.findCategorieOrThrow(dto.getCategorie()));
         ressource.setName(dto.getName());
         ressource.setTypeAcces(dto.getTypeAcces());
         return ressourceSIRepository.save(ressource);
@@ -86,10 +75,10 @@ public class RessourceSIService {
 
         List<ProfilSIModel> profils = profilSIRepository.findAll();
         for (ProfilSIModel profil : profils) {
-            if (profil.getRessources().remove(ressource)) {
-                profilSIRepository.save(profil);
-            }
+            profil.getProfilSIRessources().removeIf(psr -> psr.getRessource().getId() == id);
+            profilSIRepository.save(profil);
         }
+
         ressourceSIRepository.delete(ressource);
     }
 

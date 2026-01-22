@@ -9,26 +9,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import fr.cmp.kyrios.exception.EmploiNotFoundException;
-import fr.cmp.kyrios.exception.ProfilSINotFoundException;
 import fr.cmp.kyrios.model.Emploi.DirectionModel;
-import fr.cmp.kyrios.model.Emploi.DomaineModel;
 import fr.cmp.kyrios.model.Emploi.EmploiModel;
-import fr.cmp.kyrios.model.Emploi.ServiceModel;
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
+import fr.cmp.kyrios.model.Si.ProfilSIRessource;
 import fr.cmp.kyrios.model.Si.RessourceSIModel;
-import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOCreate;
-import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOResponse;
-import fr.cmp.kyrios.model.Si.dto.ProfilSIDTO;
-import fr.cmp.kyrios.model.Si.dto.ProfilSIUpdateDTO;
-import fr.cmp.kyrios.model.Si.dto.ProfilSIDTOCreateResponse;
-import fr.cmp.kyrios.model.Si.dto.ProfilSIDTODeleteResponse;
-import fr.cmp.kyrios.model.Si.dto.RessourceSIDTO;
+import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTO;
+import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTOCreate;
+import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTOCreateResponse;
+import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTODeleteResponse;
+import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTOResponse;
+import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIUpdateDTO;
+import fr.cmp.kyrios.model.Si.dto.ressourceSI.RessourceSIDTO;
 import fr.cmp.kyrios.repository.DirectionRepository;
-import fr.cmp.kyrios.repository.DomaineRepository;
 import fr.cmp.kyrios.repository.EmploiRepository;
 import fr.cmp.kyrios.repository.ProfilSIRepository;
-import fr.cmp.kyrios.repository.RessourceSIRepository;
-import fr.cmp.kyrios.repository.ServiceRepository;
+import fr.cmp.kyrios.util.EntityFinder;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -40,29 +36,21 @@ public class ProfilSIService {
     private DirectionRepository directionRepository;
 
     @Autowired
-    private RessourceSIRepository ressourceSIRepository;
-
-    @Autowired
-    private ServiceRepository serviceRepository;
-
-    @Autowired
-    private DomaineRepository domaineRepository;
-
-    @Autowired
     private EmploiRepository emploiRepository;
+
+    @Autowired
+    private EntityFinder entityFinder;
 
     public List<ProfilSIModel> listAll() {
         return profilSIRepository.findAll();
     }
 
     public ProfilSIModel getById(int id) {
-        return profilSIRepository.findById(id)
-                .orElseThrow(() -> new ProfilSINotFoundException("Profil SI avec l'ID " + id + " non trouvé"));
+        return entityFinder.findProfilSIOrThrow(id);
     }
 
     public List<ProfilSIModel> getByDirection(int directionId) {
-        DirectionModel direction = directionRepository.findById(directionId)
-                .orElseThrow(() -> new IllegalArgumentException("Direction introuvable"));
+        DirectionModel direction = entityFinder.findDirectionOrThrow(directionId);
 
         return profilSIRepository.findByDirection(direction);
     }
@@ -75,8 +63,7 @@ public class ProfilSIService {
 
     @Transactional
     public ProfilSIDTOCreateResponse create(ProfilSIDTOCreate dto) {
-        DirectionModel direction = directionRepository.findById(dto.getEmploi().getDirection())
-                .orElseThrow(() -> new EmploiNotFoundException("Direction introuvable"));
+        DirectionModel direction = entityFinder.findDirectionOrThrow(dto.getEmploi().getDirection());
 
         if (profilSIRepository.findByName(dto.getProfilSI().getProfilSI()).isPresent()) {
             throw new IllegalArgumentException(
@@ -95,59 +82,74 @@ public class ProfilSIService {
         profilSI.setDirection(direction);
         profilSI.setDateCreated(LocalDateTime.now());
 
-        List<RessourceSIModel> ressourcesFinales = new ArrayList<>();
+        // Sauvegarde d'abord le Profil SI pour avoir un ID
+        profilSI = profilSIRepository.save(profilSI);
 
         // Étape 1 : Charger les ressources de base selon le mode
+        List<ProfilSIRessource> profilSIRessources = new ArrayList<>();
+
         if (dto.getProfilSI().getModeCreation() == ProfilSIDTO.ModeCreation.COPIER) {
-            // Mode COPIER : partir des ressources du profil source
+            // Mode COPIER : copier les ressources avec leurs types d'accès du profil source
             ProfilSIModel profilSource = getById(dto.getProfilSI().getProfilSISourceId());
-            // Vérifier que le profil source est bien dans la même direction
             if (profilSource.getDirection() != null &&
                     !profilSource.getDirection().equals(direction)) {
                 throw new IllegalArgumentException("Le profil source doit être dans la même direction");
             }
-            ressourcesFinales.addAll(profilSource.getRessources());
+
+            for (ProfilSIRessource sourceRessource : profilSource.getProfilSIRessources()) {
+                ProfilSIRessource newRessource = new ProfilSIRessource();
+                newRessource.setProfilSI(profilSI);
+                newRessource.setRessource(sourceRessource.getRessource());
+                newRessource.setTypeAcces(sourceRessource.getTypeAcces());
+                profilSIRessources.add(newRessource);
+            }
         } else {
-            // Mode NOUVEAU : partir des ressources par défaut de la direction
-            ressourcesFinales.addAll(getRessourcesParDefautByDirection(dto.getEmploi().getDirection()));
+            // Mode NOUVEAU : partir des ressources par défaut avec leur type par défaut
+            List<RessourceSIModel> ressourcesDefaut = getRessourcesParDefautByDirection(dto.getEmploi().getDirection());
+            for (RessourceSIModel ressource : ressourcesDefaut) {
+                ProfilSIRessource profilSIRessource = new ProfilSIRessource();
+                profilSIRessource.setProfilSI(profilSI);
+                profilSIRessource.setRessource(ressource);
+                profilSIRessource.setTypeAcces(ressource.getTypeAcces());
+                profilSIRessources.add(profilSIRessource);
+            }
         }
 
-        // Étape 2 : Ajouter les ressources supplémentaires sélectionnées par
-        // l'utilisateur
-        if (dto.getProfilSI().getRessourceIds() != null && !dto.getProfilSI().getRessourceIds().isEmpty()) {
-            List<RessourceSIModel> ressourcesSupplementaires = ressourceSIRepository
-                    .findAllById(dto.getProfilSI().getRessourceIds());
-            // Éviter les doublons
-            for (RessourceSIModel ressource : ressourcesSupplementaires) {
-                if (!ressourcesFinales.contains(ressource)) {
-                    ressourcesFinales.add(ressource);
+        // Étape 2 : Ajouter/Modifier les ressources avec leurs types d'accès spécifiés
+        if (dto.getProfilSI().getRessources() != null && !dto.getProfilSI().getRessources().isEmpty()) {
+            for (var ressourceDTO : dto.getProfilSI().getRessources()) {
+                RessourceSIModel ressource = entityFinder.findRessourceOrThrow(ressourceDTO.getRessourceId());
+
+                // Chercher si cette ressource existe déjà dans la liste
+                ProfilSIRessource existante = profilSIRessources.stream()
+                        .filter(psr -> psr.getRessource().getId() == ressource.getId())
+                        .findFirst()
+                        .orElse(null);
+
+                if (existante != null) {
+                    // Mettre à jour le type d'accès
+                    existante.setTypeAcces(ressourceDTO.getTypeAcces());
+                } else {
+                    // Ajouter la nouvelle ressource
+                    ProfilSIRessource profilSIRessource = new ProfilSIRessource();
+                    profilSIRessource.setProfilSI(profilSI);
+                    profilSIRessource.setRessource(ressource);
+                    profilSIRessource.setTypeAcces(ressourceDTO.getTypeAcces());
+                    profilSIRessources.add(profilSIRessource);
                 }
             }
         }
 
-        // Assigne les ressources au profil SI
-        profilSI.setRessources(ressourcesFinales);
-
-        // Sauvegarde le Profil SI
+        // Sauvegarder toutes les associations
+        profilSI.getProfilSIRessources().addAll(profilSIRessources);
         profilSI = profilSIRepository.save(profilSI);
 
         // Créer l'emploi et le lie au profil SI
         EmploiModel emploi = new EmploiModel();
         emploi.setEmploiName(dto.getEmploi().getEmploi());
         emploi.setDirection(direction);
-
-        if (dto.getEmploi().getService() != null) {
-            ServiceModel service = serviceRepository.findById(dto.getEmploi().getService())
-                    .orElseThrow(() -> new IllegalArgumentException("Service introuvable"));
-            emploi.setService(service);
-        }
-
-        if (dto.getEmploi().getDomaine() != null) {
-            DomaineModel domaine = domaineRepository.findById(dto.getEmploi().getDomaine())
-                    .orElseThrow(() -> new IllegalArgumentException("Domaine introuvable"));
-            emploi.setDomaine(domaine);
-        }
-
+        emploi.setService(entityFinder.findServiceOrNull(dto.getEmploi().getService()));
+        emploi.setDomaine(entityFinder.findDomaineOrNull(dto.getEmploi().getDomaine()));
         emploi.setStatus(dto.getEmploi().getStatus());
         emploi.setProfilSI(profilSI);
         emploi.setDateCreated(LocalDateTime.now());
@@ -168,11 +170,23 @@ public class ProfilSIService {
         profilSI.setName(dto.getProfilSI());
         profilSI.setDateUpdated(LocalDateTime.now());
 
-        List<RessourceSIModel> ressources = ressourceSIRepository.findAllById(dto.getRessourceIds());
-        profilSI.setRessources(ressources);
+        // Supprimer les anciennes associations
+        profilSI.getProfilSIRessources().clear();
+
+        // Créer les nouvelles associations avec les types d'accès spécifiés
+        if (dto.getRessources() != null && !dto.getRessources().isEmpty()) {
+            for (var ressourceDTO : dto.getRessources()) {
+                RessourceSIModel ressource = entityFinder.findRessourceOrThrow(ressourceDTO.getRessourceId());
+
+                ProfilSIRessource profilSIRessource = new ProfilSIRessource();
+                profilSIRessource.setProfilSI(profilSI);
+                profilSIRessource.setRessource(ressource);
+                profilSIRessource.setTypeAcces(ressourceDTO.getTypeAcces());
+                profilSI.getProfilSIRessources().add(profilSIRessource);
+            }
+        }
 
         return profilSIRepository.save(profilSI);
-
     }
 
     @Transactional
@@ -219,12 +233,12 @@ public class ProfilSIService {
     }
 
     public ProfilSIDTOResponse toResponseDTO(ProfilSIModel profilSI) {
-        List<RessourceSIDTO> ressourcesDTO = profilSI.getRessources().stream()
-                .map(r -> RessourceSIDTO.builder()
-                        .id(r.getId())
-                        .categorie(r.getCategorie().getName())
-                        .name(r.getName())
-                        .typeAcces(r.getTypeAcces())
+        List<RessourceSIDTO> ressourcesDTO = profilSI.getProfilSIRessources().stream()
+                .map(psr -> RessourceSIDTO.builder()
+                        .id(psr.getRessource().getId())
+                        .categorie(psr.getRessource().getCategorie().getName())
+                        .name(psr.getRessource().getName())
+                        .typeAcces(psr.getTypeAcces())
                         .build())
                 .collect(Collectors.toList());
 

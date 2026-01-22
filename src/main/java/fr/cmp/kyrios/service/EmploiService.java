@@ -7,17 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import fr.cmp.kyrios.exception.EmploiNotFoundException;
 import fr.cmp.kyrios.model.Emploi.EmploiModel;
 import fr.cmp.kyrios.model.Emploi.dto.EmploiDTOCreate;
 import fr.cmp.kyrios.model.Emploi.dto.EmploiDTOResponse;
 import fr.cmp.kyrios.model.Emploi.dto.ProfilSISimpleDTO;
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
 import fr.cmp.kyrios.repository.EmploiRepository;
-import fr.cmp.kyrios.repository.DirectionRepository;
-import fr.cmp.kyrios.repository.DomaineRepository;
-import fr.cmp.kyrios.repository.ProfilSIRepository;
-import fr.cmp.kyrios.repository.ServiceRepository;
+import fr.cmp.kyrios.util.EntityFinder;
 
 @Service
 public class EmploiService {
@@ -25,47 +21,25 @@ public class EmploiService {
     private EmploiRepository emploiRepository;
 
     @Autowired
-    private ProfilSIRepository profilSIRepository;
-
-    @Autowired
-    private DirectionRepository directionRepository;
-
-    @Autowired
-    private ServiceRepository serviceRepository;
-
-    @Autowired
-    private DomaineRepository domaineService;
+    private EntityFinder entityFinder;
 
     public List<EmploiModel> listAll() {
         return emploiRepository.findAll();
     }
 
     public EmploiModel getById(int id) {
-        return emploiRepository.findById(id)
-                .orElseThrow(() -> new EmploiNotFoundException("Emploi avec l'ID " + id + " non trouvé"));
+        return entityFinder.findEmploiOrThrow(id);
     }
 
     @Transactional
     public EmploiModel create(EmploiDTOCreate dto) {
-        ProfilSIModel profil = profilSIRepository.findById(dto.getProfilSI())
-                .orElseThrow(() -> new IllegalArgumentException("ProfilSI introuvable"));
+        ProfilSIModel profil = entityFinder.findProfilSIOrThrow(dto.getProfilSI());
 
         EmploiModel emploi = new EmploiModel();
         emploi.setEmploiName(dto.getEmploi().getEmploi());
-
-        emploi.setDirection(directionRepository.findById(dto.getEmploi().getDirection())
-                .orElseThrow(() -> new IllegalArgumentException("Direction introuvable")));
-
-        if (dto.getEmploi().getService() != null) {
-            emploi.setService(serviceRepository.findById(dto.getEmploi().getService())
-                    .orElseThrow(() -> new IllegalArgumentException("Service introuvable")));
-        }
-
-        if (dto.getEmploi().getDomaine() != null) {
-            emploi.setDomaine(domaineService.findById(dto.getEmploi().getDomaine())
-                    .orElseThrow(() -> new IllegalArgumentException("Domaine introuvable")));
-        }
-
+        emploi.setDirection(entityFinder.findDirectionOrThrow(dto.getEmploi().getDirection()));
+        emploi.setService(entityFinder.findServiceOrNull(dto.getEmploi().getService()));
+        emploi.setDomaine(entityFinder.findDomaineOrNull(dto.getEmploi().getDomaine()));
         emploi.setStatus(dto.getEmploi().getStatus());
         emploi.setProfilSI(profil);
         emploi.setDateCreated(LocalDateTime.now());
@@ -75,41 +49,23 @@ public class EmploiService {
 
     @Transactional
     public EmploiModel update(int id, EmploiDTOCreate dto) {
-        EmploiModel emploi = emploiRepository.findById(id)
-                .orElseThrow(() -> new EmploiNotFoundException("Emploi avec l'ID " + id + " non trouvé"));
+        EmploiModel emploi = getById(id);
 
         emploi.setEmploiName(dto.getEmploi().getEmploi());
-
-        emploi.setDirection(directionRepository.findById(dto.getEmploi().getDirection())
-                .orElseThrow(() -> new IllegalArgumentException("Direction introuvable")));
-
-        if (dto.getEmploi().getService() != null) {
-            emploi.setService(serviceRepository.findById(dto.getEmploi().getService())
-                    .orElseThrow(() -> new IllegalArgumentException("Service introuvable")));
-        } else {
-            emploi.setService(null);
-        }
-
-        if (dto.getEmploi().getDomaine() != null) {
-            emploi.setDomaine(domaineService.findById(dto.getEmploi().getDomaine())
-                    .orElseThrow(() -> new IllegalArgumentException("Domaine introuvable")));
-        } else {
-            emploi.setDomaine(null);
-        }
-
+        emploi.setDirection(entityFinder.findDirectionOrThrow(dto.getEmploi().getDirection()));
+        emploi.setService(entityFinder.findServiceOrNull(dto.getEmploi().getService()));
+        emploi.setDomaine(entityFinder.findDomaineOrNull(dto.getEmploi().getDomaine()));
         emploi.setStatus(dto.getEmploi().getStatus());
         emploi.setDateUpdated(LocalDateTime.now());
 
-        ProfilSIModel profil = profilSIRepository.findById(dto.getProfilSI())
-                .orElseThrow(() -> new IllegalArgumentException("ProfilSI introuvable"));
+        ProfilSIModel profil = entityFinder.findProfilSIOrThrow(dto.getProfilSI());
         emploi.setProfilSI(profil);
 
         return emploiRepository.save(emploi);
     }
 
     public void delete(int id) {
-        EmploiModel emploi = emploiRepository.findById(id)
-                .orElseThrow(() -> new EmploiNotFoundException("Emploi avec l'ID " + id + " non trouvé"));
+        EmploiModel emploi = getById(id);
         emploiRepository.delete(emploi);
     }
 
@@ -131,5 +87,4 @@ public class EmploiService {
                 .dateUpdated(emploi.getDateUpdated())
                 .build();
     }
-
 }

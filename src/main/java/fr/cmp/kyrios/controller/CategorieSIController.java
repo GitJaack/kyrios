@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import fr.cmp.kyrios.model.Si.CategorieSIModel;
-import fr.cmp.kyrios.model.Si.dto.CategorieSIDTOCreate;
-import fr.cmp.kyrios.model.Si.dto.CategorieSIDTOResponse;
+import fr.cmp.kyrios.model.Si.dto.categorieSI.CategorieSIDTOCreate;
+import fr.cmp.kyrios.model.Si.dto.categorieSI.CategorieSIDTOResponse;
 import fr.cmp.kyrios.service.CategorieSIService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

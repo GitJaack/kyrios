@@ -10,6 +10,4 @@ import fr.cmp.kyrios.model.Emploi.ServiceModel;
 @Repository
 public interface ServiceRepository extends JpaRepository<ServiceModel, Integer> {
     Optional<ServiceModel> findByName(String name);
-
-    Optional<ServiceModel> findById(String id);
 }

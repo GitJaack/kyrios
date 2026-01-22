@@ -13,27 +13,23 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "ressource_si")
+@Table(name = "profil_si_ressources")
 @Data
-public class RessourceSIModel {
-
-    public enum TypeAcces {
-        LECTURE,
-        LECTURE_ECRITURE
-    }
+public class ProfilSIRessource {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "categorie_id", nullable = false)
-    private CategorieSIModel categorie;
+    @JoinColumn(name = "profil_si_id", nullable = false)
+    private ProfilSIModel profilSI;
 
-    @Column(nullable = false, length = 50)
-    private String name;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "ressource_id", nullable = false)
+    private RessourceSIModel ressource;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type_acces", nullable = false)
-    private TypeAcces typeAcces;
+    private RessourceSIModel.TypeAcces typeAcces;
 }

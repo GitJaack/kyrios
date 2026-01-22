@@ -5,17 +5,17 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import fr.cmp.kyrios.exception.CategorieNotFoundException;
 import fr.cmp.kyrios.model.Emploi.DirectionModel;
 import fr.cmp.kyrios.model.Si.CategorieSIModel;
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
 import fr.cmp.kyrios.model.Si.RessourceSIModel;
-import fr.cmp.kyrios.model.Si.dto.CategorieSIDTOCreate;
-import fr.cmp.kyrios.model.Si.dto.CategorieSIDTOResponse;
+import fr.cmp.kyrios.model.Si.dto.categorieSI.CategorieSIDTOCreate;
+import fr.cmp.kyrios.model.Si.dto.categorieSI.CategorieSIDTOResponse;
 import fr.cmp.kyrios.repository.CategorieSIRepository;
 import fr.cmp.kyrios.repository.DirectionRepository;
 import fr.cmp.kyrios.repository.ProfilSIRepository;
 import fr.cmp.kyrios.repository.RessourceSIRepository;
+import fr.cmp.kyrios.util.EntityFinder;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -32,13 +32,15 @@ public class CategorieSIService {
     @Autowired
     private ProfilSIRepository profilSIRepository;
 
+    @Autowired
+    private EntityFinder entityFinder;
+
     public List<CategorieSIModel> listAll() {
         return categorieSIRepository.findAll();
     }
 
     public CategorieSIModel getById(int id) {
-        return categorieSIRepository.findById(id)
-                .orElseThrow(() -> new CategorieNotFoundException("Catégorie avec l'ID " + id + " non trouvée"));
+        return entityFinder.findCategorieOrThrow(id);
     }
 
     @Transactional
@@ -90,9 +92,8 @@ public class CategorieSIService {
             for (ProfilSIModel profil : profils) {
                 boolean modified = false;
                 for (RessourceSIModel ressource : ressources) {
-                    if (profil.getRessources().remove(ressource)) {
-                        modified = true;
-                    }
+                    modified = profil.getProfilSIRessources().removeIf(psr -> psr.getRessource().equals(ressource))
+                            || modified;
                 }
                 if (modified) {
                     profilSIRepository.save(profil);

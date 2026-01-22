@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
 import fr.cmp.kyrios.model.Si.RessourceSIModel;
-import fr.cmp.kyrios.model.Si.dto.RessourceSIDTO;
-import fr.cmp.kyrios.model.Si.dto.RessourceSIDTOCreate;
+import fr.cmp.kyrios.model.Si.dto.ressourceSI.RessourceSIDTO;
+import fr.cmp.kyrios.model.Si.dto.ressourceSI.RessourceSIDTOCreate;
 import fr.cmp.kyrios.service.RessourceSIService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
