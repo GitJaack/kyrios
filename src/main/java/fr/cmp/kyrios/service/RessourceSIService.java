@@ -75,9 +75,14 @@ public class RessourceSIService {
 
         List<ProfilSIModel> profils = profilSIRepository.findAll();
         for (ProfilSIModel profil : profils) {
-            profil.getProfilSIRessources().removeIf(psr -> psr.getRessource().getId() == id);
-            profilSIRepository.save(profil);
+            boolean hasRessource = profil.getProfilSIRessources().stream()
+                    .anyMatch(psr -> psr.getRessource().getId() == id);
+            if (hasRessource) {
+                profil.getProfilSIRessources().removeIf(psr -> psr.getRessource().getId() == id);
+            }
         }
+
+        profilSIRepository.flush();
 
         ressourceSIRepository.delete(ressource);
     }

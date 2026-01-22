@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ProfilSIDTOCreateResponse {
-    // Informations de l'emploi créé et lié
     @Schema(description = "ID unique de l'emploi", example = "1")
     private int idEmploi;
 
@@ -32,6 +31,5 @@ public class ProfilSIDTOCreateResponse {
     @Schema(description = "Statut de l'emploi", example = "PERMANENT")
     private EmploiModel.Status status;
 
-    // Informations du profil SI
     private ProfilSIDTOResponse profilSI;
 }

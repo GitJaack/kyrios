@@ -22,10 +22,6 @@ import fr.cmp.kyrios.repository.RessourceSIRepository;
 import fr.cmp.kyrios.repository.ServiceRepository;
 import lombok.RequiredArgsConstructor;
 
-/**
- * Utilitaire centralisé pour récupérer les entités avec gestion d'erreur
- * unifiée
- */
 @Component
 @RequiredArgsConstructor
 public class EntityFinder {

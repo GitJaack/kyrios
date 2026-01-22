@@ -22,7 +22,7 @@ public class ProfilSIDTOResponse {
     private String name;
 
     @Schema(description = "ID de la direction associée", example = "1")
-    private int directionId;
+    private String direction;
 
     private List<RessourceSIDTO> ressources;
 

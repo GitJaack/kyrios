@@ -2,13 +2,14 @@ package fr.cmp.kyrios.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import fr.cmp.kyrios.exception.EmploiNotFoundException;
 import fr.cmp.kyrios.model.Emploi.DirectionModel;
 import fr.cmp.kyrios.model.Emploi.EmploiModel;
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
@@ -21,7 +22,6 @@ import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTODeleteResponse;
 import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTOResponse;
 import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIUpdateDTO;
 import fr.cmp.kyrios.model.Si.dto.ressourceSI.RessourceSIDTO;
-import fr.cmp.kyrios.repository.DirectionRepository;
 import fr.cmp.kyrios.repository.EmploiRepository;
 import fr.cmp.kyrios.repository.ProfilSIRepository;
 import fr.cmp.kyrios.util.EntityFinder;
@@ -31,9 +31,6 @@ import jakarta.transaction.Transactional;
 public class ProfilSIService {
     @Autowired
     private ProfilSIRepository profilSIRepository;
-
-    @Autowired
-    private DirectionRepository directionRepository;
 
     @Autowired
     private EmploiRepository emploiRepository;
@@ -56,8 +53,7 @@ public class ProfilSIService {
     }
 
     public List<RessourceSIModel> getRessourcesParDefautByDirection(int directionId) {
-        DirectionModel direction = directionRepository.findById(directionId)
-                .orElseThrow(() -> new EmploiNotFoundException("Direction introuvable"));
+        DirectionModel direction = entityFinder.findDirectionOrThrow(directionId);
         return direction.getRessourcesDefault();
     }
 
@@ -70,7 +66,6 @@ public class ProfilSIService {
                     "Un profil SI avec le nom '" + dto.getProfilSI().getProfilSI() + "' existe déjà");
         }
 
-        // Validation du mode COPIER
         if (dto.getProfilSI().getModeCreation() == ProfilSIDTO.ModeCreation.COPIER) {
             if (dto.getProfilSI().getProfilSISourceId() == null) {
                 throw new IllegalArgumentException("L'ID du profil source est requis en mode COPIER");
@@ -82,14 +77,9 @@ public class ProfilSIService {
         profilSI.setDirection(direction);
         profilSI.setDateCreated(LocalDateTime.now());
 
-        // Sauvegarde d'abord le Profil SI pour avoir un ID
-        profilSI = profilSIRepository.save(profilSI);
-
-        // Étape 1 : Charger les ressources de base selon le mode
         List<ProfilSIRessource> profilSIRessources = new ArrayList<>();
 
         if (dto.getProfilSI().getModeCreation() == ProfilSIDTO.ModeCreation.COPIER) {
-            // Mode COPIER : copier les ressources avec leurs types d'accès du profil source
             ProfilSIModel profilSource = getById(dto.getProfilSI().getProfilSISourceId());
             if (profilSource.getDirection() != null &&
                     !profilSource.getDirection().equals(direction)) {
@@ -104,7 +94,6 @@ public class ProfilSIService {
                 profilSIRessources.add(newRessource);
             }
         } else {
-            // Mode NOUVEAU : partir des ressources par défaut avec leur type par défaut
             List<RessourceSIModel> ressourcesDefaut = getRessourcesParDefautByDirection(dto.getEmploi().getDirection());
             for (RessourceSIModel ressource : ressourcesDefaut) {
                 ProfilSIRessource profilSIRessource = new ProfilSIRessource();
@@ -115,22 +104,26 @@ public class ProfilSIService {
             }
         }
 
-        // Étape 2 : Ajouter/Modifier les ressources avec leurs types d'accès spécifiés
         if (dto.getProfilSI().getRessources() != null && !dto.getProfilSI().getRessources().isEmpty()) {
+            Set<Integer> ressourceIds = new HashSet<>();
+            for (var ressourceDTO : dto.getProfilSI().getRessources()) {
+                if (!ressourceIds.add(ressourceDTO.getRessourceId())) {
+                    throw new IllegalArgumentException(
+                            "La ressource ID " + ressourceDTO.getRessourceId() + " est présente plusieurs fois");
+                }
+            }
+
             for (var ressourceDTO : dto.getProfilSI().getRessources()) {
                 RessourceSIModel ressource = entityFinder.findRessourceOrThrow(ressourceDTO.getRessourceId());
 
-                // Chercher si cette ressource existe déjà dans la liste
                 ProfilSIRessource existante = profilSIRessources.stream()
                         .filter(psr -> psr.getRessource().getId() == ressource.getId())
                         .findFirst()
                         .orElse(null);
 
                 if (existante != null) {
-                    // Mettre à jour le type d'accès
                     existante.setTypeAcces(ressourceDTO.getTypeAcces());
                 } else {
-                    // Ajouter la nouvelle ressource
                     ProfilSIRessource profilSIRessource = new ProfilSIRessource();
                     profilSIRessource.setProfilSI(profilSI);
                     profilSIRessource.setRessource(ressource);
@@ -140,11 +133,11 @@ public class ProfilSIService {
             }
         }
 
-        // Sauvegarder toutes les associations
+        profilSI = profilSIRepository.save(profilSI);
+
         profilSI.getProfilSIRessources().addAll(profilSIRessources);
         profilSI = profilSIRepository.save(profilSI);
 
-        // Créer l'emploi et le lie au profil SI
         EmploiModel emploi = new EmploiModel();
         emploi.setEmploiName(dto.getEmploi().getEmploi());
         emploi.setDirection(direction);
@@ -170,11 +163,17 @@ public class ProfilSIService {
         profilSI.setName(dto.getProfilSI());
         profilSI.setDateUpdated(LocalDateTime.now());
 
-        // Supprimer les anciennes associations
-        profilSI.getProfilSIRessources().clear();
+        profilSI.getProfilSIRessources().removeIf(r -> true);
 
-        // Créer les nouvelles associations avec les types d'accès spécifiés
         if (dto.getRessources() != null && !dto.getRessources().isEmpty()) {
+            Set<Integer> ressourceIds = new HashSet<>();
+            for (var ressourceDTO : dto.getRessources()) {
+                if (!ressourceIds.add(ressourceDTO.getRessourceId())) {
+                    throw new IllegalArgumentException(
+                            "La ressource ID " + ressourceDTO.getRessourceId() + " est présente plusieurs fois");
+                }
+            }
+
             for (var ressourceDTO : dto.getRessources()) {
                 RessourceSIModel ressource = entityFinder.findRessourceOrThrow(ressourceDTO.getRessourceId());
 
@@ -245,7 +244,7 @@ public class ProfilSIService {
         return ProfilSIDTOResponse.builder()
                 .idProfilSI(profilSI.getId())
                 .name(profilSI.getName())
-                .directionId(profilSI.getDirection().getId())
+                .direction(profilSI.getDirection().getName())
                 .ressources(ressourcesDTO)
                 .dateCreated(profilSI.getDateCreated())
                 .dateUpdated(profilSI.getDateUpdated())

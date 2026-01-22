@@ -90,15 +90,12 @@ public class CategorieSIService {
 
             List<ProfilSIModel> profils = profilSIRepository.findAll();
             for (ProfilSIModel profil : profils) {
-                boolean modified = false;
                 for (RessourceSIModel ressource : ressources) {
-                    modified = profil.getProfilSIRessources().removeIf(psr -> psr.getRessource().equals(ressource))
-                            || modified;
-                }
-                if (modified) {
-                    profilSIRepository.save(profil);
+                    profil.getProfilSIRessources().removeIf(psr -> psr.getRessource().equals(ressource));
                 }
             }
+
+            profilSIRepository.flush();
 
             ressourceSIRepository.deleteAll(ressources);
         }
