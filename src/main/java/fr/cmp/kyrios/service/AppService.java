@@ -42,6 +42,24 @@ public class AppService {
         return appRepository.save(app);
     }
 
+    @Transactional
+    public AppModel update(int id, AppDTOCreate dto) {
+        AppModel app = getById(id);
+        if (!app.getName().equals(dto.getName()) && appRepository.findByName(dto.getName()).isPresent()) {
+            throw new IllegalArgumentException("Une application avec le nom '" + dto.getName() + "' existe déjà");
+        }
+        app.setName(dto.getName());
+        app.setDirection(entityFinder.findDirectionOrThrow(dto.getDirectionId()));
+        app.setDescription(dto.getDescription());
+        return appRepository.save(app);
+    }
+
+    @Transactional
+    public void delete(int id) {
+        AppModel app = getById(id);
+        appRepository.delete(app);
+    }
+
     public AppDTOResponse toDTO(AppModel app) {
         return AppDTOResponse.builder()
                 .id(app.getId())

@@ -1,7 +1,10 @@
 package fr.cmp.kyrios.model.App;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -26,6 +30,9 @@ public class ProfilAppModel {
     @ManyToOne(optional = false)
     @JoinColumn(name = "application_id", nullable = false)
     private AppModel application;
+
+    @OneToMany(mappedBy = "profilApp", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProfilAppProfilSI> profilSIs = new ArrayList<>();
 
     @Column(name = "date_created")
     private LocalDateTime dateCreated;

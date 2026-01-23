@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import fr.cmp.kyrios.model.App.AppModel;
 import fr.cmp.kyrios.model.Emploi.DirectionModel;
 import fr.cmp.kyrios.model.Emploi.DomaineModel;
 import fr.cmp.kyrios.model.Emploi.EmploiModel;
@@ -14,6 +15,7 @@ import fr.cmp.kyrios.model.Si.CategorieSIModel;
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
 import fr.cmp.kyrios.model.Si.ProfilSIRessource;
 import fr.cmp.kyrios.model.Si.RessourceSIModel;
+import fr.cmp.kyrios.repository.AppRepository;
 import fr.cmp.kyrios.repository.CategorieSIRepository;
 import fr.cmp.kyrios.repository.DirectionRepository;
 import fr.cmp.kyrios.repository.DomaineRepository;
@@ -39,6 +41,9 @@ public class DataInitializer implements CommandLineRunner {
         private CategorieSIRepository categorieSIRepository;
         @Autowired
         private RessourceSIRepository ressourceSIRepository;
+
+        @Autowired
+        private AppRepository appRepository;
 
         @Override
         public void run(String... args) throws Exception {
@@ -171,6 +176,20 @@ public class DataInitializer implements CommandLineRunner {
                 }
                 profil2 = profilSIRepository.save(profil2);
 
+                AppModel app = new AppModel();
+                app.setName("THEMIS");
+                app.setDirection(dir);
+                app.setDescription("Application de gestion THEMIS");
+                app.setDateCreated(LocalDateTime.now());
+                app = appRepository.save(app);
+
+                AppModel app2 = new AppModel();
+                app2.setName("FLUXA");
+                app2.setDirection(dir2);
+                app2.setDescription("Application de gestion FLUXA");
+                app2.setDateCreated(LocalDateTime.now());
+                app2 = appRepository.save(app2);
+
                 System.out.println("Données de test initialisées avec succès!");
 
         }
@@ -198,4 +217,5 @@ public class DataInitializer implements CommandLineRunner {
                 profilSIRessource.setTypeAcces(typeAcces);
                 profil.getProfilSIRessources().add(profilSIRessource);
         }
+
 }
