@@ -2,10 +2,12 @@ package fr.cmp.kyrios.util;
 
 import org.springframework.stereotype.Component;
 
+import fr.cmp.kyrios.exception.AppNotFoundException;
 import fr.cmp.kyrios.exception.CategorieNotFoundException;
 import fr.cmp.kyrios.exception.EmploiNotFoundException;
 import fr.cmp.kyrios.exception.ProfilSINotFoundException;
 import fr.cmp.kyrios.exception.RessourceSINotFoundException;
+import fr.cmp.kyrios.model.App.AppModel;
 import fr.cmp.kyrios.model.Emploi.DirectionModel;
 import fr.cmp.kyrios.model.Emploi.DomaineModel;
 import fr.cmp.kyrios.model.Emploi.EmploiModel;
@@ -13,6 +15,7 @@ import fr.cmp.kyrios.model.Emploi.ServiceModel;
 import fr.cmp.kyrios.model.Si.CategorieSIModel;
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
 import fr.cmp.kyrios.model.Si.RessourceSIModel;
+import fr.cmp.kyrios.repository.AppRepository;
 import fr.cmp.kyrios.repository.CategorieSIRepository;
 import fr.cmp.kyrios.repository.DirectionRepository;
 import fr.cmp.kyrios.repository.DomaineRepository;
@@ -38,6 +41,8 @@ public class EntityFinder {
     private final CategorieSIRepository categorieSIRepository;
 
     private final RessourceSIRepository ressourceSIRepository;
+
+    private final AppRepository appRepository;
 
     public EmploiModel findEmploiOrThrow(int id) {
         return emploiRepository.findById(id)
@@ -83,5 +88,10 @@ public class EntityFinder {
     public RessourceSIModel findRessourceOrThrow(int id) {
         return ressourceSIRepository.findById(id)
                 .orElseThrow(() -> new RessourceSINotFoundException("Ressource SI avec l'ID " + id + " non trouvée"));
+    }
+
+    public AppModel findApplicationOrThrow(int id) {
+        return appRepository.findById(id)
+                .orElseThrow(() -> new AppNotFoundException("Application avec l'ID " + id + " non trouvée"));
     }
 }

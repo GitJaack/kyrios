@@ -49,6 +49,15 @@ public class GlobalExceptionHandler {
                 return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
 
+        @ExceptionHandler(AppNotFoundException.class)
+        public ResponseEntity<ErrorResponse> handleAppNotFound(AppNotFoundException ex, WebRequest request) {
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .message(ex.getMessage())
+                                .build();
+
+                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+
         @ExceptionHandler(IllegalArgumentException.class)
         public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex, WebRequest request) {
                 ErrorResponse errorResponse = ErrorResponse.builder()

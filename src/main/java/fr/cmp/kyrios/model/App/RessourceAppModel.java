@@ -1,4 +1,4 @@
-package fr.cmp.kyrios.model.Appli;
+package fr.cmp.kyrios.model.App;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,12 +11,12 @@ import lombok.Data;
 @Entity
 @Table(name = "ressource_applicative")
 @Data
-public class RessourceApplicativeModel {
+public class RessourceAppModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "libelle_acces", nullable = false, length = 16)
-    private String libelleAcces;
+    @Column(nullable = false, length = 16)
+    private String nom;
 }

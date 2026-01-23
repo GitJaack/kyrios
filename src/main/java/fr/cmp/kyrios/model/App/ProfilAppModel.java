@@ -1,4 +1,4 @@
-package fr.cmp.kyrios.model.Appli;
+package fr.cmp.kyrios.model.App;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +15,7 @@ import lombok.Data;
 @Entity
 @Table(name = "profil_applicatif")
 @Data
-public class ProfilApplicatifModel {
+public class ProfilAppModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -25,7 +25,7 @@ public class ProfilApplicatifModel {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "application_id", nullable = false)
-    private ApplicationModel application;
+    private AppModel application;
 
     @Column(name = "date_created")
     private LocalDateTime dateCreated;
