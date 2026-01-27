@@ -1,5 +1,6 @@
 package fr.cmp.kyrios.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +13,6 @@ public interface ProfilAppRepository extends JpaRepository<ProfilAppModel, Integ
     Optional<ProfilAppModel> findByName(String name);
 
     Optional<ProfilAppModel> findByNameAndApplicationId(String name, int applicationId);
+
+    List<ProfilAppModel> findByApplicationId(int applicationId);
 }

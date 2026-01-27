@@ -43,10 +43,7 @@ public class ProfilAppService {
 
     public List<ProfilAppModel> getByApplication(int applicationId) {
         entityFinder.findApplicationOrThrow(applicationId);
-
-        return profilAppRepository.findAll().stream()
-                .filter(profilApp -> profilApp.getApplication().getId() == applicationId)
-                .collect(Collectors.toList());
+        return profilAppRepository.findByApplicationId(applicationId);
     }
 
     @Transactional
@@ -70,8 +67,8 @@ public class ProfilAppService {
         }
 
         for (Integer profilSIId : dto.getProfilSIIds()) {
-            if (profilAppProfilSIRepository.existsByApplicationIdAndProfilSIId(
-                    profilApp.getApplication().getId(), profilSIId)) {
+            if (profilAppProfilSIRepository.existsByApplicationIdAndProfilSIId(profilApp.getApplication().getId(),
+                    profilSIId)) {
                 ProfilSIModel profilSI = entityFinder.findProfilSIOrThrow(profilSIId);
                 throw new IllegalArgumentException(
                         "Le profil SI '" + profilSI.getName()
@@ -80,14 +77,7 @@ public class ProfilAppService {
             }
         }
 
-        for (Integer profilSIId : dto.getProfilSIIds()) {
-            ProfilSIModel profilSI = entityFinder.findProfilSIOrThrow(profilSIId);
-            ProfilAppProfilSI liaison = new ProfilAppProfilSI();
-            liaison.setProfilApp(profilApp);
-            liaison.setProfilSI(profilSI);
-            liaison.setApplication(profilApp.getApplication());
-            profilApp.getProfilSI().add(liaison);
-        }
+        createProfilSILiaisons(profilApp, dto.getProfilSIIds());
 
         return profilAppRepository.save(profilApp);
     }
@@ -113,17 +103,9 @@ public class ProfilAppService {
         updateProfilApp.setDateUpdated(LocalDateTime.now());
 
         updateProfilApp.getProfilSI().removeIf(r -> true);
-
         profilAppRepository.flush();
 
-        for (Integer profilSIId : dto.getProfilSIIds()) {
-            ProfilSIModel profilSI = entityFinder.findProfilSIOrThrow(profilSIId);
-            ProfilAppProfilSI liaison = new ProfilAppProfilSI();
-            liaison.setProfilApp(updateProfilApp);
-            liaison.setProfilSI(profilSI);
-            liaison.setApplication(updateProfilApp.getApplication());
-            updateProfilApp.getProfilSI().add(liaison);
-        }
+        createProfilSILiaisons(updateProfilApp, dto.getProfilSIIds());
 
         return profilAppRepository.save(updateProfilApp);
     }
@@ -167,4 +149,16 @@ public class ProfilAppService {
                 .dateUpdated(profilApp.getDateUpdated())
                 .build();
     }
+
+    private void createProfilSILiaisons(ProfilAppModel profilApp, List<Integer> profilSIIds) {
+        for (Integer profilSIId : profilSIIds) {
+            ProfilSIModel profilSI = entityFinder.findProfilSIOrThrow(profilSIId);
+            ProfilAppProfilSI liaison = new ProfilAppProfilSI();
+            liaison.setProfilApp(profilApp);
+            liaison.setProfilSI(profilSI);
+            liaison.setApplication(profilApp.getApplication());
+            profilApp.getProfilSI().add(liaison);
+        }
+    }
+
 }
