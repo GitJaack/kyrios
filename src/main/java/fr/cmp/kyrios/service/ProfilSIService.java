@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import fr.cmp.kyrios.model.App.dto.ProfilAppDTOSimple;
 import fr.cmp.kyrios.model.Emploi.DirectionModel;
 import fr.cmp.kyrios.model.Emploi.EmploiModel;
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
@@ -198,7 +199,7 @@ public class ProfilSIService {
             for (EmploiModel emploi : profilSI.getEmplois()) {
                 emploisDetaches.add(ProfilSIDTODeleteResponse.EmploiInfo.builder()
                         .id(emploi.getId())
-                        .nom(emploi.getEmploiName())
+                        .name(emploi.getEmploiName())
                         .build());
 
                 emploi.setProfilSI(null);
@@ -211,7 +212,7 @@ public class ProfilSIService {
         String message = emploisDetaches.isEmpty()
                 ? "Profil SI '" + profilSI.getName() + "' supprimé avec succès. Aucun emploi n'était lié."
                 : "Profil SI '" + profilSI.getName() + "' supprimé avec succès. " + emploisDetaches.size()
-                        + " emploi(s) ont été détaché(s).";
+                        + " emploi ont été détaché.";
 
         return ProfilSIDTODeleteResponse.builder()
                 .message(message)
@@ -233,11 +234,19 @@ public class ProfilSIService {
 
     public ProfilSIDTOResponse toResponseDTO(ProfilSIModel profilSI) {
         List<RessourceSIDTO> ressourcesDTO = profilSI.getProfilSIRessources().stream()
-                .map(psr -> RessourceSIDTO.builder()
-                        .id(psr.getRessource().getId())
-                        .categorie(psr.getRessource().getCategorie().getName())
-                        .name(psr.getRessource().getName())
-                        .typeAcces(psr.getTypeAcces())
+                .map(r -> RessourceSIDTO.builder()
+                        .id(r.getRessource().getId())
+                        .categorie(r.getRessource().getCategorie().getName())
+                        .name(r.getRessource().getName())
+                        .typeAcces(r.getTypeAcces())
+                        .build())
+                .collect(Collectors.toList());
+
+        List<ProfilAppDTOSimple> profilAppsDTO = profilSI.getProfilApps().stream()
+                .map(p -> ProfilAppDTOSimple.builder()
+                        .id(p.getProfilApp().getId())
+                        .name(p.getProfilApp().getName())
+                        .application(p.getApplication().getName())
                         .build())
                 .collect(Collectors.toList());
 
@@ -246,6 +255,7 @@ public class ProfilSIService {
                 .name(profilSI.getName())
                 .direction(profilSI.getDirection().getName())
                 .ressources(ressourcesDTO)
+                .profilApps(profilAppsDTO)
                 .dateCreated(profilSI.getDateCreated())
                 .dateUpdated(profilSI.getDateUpdated())
                 .build();

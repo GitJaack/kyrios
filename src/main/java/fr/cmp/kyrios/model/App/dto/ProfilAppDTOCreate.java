@@ -1,6 +1,9 @@
 package fr.cmp.kyrios.model.App.dto;
 
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,9 +21,9 @@ public class ProfilAppDTOCreate {
 
     @NotNull(message = "L'ID de l'application est requis")
     @Schema(description = "ID de l'application associée", example = "1")
-    private int applicationId;
+    private Integer applicationId;
 
-    @NotNull(message = "L'ID du profil SI est requis")
-    @Schema(description = "ID du profil SI associé", example = "1")
-    private int profilSIId;
+    @NotEmpty(message = "Au moins un profil SI est requis")
+    @Schema(description = "Liste des IDs des profils SI associés", example = "[1, 2]")
+    private List<Integer> profilSIIds;
 }

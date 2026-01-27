@@ -32,7 +32,7 @@ public class ProfilAppModel {
     private AppModel application;
 
     @OneToMany(mappedBy = "profilApp", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProfilAppProfilSI> profilSIs = new ArrayList<>();
+    private List<ProfilAppProfilSI> profilSI = new ArrayList<>();
 
     @Column(name = "date_created")
     private LocalDateTime dateCreated;

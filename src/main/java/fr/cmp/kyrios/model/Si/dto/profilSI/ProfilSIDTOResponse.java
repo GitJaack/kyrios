@@ -3,6 +3,7 @@ package fr.cmp.kyrios.model.Si.dto.profilSI;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import fr.cmp.kyrios.model.App.dto.ProfilAppDTOSimple;
 import fr.cmp.kyrios.model.Si.dto.ressourceSI.RessourceSIDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -25,6 +26,9 @@ public class ProfilSIDTOResponse {
     private String direction;
 
     private List<RessourceSIDTO> ressources;
+
+    @Schema(description = "Liste des profils applicatifs associés")
+    private List<ProfilAppDTOSimple> profilApps;
 
     @Schema(description = "Date de création du profil SI", example = "2026-01-15T10:00:00")
     private LocalDateTime dateCreated;

@@ -6,8 +6,10 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import fr.cmp.kyrios.model.App.ProfilAppProfilSI;
 import fr.cmp.kyrios.model.Emploi.DirectionModel;
 import fr.cmp.kyrios.model.Emploi.EmploiModel;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -38,8 +40,11 @@ public class ProfilSIModel {
     @JsonManagedReference
     private List<EmploiModel> emplois;
 
-    @OneToMany(mappedBy = "profilSI", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "profilSI", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProfilSIRessource> profilSIRessources;
+
+    @OneToMany(mappedBy = "profilSI", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProfilAppProfilSI> profilApps;
 
     @Column(name = "date_created")
     private LocalDateTime dateCreated;
@@ -50,5 +55,6 @@ public class ProfilSIModel {
     public ProfilSIModel() {
         this.emplois = new ArrayList<>();
         this.profilSIRessources = new ArrayList<>();
+        this.profilApps = new ArrayList<>();
     }
 }

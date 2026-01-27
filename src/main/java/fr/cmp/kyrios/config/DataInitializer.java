@@ -7,6 +7,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import fr.cmp.kyrios.model.App.AppModel;
+import fr.cmp.kyrios.model.App.ProfilAppModel;
+import fr.cmp.kyrios.model.App.ProfilAppProfilSI;
 import fr.cmp.kyrios.model.Emploi.DirectionModel;
 import fr.cmp.kyrios.model.Emploi.DomaineModel;
 import fr.cmp.kyrios.model.Emploi.EmploiModel;
@@ -20,6 +22,8 @@ import fr.cmp.kyrios.repository.CategorieSIRepository;
 import fr.cmp.kyrios.repository.DirectionRepository;
 import fr.cmp.kyrios.repository.DomaineRepository;
 import fr.cmp.kyrios.repository.EmploiRepository;
+import fr.cmp.kyrios.repository.ProfilAppProfilSIRepository;
+import fr.cmp.kyrios.repository.ProfilAppRepository;
 import fr.cmp.kyrios.repository.ProfilSIRepository;
 import fr.cmp.kyrios.repository.RessourceSIRepository;
 import fr.cmp.kyrios.repository.ServiceRepository;
@@ -44,6 +48,12 @@ public class DataInitializer implements CommandLineRunner {
 
         @Autowired
         private AppRepository appRepository;
+
+        @Autowired
+        private ProfilAppRepository profilAppRepository;
+
+        @Autowired
+        private ProfilAppProfilSIRepository profilAppProfilSIRepository;
 
         @Override
         public void run(String... args) throws Exception {
@@ -87,7 +97,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 // ===== EMPLOIS =====
                 EmploiModel emp = new EmploiModel();
-                emp.setEmploiName("Developpeur informatique Fullstack (Java)");
+                emp.setEmploiName("Developpeur Fullstack");
                 emp.setDirection(dir);
                 emp.setService(svcInfra);
                 emp.setDomaine(domJava);
@@ -97,7 +107,7 @@ public class DataInitializer implements CommandLineRunner {
                 emp = emploiRepository.save(emp);
                 ;
                 EmploiModel emp2 = new EmploiModel();
-                emp2.setEmploiName("Developpeur informatique windev");
+                emp2.setEmploiName("Developpeur Windev");
                 emp2.setDirection(dir2);
                 emp2.setService(null);
                 emp2.setDomaine(null);
@@ -189,6 +199,48 @@ public class DataInitializer implements CommandLineRunner {
                 app2.setDescription("Application de gestion FLUXA");
                 app2.setDateCreated(LocalDateTime.now());
                 app2 = appRepository.save(app2);
+
+                ProfilAppModel profilApp1 = new ProfilAppModel();
+                profilApp1.setName("Developpeur");
+                profilApp1.setApplication(app);
+                profilApp1.setDateCreated(LocalDateTime.now());
+                profilApp1 = profilAppRepository.save(profilApp1);
+
+                ProfilAppProfilSI liaison1 = new ProfilAppProfilSI();
+                liaison1.setProfilApp(profilApp1);
+                liaison1.setProfilSI(profil1);
+                liaison1.setApplication(app);
+                liaison1 = profilAppProfilSIRepository.save(liaison1);
+
+                ProfilAppProfilSI liaison2 = new ProfilAppProfilSI();
+                liaison2.setProfilApp(profilApp1);
+                liaison2.setProfilSI(profil2);
+                liaison2.setApplication(app);
+                liaison2 = profilAppProfilSIRepository.save(liaison2);
+
+                ProfilAppModel profilApp2 = new ProfilAppModel();
+                profilApp2.setName("Developpeur");
+                profilApp2.setApplication(app2);
+                profilApp2.setDateCreated(LocalDateTime.now());
+                profilApp2 = profilAppRepository.save(profilApp2);
+
+                ProfilAppProfilSI liaison3 = new ProfilAppProfilSI();
+                liaison3.setProfilApp(profilApp2);
+                liaison3.setProfilSI(profil2);
+                liaison3.setApplication(app2);
+                liaison3 = profilAppProfilSIRepository.save(liaison3);
+
+                ProfilAppModel profilApp3 = new ProfilAppModel();
+                profilApp3.setName("Comptable");
+                profilApp3.setApplication(app2);
+                profilApp3.setDateCreated(LocalDateTime.now());
+                profilApp3 = profilAppRepository.save(profilApp3);
+
+                ProfilAppProfilSI liaison4 = new ProfilAppProfilSI();
+                liaison4.setProfilApp(profilApp3);
+                liaison4.setProfilSI(profil1);
+                liaison4.setApplication(app2);
+                liaison4 = profilAppProfilSIRepository.save(liaison4);
 
                 System.out.println("Données de test initialisées avec succès!");
 
