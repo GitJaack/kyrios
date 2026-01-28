@@ -1,4 +1,4 @@
-package fr.cmp.kyrios.repository;
+package fr.cmp.kyrios.repository.Emploi;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

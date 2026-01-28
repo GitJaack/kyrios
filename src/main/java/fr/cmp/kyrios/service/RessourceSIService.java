@@ -11,9 +11,9 @@ import fr.cmp.kyrios.model.Si.ProfilSIModel;
 import fr.cmp.kyrios.model.Si.RessourceSIModel;
 import fr.cmp.kyrios.model.Si.dto.ressourceSI.RessourceSIDTO;
 import fr.cmp.kyrios.model.Si.dto.ressourceSI.RessourceSIDTOCreate;
-import fr.cmp.kyrios.repository.DirectionRepository;
-import fr.cmp.kyrios.repository.ProfilSIRepository;
-import fr.cmp.kyrios.repository.RessourceSIRepository;
+import fr.cmp.kyrios.repository.Emploi.DirectionRepository;
+import fr.cmp.kyrios.repository.Si.ProfilSIRepository;
+import fr.cmp.kyrios.repository.Si.RessourceSIRepository;
 import fr.cmp.kyrios.util.EntityFinder;
 import jakarta.transaction.Transactional;
 

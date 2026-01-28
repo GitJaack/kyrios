@@ -1,4 +1,4 @@
-package fr.cmp.kyrios.repository;
+package fr.cmp.kyrios.repository.App;
 
 import java.util.Optional;
 

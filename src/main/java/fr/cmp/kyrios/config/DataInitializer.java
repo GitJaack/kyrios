@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import fr.cmp.kyrios.model.App.AppModel;
 import fr.cmp.kyrios.model.App.ProfilAppModel;
 import fr.cmp.kyrios.model.App.ProfilAppProfilSI;
+import fr.cmp.kyrios.model.App.RessourceAppModel;
 import fr.cmp.kyrios.model.Emploi.DirectionModel;
 import fr.cmp.kyrios.model.Emploi.DomaineModel;
 import fr.cmp.kyrios.model.Emploi.EmploiModel;
@@ -17,16 +18,17 @@ import fr.cmp.kyrios.model.Si.CategorieSIModel;
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
 import fr.cmp.kyrios.model.Si.ProfilSIRessource;
 import fr.cmp.kyrios.model.Si.RessourceSIModel;
-import fr.cmp.kyrios.repository.AppRepository;
-import fr.cmp.kyrios.repository.CategorieSIRepository;
-import fr.cmp.kyrios.repository.DirectionRepository;
-import fr.cmp.kyrios.repository.DomaineRepository;
-import fr.cmp.kyrios.repository.EmploiRepository;
-import fr.cmp.kyrios.repository.ProfilAppProfilSIRepository;
-import fr.cmp.kyrios.repository.ProfilAppRepository;
-import fr.cmp.kyrios.repository.ProfilSIRepository;
-import fr.cmp.kyrios.repository.RessourceSIRepository;
-import fr.cmp.kyrios.repository.ServiceRepository;
+import fr.cmp.kyrios.repository.App.AppRepository;
+import fr.cmp.kyrios.repository.App.ProfilAppProfilSIRepository;
+import fr.cmp.kyrios.repository.App.ProfilAppRepository;
+import fr.cmp.kyrios.repository.App.RessourceAppRepository;
+import fr.cmp.kyrios.repository.Emploi.DirectionRepository;
+import fr.cmp.kyrios.repository.Emploi.DomaineRepository;
+import fr.cmp.kyrios.repository.Emploi.EmploiRepository;
+import fr.cmp.kyrios.repository.Emploi.ServiceRepository;
+import fr.cmp.kyrios.repository.Si.CategorieSIRepository;
+import fr.cmp.kyrios.repository.Si.ProfilSIRepository;
+import fr.cmp.kyrios.repository.Si.RessourceSIRepository;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -54,6 +56,9 @@ public class DataInitializer implements CommandLineRunner {
 
         @Autowired
         private ProfilAppProfilSIRepository profilAppProfilSIRepository;
+
+        @Autowired
+        RessourceAppRepository ressourceAppRepository;
 
         @Override
         public void run(String... args) throws Exception {
@@ -241,6 +246,34 @@ public class DataInitializer implements CommandLineRunner {
                 liaison4.setProfilSI(profil1);
                 liaison4.setApplication(app2);
                 liaison4 = profilAppProfilSIRepository.save(liaison4);
+
+                RessourceAppModel resApp1 = new RessourceAppModel();
+                resApp1.setApplication(app);
+                resApp1.setName("BTSY");
+                resApp1.setDescription("Acces Synthese Client");
+                resApp1 = ressourceAppRepository.save(resApp1);
+
+                RessourceAppModel resApp2 = new RessourceAppModel();
+                resApp2.setApplication(app);
+                resApp2.setName("BTAC");
+                resApp2.setDescription("Accueil");
+                resApp2 = ressourceAppRepository.save(resApp2);
+
+                RessourceAppModel resApp3 = new RessourceAppModel();
+                resApp3.setApplication(app);
+                resApp3.setName("BTAD");
+                resApp3.setDescription("Administrateur");
+                resApp3 = ressourceAppRepository.save(resApp3);
+
+                RessourceAppModel resApp4 = new RessourceAppModel();
+                resApp4.setApplication(app2);
+                resApp4.setName("Connexion/Accueil");
+                resApp4 = ressourceAppRepository.save(resApp4);
+
+                RessourceAppModel resApp5 = new RessourceAppModel();
+                resApp5.setApplication(app2);
+                resApp5.setName("Televerer un document");
+                resApp5 = ressourceAppRepository.save(resApp5);
 
                 System.out.println("Données de test initialisées avec succès!");
 

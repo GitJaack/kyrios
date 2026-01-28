@@ -23,8 +23,8 @@ import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTODeleteResponse;
 import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTOResponse;
 import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIUpdateDTO;
 import fr.cmp.kyrios.model.Si.dto.ressourceSI.RessourceSIDTO;
-import fr.cmp.kyrios.repository.EmploiRepository;
-import fr.cmp.kyrios.repository.ProfilSIRepository;
+import fr.cmp.kyrios.repository.Emploi.EmploiRepository;
+import fr.cmp.kyrios.repository.Si.ProfilSIRepository;
 import fr.cmp.kyrios.util.EntityFinder;
 import jakarta.transaction.Transactional;
 

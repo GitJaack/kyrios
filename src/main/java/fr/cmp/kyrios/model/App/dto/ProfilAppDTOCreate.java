@@ -26,4 +26,7 @@ public class ProfilAppDTOCreate {
     @NotEmpty(message = "Au moins un profil SI est requis")
     @Schema(description = "Liste des IDs des profils SI associés", example = "[1, 2]")
     private List<Integer> profilSIIds;
+
+    @Schema(description = "Liste des IDs des ressources d'application associées (optionnel)", example = "[1, 2, 3]")
+    private List<Integer> ressourceAppIds;
 }

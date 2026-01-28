@@ -48,6 +48,18 @@ public class ProfilAppController {
                                 .toList();
         }
 
+        @GetMapping("/{id}")
+        @Operation(summary = "Récupérer un profil d'application par ID")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Profil d'application trouvé"),
+                        @ApiResponse(responseCode = "404", description = "Profil d'application non trouvé", content = @Content()),
+                        @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
+        })
+        public ProfilAppDTOResponse get(@PathVariable int id) {
+                ProfilAppModel profilApp = profilAppService.getById(id);
+                return profilAppService.toDTO(profilApp);
+        }
+
         @GetMapping("/by-application")
         @Operation(summary = "Récupérer les profils d'application par application")
         @ApiResponses(value = {

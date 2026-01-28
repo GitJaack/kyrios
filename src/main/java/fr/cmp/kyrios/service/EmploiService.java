@@ -12,7 +12,7 @@ import fr.cmp.kyrios.model.Emploi.dto.EmploiDTOCreate;
 import fr.cmp.kyrios.model.Emploi.dto.EmploiDTOResponse;
 import fr.cmp.kyrios.model.Emploi.dto.ProfilSISimpleDTO;
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
-import fr.cmp.kyrios.repository.EmploiRepository;
+import fr.cmp.kyrios.repository.Emploi.EmploiRepository;
 import fr.cmp.kyrios.util.EntityFinder;
 
 @Service

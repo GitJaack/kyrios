@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import fr.cmp.kyrios.model.App.AppModel;
 import fr.cmp.kyrios.model.App.dto.AppDTOCreate;
 import fr.cmp.kyrios.model.App.dto.AppDTOResponse;
-import fr.cmp.kyrios.repository.AppRepository;
+import fr.cmp.kyrios.repository.App.AppRepository;
 import fr.cmp.kyrios.util.EntityFinder;
 
 @Service

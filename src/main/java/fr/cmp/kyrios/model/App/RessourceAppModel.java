@@ -5,11 +5,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
 
 @Entity
-@Table(name = "ressource_applicative")
+@Table(name = "ressource_app", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"name", "application_id"})
+})
 @Data
 public class RessourceAppModel {
 
@@ -17,6 +22,13 @@ public class RessourceAppModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(nullable = false, length = 16)
-    private String nom;
+    @Column(nullable = false, length = 64)
+    private String name;
+
+    @Column(length = 255)
+    private String description;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "application_id", nullable = false)
+    private AppModel application;
 }

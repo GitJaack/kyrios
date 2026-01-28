@@ -68,6 +68,16 @@ public class GlobalExceptionHandler {
                 return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
 
+        @ExceptionHandler(RessourceAppNotFoundException.class)
+        public ResponseEntity<ErrorResponse> handleRessourceAppNotFound(RessourceAppNotFoundException ex,
+                        WebRequest request) {
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .message(ex.getMessage())
+                                .build();
+
+                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+
         @ExceptionHandler(IllegalArgumentException.class)
         public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex, WebRequest request) {
                 ErrorResponse errorResponse = ErrorResponse.builder()

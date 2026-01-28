@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
+import fr.cmp.kyrios.repository.App.ProfilAppProfilSIRepository;
+import fr.cmp.kyrios.repository.App.ProfilAppRepository;
 import fr.cmp.kyrios.util.EntityFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,11 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import fr.cmp.kyrios.model.App.ProfilAppModel;
 import fr.cmp.kyrios.model.App.ProfilAppProfilSI;
+import fr.cmp.kyrios.model.App.ProfilAppRessource;
+import fr.cmp.kyrios.model.App.RessourceAppModel;
 import fr.cmp.kyrios.model.App.dto.ProfilAppDTOCreate;
 import fr.cmp.kyrios.model.App.dto.ProfilAppDTODeleteResponse;
 import fr.cmp.kyrios.model.App.dto.ProfilAppDTOResponse;
-import fr.cmp.kyrios.repository.ProfilAppProfilSIRepository;
-import fr.cmp.kyrios.repository.ProfilAppRepository;
 
 @Service
 public class ProfilAppService {
@@ -62,7 +64,7 @@ public class ProfilAppService {
         for (Integer profilSIId : dto.getProfilSIIds()) {
             if (!uniqueIds.add(profilSIId)) {
                 throw new IllegalArgumentException(
-                        "Le profil SI ID " + profilSIId + " est présent plusieurs fois dans la liste");
+                        "Le profil SI " + profilSIId + " est présent plusieurs fois dans la liste");
             }
         }
 
@@ -78,6 +80,10 @@ public class ProfilAppService {
         }
 
         createProfilSILiaisons(profilApp, dto.getProfilSIIds());
+
+        if (dto.getRessourceAppIds() != null && !dto.getRessourceAppIds().isEmpty()) {
+            createRessourceAppLiaisons(profilApp, dto.getRessourceAppIds());
+        }
 
         return profilAppRepository.save(profilApp);
     }
@@ -106,6 +112,13 @@ public class ProfilAppService {
         profilAppRepository.flush();
 
         createProfilSILiaisons(updateProfilApp, dto.getProfilSIIds());
+
+        updateProfilApp.getProfilAppRessources().removeIf(r -> true);
+        profilAppRepository.flush();
+
+        if (dto.getRessourceAppIds() != null && !dto.getRessourceAppIds().isEmpty()) {
+            createRessourceAppLiaisons(updateProfilApp, dto.getRessourceAppIds());
+        }
 
         return profilAppRepository.save(updateProfilApp);
     }
@@ -145,6 +158,9 @@ public class ProfilAppService {
                 .profilSI(profilApp.getProfilSI().stream()
                         .map(liaison -> liaison.getProfilSI().getName())
                         .collect(Collectors.toList()))
+                .ressourcesApp(profilApp.getProfilAppRessources().stream()
+                        .map(liaison -> liaison.getRessource().getName())
+                        .collect(Collectors.toList()))
                 .dateCreated(profilApp.getDateCreated())
                 .dateUpdated(profilApp.getDateUpdated())
                 .build();
@@ -158,6 +174,23 @@ public class ProfilAppService {
             liaison.setProfilSI(profilSI);
             liaison.setApplication(profilApp.getApplication());
             profilApp.getProfilSI().add(liaison);
+        }
+    }
+
+    private void createRessourceAppLiaisons(ProfilAppModel profilApp, List<Integer> ressourceAppIds) {
+        for (Integer ressourceAppId : ressourceAppIds) {
+            RessourceAppModel ressourceApp = entityFinder.findRessourceAppOrThrow(ressourceAppId);
+
+            if (ressourceApp.getApplication().getId() != profilApp.getApplication().getId()) {
+                throw new IllegalArgumentException(
+                        "La ressource '" + ressourceApp.getName() + "' n'appartient pas à l'application '"
+                                + profilApp.getApplication().getName() + "'");
+            }
+
+            ProfilAppRessource liaison = new ProfilAppRessource();
+            liaison.setProfilApp(profilApp);
+            liaison.setRessource(ressourceApp);
+            profilApp.getProfilAppRessources().add(liaison);
         }
     }
 

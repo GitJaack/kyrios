@@ -17,7 +17,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "profil_applicatif")
+@Table(name = "profil_app")
 @Data
 public class ProfilAppModel {
     @Id
@@ -33,6 +33,9 @@ public class ProfilAppModel {
 
     @OneToMany(mappedBy = "profilApp", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProfilAppProfilSI> profilSI = new ArrayList<>();
+
+    @OneToMany(mappedBy = "profilApp", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProfilAppRessource> profilAppRessources = new ArrayList<>();
 
     @Column(name = "date_created")
     private LocalDateTime dateCreated;
