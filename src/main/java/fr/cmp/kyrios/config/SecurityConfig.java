@@ -2,6 +2,7 @@ package fr.cmp.kyrios.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -22,10 +23,17 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/applications/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/emplois/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/profil-app/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/profils-si/**").permitAll()
                         .requestMatchers("/api/emplois/**").authenticated()
                         .requestMatchers("/api/profils-si/**").authenticated()
                         .requestMatchers("/api/categories-si/**").authenticated()
                         .requestMatchers("/api/ressources-si/**").authenticated()
+                        .requestMatchers("/api/applications/**").authenticated()
+                        .requestMatchers("/api/profil-app/**").authenticated()
+                        .requestMatchers("/api/ressources-app/**").authenticated()
                         .anyRequest().permitAll())
                 .httpBasic(basic -> {
                 });

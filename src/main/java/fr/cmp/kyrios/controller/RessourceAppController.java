@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@RequestMapping("/api/ressource-app")
+@RequestMapping("/api/ressources-app")
 @Tag(name = "Ressource App", description = "Gestion des ressources App")
 public class RessourceAppController {
     @Autowired
