@@ -1,0 +1,90 @@
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 256px;
+    background-color: hsla(220, 25%, 20%, 1);
+    z-index: 1000;
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.container-logo {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-lg);
+    font-size: var(--font-size-2xl);
+    font-weight: bold;
+    color: white;
+    border-bottom: 1px solid hsla(220, 25%, 30%, 1);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: hsla(220, 70%, 60%, 1);
+    border-radius: 8px;
+    margin-right: var(--spacing-md);
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar ul li a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: hsl(0, 0%, 80%);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    padding: 10px 12px;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.sidebar ul li a .icon {
+    width: 24px;
+    height: 24px;
+    filter: invert(1);
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.sidebar ul li a:hover .icon {
+    opacity: 0.8;
+}
+
+.sidebar ul li a.active .icon {
+    opacity: 1;
+    filter: invert(1);
+}
+
+.sidebar ul li a:hover {
+    background-color: hsl(220, 25%, 30%);
+}
+
+.sidebar ul li a.active {
+    color: hsl(0, 0%, 100%);
+    background-color: hsl(220, 20%, 25%);
+    font-weight: 500;
+}
+
+.nav-main {
+    flex: 1;
+    padding: 24px 16px;
+}
+
+.nav-bottom {
+    border-top: 1px solid hsla(220, 25%, 30%, 1);
+    padding: 24px;
+}
+
