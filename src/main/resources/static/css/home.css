@@ -1,0 +1,110 @@
+.header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid hsl(220, 10%, 90%);
+    padding-left:1.5rem;
+    padding-right:1.5rem;
+    height: 5.6rem;
+}
+
+.header h1{
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+}
+.header p {
+    font-size: var(--font-size-sm);
+    color: hsl(220, 10%, 50%);
+}
+
+.logout-button {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 0.5rem;
+}
+
+.logout-button img {
+    filter: invert(60%);
+}
+
+.content-body{
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-lg);
+    background-color: hsl(0, 0%, 98%);
+    min-height: calc(100vh - 5.6rem);
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--spacing-md);
+}
+
+.grid-item{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid hsl(220, 10%, 90%);
+    border-radius: 0.5rem;
+    padding: var(--spacing-lg);
+    background-color: white;
+}
+
+.grid-item-title{
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: hsl(220, 10%, 50%);
+}
+
+.grid-item-value {
+    font-size: var(--font-size-2xl);
+    font-weight: bold;
+    margin-top: var(--spacing-xs);
+}
+
+.icon-container{
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    background-color: hsl(220, 15%, 95%);
+}
+
+.icon-blue{
+    filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(200deg) brightness(100%) contrast(101%);
+}
+
+.icon-green{
+    filter: invert(49%) sepia(75%) saturate(432%) hue-rotate(85deg) brightness(95%) contrast(90%);
+}
+
+.icon-purple{
+    filter: invert(30%) sepia(48%) saturate(749%) hue-rotate(250deg) brightness(95%) contrast(90%);
+}
+
+.icon-orange{
+    filter: invert(57%) sepia(48%) saturate(749%) hue-rotate(10deg) brightness(95%) contrast(90%);
+}
+
+.content-bottom{
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-md);
+}
+
+.content-quick{
+    background-color: white;
+    border: 1px solid hsl(220, 10%, 90%);
+    border-radius: 0.5rem;
+    padding: var(--spacing-lg);
+}
+
+.content-recent-activities{
+    background-color: white;
+    border: 1px solid hsl(220, 10%, 90%);
+    border-radius: 0.5rem;
+    padding: var(--spacing-lg);
+}
