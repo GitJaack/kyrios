@@ -1,0 +1,212 @@
+.content-body {
+    padding: var(--spacing-lg);
+}
+
+.content-above {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.container-above-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.container-above-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.search-container {
+    position: relative;
+    width: 500px;
+}
+
+.search-container img {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+}
+
+.search-input {
+    width: 100%;
+    height: 2.5rem;
+    padding-left: 2.5rem;
+    padding-right: 0.75rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    border: 1px solid hsl(220, 10%, 90%);
+    background-color: hsl(0, 0%, 98%);
+    border-radius: 0.5rem;
+    font-size: var(--font-size-sm);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: hsl(220, 70%, 60%);
+}
+
+.filter-button {
+    border: 1px solid hsl(220, 10%, 90%);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.filter-button img {
+    width: 18px;
+    height: 18px;
+}
+
+.export-button,
+.create-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid hsl(220, 10%, 90%);
+    border-radius: 0.5rem;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+}
+
+.export-button img,
+.create-button img {
+    width: 18px;
+    height: 18px;
+    opacity: 0.6;
+}
+
+.create-button {
+    background-color: hsl(220, 70%, 60%);
+    color: white;
+    border-color: hsl(220, 70%, 60%);
+}
+
+.create-button img {
+    filter: brightness(0) invert(1);
+    opacity: 1;
+}
+
+.content-below {
+    margin-top: 1rem;
+    background-color: white;
+    border: 1px solid hsl(220, 10%, 90%);
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.table-header, 
+.table-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 0.8fr 0.5fr 0.3fr; 
+    gap: 1rem;
+    padding: 1rem;
+    align-items: center;
+}
+
+.table-header {
+    background-color: hsl(220, 10%, 98%);
+    border-bottom: 1px solid hsl(220, 10%, 90%);
+}
+
+.table-header p {
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: hsl(220, 10%, 50%);
+}
+
+.table-row {
+    border-bottom: 1px solid hsl(220, 10%, 95%);
+    transition: background-color 0.2s;
+}
+
+.table-row:last-child {
+    border-bottom: none;
+}
+
+.table-row:hover {
+    background-color: hsl(220, 20%, 98%);
+}
+
+.table-row p {
+    font-size: 0.875rem;
+    color: hsl(220, 10%, 20%);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.actions{
+    display: flex;
+    gap: 1.5rem;
+}
+
+.actions button {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.actions img {
+    width: 18px;
+    height: 18px;
+    transition: opacity 0.2s ease;
+}
+
+.delete-button img {
+    filter: invert(21%) sepia(92%) saturate(6933%) hue-rotate(356deg) brightness(106%) contrast(116%);
+    opacity: 1;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.pagination-container {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.pagination-link {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid hsl(220, 10%, 90%);
+    border-radius: 0.25rem;
+    background-color: white;
+    color: hsl(220, 10%, 40%);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.pagination-link:hover {
+    background-color: hsl(220, 20%, 95%);
+    border-color: hsl(220, 20%, 80%);
+}
+
+.pagination-link.active {
+    background-color: hsl(220, 70%, 60%);
+    color: white;
+    border-color: hsl(220, 70%, 60%);
+}
+
+.pagination-link.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}

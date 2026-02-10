@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "profil_si_ressources")
@@ -23,10 +24,12 @@ public class ProfilSIRessource {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "profil_si_id", nullable = false)
+    @ToString.Exclude
     private ProfilSIModel profilSI;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "ressource_id", nullable = false)
+    @ToString.Exclude
     private RessourceSIModel ressource;
 
     @Enumerated(EnumType.STRING)

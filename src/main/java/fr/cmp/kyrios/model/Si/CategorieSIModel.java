@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "categories")
@@ -24,6 +25,7 @@ public class CategorieSIModel {
     private String name;
 
     @OneToMany(mappedBy = "categorie")
+    @ToString.Exclude
     private List<RessourceSIModel> ressources;
 
     public CategorieSIModel() {

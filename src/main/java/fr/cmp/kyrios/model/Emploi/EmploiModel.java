@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "emplois")
@@ -40,14 +41,17 @@ public class EmploiModel {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "direction_id", nullable = false)
+    @ToString.Exclude
     private DirectionModel direction;
 
     @ManyToOne
     @JoinColumn(name = "service_id")
+    @ToString.Exclude
     private ServiceModel service;
 
     @ManyToOne
     @JoinColumn(name = "domaine_id")
+    @ToString.Exclude
     private DomaineModel domaine;
 
     @Enumerated(EnumType.STRING)
@@ -56,6 +60,7 @@ public class EmploiModel {
 
     @ManyToOne
     @JoinColumn(name = "profil_si_id", nullable = true)
+    @ToString.Exclude
     private ProfilSIModel profilSI;
 
     @Column(name = "date_created")

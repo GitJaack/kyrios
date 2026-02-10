@@ -27,8 +27,11 @@ public class HomeController {
     @GetMapping("/")
     public String home(Model model) {
         model.addAttribute("currentPage", "/");
-        model.addAttribute("pageTitle", "Accueil");
+        model.addAttribute("pageTitle", "Accueil - Kyrios");
+        model.addAttribute("pageHeader", "Accueil");
+        model.addAttribute("pageDescription", "Bienvenue sur Kyrios");
         model.addAttribute("contentPage", "home.jsp");
+        model.addAttribute("pageCss", "home");
 
         model.addAttribute("profilSICount", profilSIRepository.count());
         model.addAttribute("emploiCount", emploiRepository.count());

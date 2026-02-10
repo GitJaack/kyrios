@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "ressource_si")
@@ -28,6 +29,7 @@ public class RessourceSIModel {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "categorie_id", nullable = false)
+    @ToString.Exclude
     private CategorieSIModel categorie;
 
     @Column(nullable = false, length = 50)

@@ -14,6 +14,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "directions")
@@ -28,6 +29,7 @@ public class DirectionModel {
 
     @ManyToMany
     @JoinTable(name = "direction_ressources_default", joinColumns = @JoinColumn(name = "direction_id"), inverseJoinColumns = @JoinColumn(name = "ressource_id"))
+    @ToString.Exclude
     private List<RessourceSIModel> ressourcesDefault;
 
     public DirectionModel() {

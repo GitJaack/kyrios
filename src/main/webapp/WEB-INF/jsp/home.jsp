@@ -1,21 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<div>
-    <div class="header">
-
-        <div class="content-header">
-            <h1>Accueil</h1>
-            <p>Bienvenue sur Kyrios</p>
-        </div>
-
-        <div class="logout-button">
-            <img src="/images/log-out.svg" alt="log-out icon" class="log-out icon">
-            <p>Déconnexion</p>
-        </div>
-
-    </div>
-
-    <div class="content-body">
+<div class="content-body">
         <div class="grid-container">
         
             <div class="grid-item">
@@ -63,11 +48,46 @@
         <div class="content-bottom">
 
             <div class="content-quick">
-                <h3>Actions rapides</h3>
-                <div>
-                    <a href='/profilSI/create'">Créer un profil SI</a>
-                    <a href='/emploi/create'">Créer un emploi</a>
-                    <a href='/profilApp/create'">Créer un profil applicatif</a>
+                <div class="quick-header">
+                    <h3>Actions rapides</h3>    
+                </div>
+
+                <div class="quick-links">
+                    <a href='/profilSI/create'">
+                        <div class="quick-link">
+                            <div class="icon-container">
+                                <img src="/images/users.svg" alt="users icon" class="icon-blue">
+                            </div>
+                            <div>
+                                <p class="title">Créer un profil SI</p>
+                                <p class="desc">Ajouter un nouveau profil SI</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href='/emploi/create'">
+                        <div class="quick-link">
+                            <div class="icon-container">
+                                <img src="/images/briefcase.svg" alt="briefcase icon" class="icon-green">
+                            </div>
+                            <div>
+                                <p class="title">Créer un emploi</p>
+                                <p class="desc">Ajouter un nouvel emploi</p>
+                            </div>
+                        </div> 
+                    </a>
+
+                    <a href='/profilApp/create'">
+                        <div class="quick-link">
+                            <div class="icon-container">
+                                <img src="/images/layers.svg" alt="layers icon" class="icon-purple">
+                            </div>
+                            <div>
+                                <p class="title">Créer un profil applicatif</p>
+                                <p class="desc">Ajouter un nouveau profil applicatif</p>
+                            </div>
+                        </div>
+                    </a>
                 </div>
             </div>
 

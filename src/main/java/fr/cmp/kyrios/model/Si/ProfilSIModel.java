@@ -1,6 +1,7 @@
 package fr.cmp.kyrios.model.Si;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +21,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "profils_si")
@@ -38,12 +40,15 @@ public class ProfilSIModel {
 
     @OneToMany(mappedBy = "profilSI")
     @JsonManagedReference
+    @ToString.Exclude
     private List<EmploiModel> emplois;
 
     @OneToMany(mappedBy = "profilSI", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<ProfilSIRessource> profilSIRessources;
 
     @OneToMany(mappedBy = "profilSI", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<ProfilAppProfilSI> profilApps;
 
     @Column(name = "date_created")
@@ -51,6 +56,14 @@ public class ProfilSIModel {
 
     @Column(name = "date_updated")
     private LocalDateTime dateUpdated;
+
+    public String getFormattedDateCreated() {
+        return dateCreated != null ? dateCreated.format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH'h'mm")) : "";
+    }
+
+    public String getFormattedDateUpdated() {
+        return dateUpdated != null ? dateUpdated.format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH'h'mm")) : "";
+    }
 
     public ProfilSIModel() {
         this.emplois = new ArrayList<>();
