@@ -24,7 +24,7 @@
     align-items: center;
     cursor: pointer;
     gap: 0.5rem;
-    padding:var(--spacing-sm);
+    padding:0.5rem;
     border-radius: 8px;
     transition: background-color 0.2s ease;
 }

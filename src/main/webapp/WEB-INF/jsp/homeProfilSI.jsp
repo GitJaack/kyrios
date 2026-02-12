@@ -20,10 +20,10 @@
                     Exporter
                 </button>
 
-                <button class="create-button">
+                <a href="/profilSI/create" class="create-button">
                     <img src="/images/plus.svg" alt="plus icon">
                     Créer un profil
-                </button>
+                </a>
             </div>
         </div>
 
@@ -32,7 +32,7 @@
                 <p>Profil SI</p>
                 <p>Emploi</p>
                 <p>Direction</p>
-                <p>Derniere modification</p>
+                <p>Dernière modification</p>
                 <p>Actions</p>
             </div>
 

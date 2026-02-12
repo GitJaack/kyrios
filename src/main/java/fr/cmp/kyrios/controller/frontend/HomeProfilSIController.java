@@ -16,8 +16,7 @@ public class HomeProfilSIController {
     private ProfilSIRepository profilSIRepository;
 
     @GetMapping("/profilSI")
-    public String profilSI(Model model,
-            @RequestParam(defaultValue = "0") int page,
+    public String profilSI(Model model, @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         model.addAttribute("currentPage", "/profilSI");
         model.addAttribute("pageTitle", "Gestion des profils SI - Kyrios");

@@ -17,7 +17,7 @@
 .container-logo {
     display: flex;
     align-items: center;
-    padding: var(--spacing-lg);
+    padding: 1.5rem;
     font-size: var(--font-size-2xl);
     font-weight: bold;
     color: white;
@@ -32,7 +32,7 @@
     height: 40px;
     background-color: hsla(220, 70%, 60%, 1);
     border-radius: 8px;
-    margin-right: var(--spacing-md);
+    margin-right: 1rem;
 }
 
 .sidebar ul {

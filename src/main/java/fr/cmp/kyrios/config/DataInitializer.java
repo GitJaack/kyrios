@@ -76,18 +76,26 @@ public class DataInitializer implements CommandLineRunner {
                 dir = directionRepository.save(dir);
 
                 DirectionModel dir2 = new DirectionModel();
-                dir2.setName("Comptable");
+                dir2.setName("Agence Comptable");
                 dir2 = directionRepository.save(dir2);
 
                 // ===== SERVICES =====
                 ServiceModel svcInfra = new ServiceModel();
-                svcInfra.setName("Infrastructure");
+                svcInfra.setName("Restaurant");
                 svcInfra = serviceRepository.save(svcInfra);
+
+                ServiceModel svcInfra2 = new ServiceModel();
+                svcInfra2.setName("Maintenance");
+                svcInfra2 = serviceRepository.save(svcInfra2);
 
                 // ===== DOMAINES =====
                 DomaineModel domJava = new DomaineModel();
-                domJava.setName("Java");
+                domJava.setName("Régie Caisse");
                 domJava = domaineRepository.save(domJava);
+
+                DomaineModel domJava2 = new DomaineModel();
+                domJava2.setName("PSG");
+                domJava2 = domaineRepository.save(domJava2);
 
                 // ===== PROFILS SI =====
                 ProfilSIModel profil1 = new ProfilSIModel();
