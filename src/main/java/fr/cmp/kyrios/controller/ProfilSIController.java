@@ -28,6 +28,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/profils-si")
@@ -42,7 +43,13 @@ public class ProfilSIController {
                         @ApiResponse(responseCode = "200", description = "Liste des profils SI récupérée avec succès"),
                         @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
         })
-        public List<ProfilSIDTOResponse> list() {
+        public List<ProfilSIDTOResponse> list(@RequestParam(required = false) Integer directionId) {
+                if (directionId != null) {
+                        return profilSIService.getByDirection(directionId).stream()
+                                        .map(profilSIService::toResponseDTO)
+                                        .toList();
+                }
+
                 return profilSIService.listAll().stream()
                                 .map(profilSIService::toResponseDTO)
                                 .toList();

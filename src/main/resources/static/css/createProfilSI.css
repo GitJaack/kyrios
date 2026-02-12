@@ -32,7 +32,6 @@
 }
 
 .back-button span,
-.copy-button span,
 .save-button span {
     font-weight: 500;
     font-size: var(--font-size-sm);
@@ -40,7 +39,6 @@
 }
 
 .back-button img,
-.copy-button img,
 .save-button img {
     width: 18px;
     height: 18px;
@@ -52,7 +50,6 @@
     gap: 0.75rem;
 }
 
-.copy-button,
 .save-button {
     display: flex;
     justify-content: center;
@@ -135,6 +132,36 @@
     outline: none;
     border-color: hsl(220, 70%, 60%);
 }
+
+.toggle-switch {
+    display: flex;
+    border: 1px solid hsl(220, 10%, 85%);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    width: max-content;
+}
+
+.toggle-option {
+    padding: 0.5rem 1rem;
+    background-color: hsl(220, 15%, 98%);
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: hsl(220, 10%, 30%);
+    flex: 1;
+    transition: all 0.5s ease;
+}
+
+.toggle-option:hover {
+    background-color: hsl(220, 20%, 96%);
+}
+
+.toggle-option.active {
+    background-color: hsl(220, 70%, 60%);
+    color: white;
+}
+
 
 .category-section {
     margin-bottom: 1rem;
@@ -263,7 +290,6 @@
   background: #fdecea;
   color: #842029;
 }
-
 
 .save-button:disabled {
     opacity: 0.6;

@@ -22,11 +22,6 @@
             </a>
 
             <div class="content-header-right">
-                <button class="copy-button">
-                    <img src="/images/copy.svg" alt="copy icon">
-                    <span>Copier un profil</span>
-                </button>
-
                 <button class="save-button" type="submit" @click="submitForm()" :disabled="loading">
                     <img src="/images/save.svg" alt="save icon">
                     <span x-text="loading ? 'Enregistrement...' : 'Enregistrer'"></span>
@@ -105,7 +100,45 @@
                     <label for="name">Nom du profil SI <span class="required">*</span></label>
                     <input type="text" id="name" name="name" required placeholder="Entrer un nom de profil SI">
                 </div>
-            
+
+                <div class="form-group">
+                    <label>Mode de création <span class="required">*</span></label>
+
+                    <div class="toggle-switch">
+                        <button type="button"
+                                class="toggle-option"
+                                :class="{ 'active': modeCreation === 'NOUVEAU' }"
+                                @click="
+                                    modeCreation = 'NOUVEAU';
+                                    profilSISourceId = '';
+                                    profilsSISource = [];
+                                    onDirectionChange();
+                                ">
+                            Nouveau
+                        </button>
+
+                        <button type="button"
+                                class="toggle-option"
+                                :class="{ 'active': modeCreation === 'COPIER' }"
+                                @click="
+                                    modeCreation = 'COPIER';
+                                    loadProfilsSISource();
+                                ">
+                            Copier
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group" x-show="modeCreation === 'COPIER'">
+                    <label for="profilSISource">Profil SI source</label>
+                    <select id="profilSISource" x-model="profilSISourceId" @change="onProfilSourceChange()">
+                        <option value="" disabled selected>Sélectionner un profil SI</option>
+                        <template x-for="profil in profilsSISource" :key="profil.idProfilSI">
+                            <option :value="profil.idProfilSI" x-text="profil.name"></option>
+                        </template>
+                    </select>
+                </div>
+
             </div>
 
             <div class="form-section">
@@ -153,154 +186,235 @@
 
 <script>
     function profilSIForm() {
-        return {
-            loading: false,
-            message: '',
-            messageType: '',
-            selectedDirection: '',
-            selectedRessources: {},
-            directionRessourcesMap: {
-                <c:forEach var="direction" items="${directions}" varStatus="status">
-                ${direction.id}: [
-                    <c:forEach var="ressource" items="${direction.ressourcesDefault}" varStatus="resStatus">
-                    {
-                        id: ${ressource.id},
-                        typeAcces: '${ressource.typeAcces}'
-                    }<c:if test="${!resStatus.last}">,</c:if>
-                    </c:forEach>
-                ]<c:if test="${!status.last}">,</c:if>
+    return {
+        loading: false,
+        message: '',
+        messageType: '',
+        selectedDirection: '',
+        selectedRessources: {},
+        modeCreation: 'NOUVEAU',
+        profilsSISource: [],
+        profilSISourceId: '',
+
+        directionRessourcesMap: {
+            <c:forEach var="direction" items="${directions}" varStatus="status">
+            ${direction.id}: [
+                <c:forEach var="ressource" items="${direction.ressourcesDefault}" varStatus="resStatus">
+                {
+                    id: ${ressource.id},
+                    typeAcces: '${ressource.typeAcces}'
+                }<c:if test="${!resStatus.last}">,</c:if>
                 </c:forEach>
-            },
-            
-            init() {
+            ]<c:if test="${!status.last}">,</c:if>
+            </c:forEach>
+        },
 
-                <c:forEach var="categorie" items="${categories}">
-                    <c:forEach var="ressource" items="${categorie.ressources}">
-                    this.selectedRessources[${ressource.id}] = {
-                        checked: false,
-                        typeAcces: 'LECTURE',
-                        isDefault: false
-                    };
-                    </c:forEach>
+        init() {
+            <c:forEach var="categorie" items="${categories}">
+                <c:forEach var="ressource" items="${categorie.ressources}">
+                this.selectedRessources[${ressource.id}] = {
+                    checked: false,
+                    typeAcces: 'LECTURE',
+                    isDefault: false
+                };
                 </c:forEach>
-            },
-            
-            onDirectionChange() {
-                if (!this.selectedDirection) return;
-                
-                const directionId = parseInt(this.selectedDirection);
-                const ressourcesDefault = this.directionRessourcesMap[directionId] || [];
+            </c:forEach>
+        },
 
-                Object.keys(this.selectedRessources).forEach(id => {
-                    this.selectedRessources[id].checked = false;
-                    this.selectedRessources[id].typeAcces = 'LECTURE';
-                    this.selectedRessources[id].isDefault = false;
-                });
-                
-                ressourcesDefault.forEach(ressource => {
-                    if (this.selectedRessources[ressource.id]) {
-                        this.selectedRessources[ressource.id].checked = true;
-                        this.selectedRessources[ressource.id].typeAcces = ressource.typeAcces;
-                        this.selectedRessources[ressource.id].isDefault = true;
-                    }
-                });
-            },
+        onDirectionChange() {
+            if (!this.selectedDirection) return;
 
-            async submitForm() {
-                this.loading = true;
-                this.message = '';
-                this.messageType = '';
-                
-                try {
-                    const emploiName = document.getElementById('emploi').value;
-                    const direction = document.getElementById('direction').value;
-                    const service = document.getElementById('service').value;
-                    const domaine = document.getElementById('domaine').value;
-                    const status = document.getElementById('status').value;
-                    const profilSIName = document.getElementById('name').value;
+            const directionId = parseInt(this.selectedDirection);
+            const ressourcesDefault = this.directionRessourcesMap[directionId] || [];
 
-                    if (!emploiName.trim()) {
-                        this.messageType = 'error';
-                        this.message = 'Le nom de l\'emploi ne peut pas être vide';
-                        this.loading = false;
-                        return;
-                    }
-                    
-                    if (!direction) {
-                        this.messageType = 'error';
-                        this.message = 'La direction est requise';
-                        this.loading = false;
-                        return;
-                    }
-                    
-                    if (!status) {
-                        this.messageType = 'error';
-                        this.message = 'Le statut ne peut pas être vide';
-                        this.loading = false;
-                        return;
-                    }
-                    
-                    if (!profilSIName.trim()) {
-                        this.messageType = 'error';
-                        this.message = 'Le nom du profil SI ne peut pas être vide';
-                        this.loading = false;
-                        return;
-                    }
-                    
-                    const ressources = [];
-                    
-                    Object.keys(this.selectedRessources).forEach(id => {
-                        if (this.selectedRessources[id].checked) {
-                            ressources.push({
-                                ressourceId: parseInt(id),
-                                typeAcces: this.selectedRessources[id].typeAcces
-                            });
-                        }
-                    });
-                    
-                    const data = {
-                        emploi: {
-                            emploi: emploiName,
-                            direction: parseInt(direction),
-                            service: service ? parseInt(service) : null,
-                            domaine: domaine ? parseInt(domaine) : null,
-                            status: status
-                        },
-                        profilSI: {
-                            profilSI: profilSIName,
-                            modeCreation: 'NOUVEAU',
-                            ressources: ressources
-                        }
-                    };
+            this.resetRessources();
 
-                    const response = await fetch('/api/profils-si', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(data)
-                    });
-                    
-                    if (response.ok) {
-                        this.messageType = 'success';
-                        this.message = 'Profil SI créé avec succès!';
-                        
-                        setTimeout(() => {
-                            window.location.href = '/profilSI';
-                        }, 2000);
-                    } else {
-                        const error = await response.json();
-                        this.messageType = 'error';
-                        this.message = error.message || 'Erreur lors de la création du profil SI';
-                    }
-                } catch (error) {
-                    console.error('Erreur:', error);
-                    this.messageType = 'error';
-                    this.message = 'Erreur de connexion au serveur';
-                } finally {
-                    this.loading = false;
+            if (this.modeCreation === 'NOUVEAU') {
+                this.applyDefaultRessources(ressourcesDefault);
+            } else if (this.modeCreation === 'COPIER') {
+                this.applyCopyModeRessources();
+            }
+
+            if (this.modeCreation === 'COPIER') {
+                this.loadProfilsSISource();
+            }
+        },
+
+        resetRessources() {
+            Object.keys(this.selectedRessources).forEach(id => {
+                this.selectedRessources[id].checked = false;
+                this.selectedRessources[id].typeAcces = 'LECTURE';
+                this.selectedRessources[id].isDefault = false;
+            });
+        },
+
+        applyDefaultRessources(ressourcesDefault) {
+            ressourcesDefault.forEach(ressource => {
+                if (this.selectedRessources[ressource.id]) {
+                    this.selectedRessources[ressource.id].checked = true;
+                    this.selectedRessources[ressource.id].typeAcces = ressource.typeAcces;
+                    this.selectedRessources[ressource.id].isDefault = true;
                 }
+            });
+        },
+
+        onProfilSourceChange() {
+            if (this.modeCreation !== 'COPIER') return;
+            this.applyCopyModeRessources();
+        },
+
+        applyCopyModeRessources() {
+            if (!this.selectedDirection) return;
+
+            const directionId = parseInt(this.selectedDirection);
+            const ressourcesDefault = this.directionRessourcesMap[directionId] || [];
+
+            this.resetRessources();
+            this.applyDefaultRessources(ressourcesDefault);
+
+            if (!this.profilSISourceId) {
+                return;
+            }
+
+            const profilId = parseInt(this.profilSISourceId);
+            const profil = this.profilsSISource.find(item => item.idProfilSI === profilId);
+            if (!profil || !profil.ressources) {
+                return;
+            }
+
+            profil.ressources.forEach(ressource => {
+                if (this.selectedRessources[ressource.id]) {
+                    this.selectedRessources[ressource.id].checked = true;
+                    this.selectedRessources[ressource.id].typeAcces = ressource.typeAcces;
+                    if (!this.selectedRessources[ressource.id].isDefault) {
+                        this.selectedRessources[ressource.id].isDefault = false;
+                    }
+                }
+            });
+        },
+
+        async loadProfilsSISource() {
+            if (!this.selectedDirection) {
+                this.profilsSISource = [];
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/profils-si?directionId=' + this.selectedDirection);
+                if (response.ok) {
+                    this.profilsSISource = await response.json();
+                    if (this.modeCreation === 'COPIER' && this.profilSISourceId) {
+                        this.applyCopyModeRessources();
+                    }
+                } else {
+                    console.error('Erreur lors du chargement des profils SI');
+                    this.profilsSISource = [];
+                }
+            } catch (error) {
+                console.error('Erreur de connexion', error);
+                this.profilsSISource = [];
+            }
+        },
+
+        async submitForm() {
+            this.loading = true;
+            this.message = '';
+            this.messageType = '';
+
+            try {
+                const emploiName = document.getElementById('emploi').value;
+                const direction = document.getElementById('direction').value;
+                const service = document.getElementById('service').value;
+                const domaine = document.getElementById('domaine').value;
+                const status = document.getElementById('status').value;
+                const profilSIName = document.getElementById('name').value;
+
+                if (!emploiName.trim()) {
+                    this.messageType = 'error';
+                    this.message = 'Le nom de l\'emploi ne peut pas être vide';
+                    this.loading = false;
+                    return;
+                }
+                if (!direction) {
+                    this.messageType = 'error';
+                    this.message = 'La direction est requise';
+                    this.loading = false;
+                    return;
+                }
+                if (!status) {
+                    this.messageType = 'error';
+                    this.message = 'Le statut ne peut pas être vide';
+                    this.loading = false;
+                    return;
+                }
+                if (!profilSIName.trim()) {
+                    this.messageType = 'error';
+                    this.message = 'Le nom du profil SI ne peut pas être vide';
+                    this.loading = false;
+                    return;
+                }
+
+                const ressources = [];
+                Object.keys(this.selectedRessources).forEach(id => {
+                    if (this.selectedRessources[id].checked) {
+                        ressources.push({
+                            ressourceId: parseInt(id),
+                            typeAcces: this.selectedRessources[id].typeAcces
+                        });
+                    }
+                });
+
+                const data = {
+                    emploi: {
+                        emploi: emploiName,
+                        direction: parseInt(direction),
+                        service: service ? parseInt(service) : null,
+                        domaine: domaine ? parseInt(domaine) : null,
+                        status: status
+                    },
+                    profilSI: {
+                        profilSI: profilSIName,
+                        modeCreation: this.modeCreation,
+                        profilSISourceId: this.profilSISourceId ? parseInt(this.profilSISourceId) : null,
+                        ressources: ressources
+                    }
+                };
+
+                const response = await fetch('/api/profils-si', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    const newProfil = await response.json();
+
+                    if (this.modeCreation === 'COPIER') {
+                        await this.loadProfilsSISource();
+                    }
+
+                    this.messageType = 'success';
+                    this.message = 'Profil SI créé avec succès!';
+
+                    setTimeout(() => {
+                        window.location.href = '/profilSI';
+                    }, 2000);
+                } else {
+                    const error = await response.json();
+                    this.messageType = 'error';
+                    this.message = error.message || 'Erreur lors de la création du profil SI';
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                this.messageType = 'error';
+                this.message = 'Erreur de connexion au serveur';
+            } finally {
+                this.loading = false;
             }
         }
     }
+}
+
 </script>
