@@ -210,6 +210,12 @@
     padding: 0.5rem 1rem 1rem 1rem;
 }
 
+.category-count{
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: hsl(220, 20%, 30%);
+}
+
 .ressource-item {
     display: flex;
     align-items: center;

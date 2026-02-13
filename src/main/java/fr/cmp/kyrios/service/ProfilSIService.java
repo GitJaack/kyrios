@@ -250,12 +250,22 @@ public class ProfilSIService {
                         .build())
                 .collect(Collectors.toList());
 
+        List<ProfilSIDTOResponse.EmploiInfo> emploisDTO = profilSI.getEmplois() == null
+            ? new ArrayList<>()
+            : profilSI.getEmplois().stream()
+                .map(emploi -> ProfilSIDTOResponse.EmploiInfo.builder()
+                    .id(emploi.getId())
+                    .emploiName(emploi.getEmploiName())
+                    .build())
+                .collect(Collectors.toList());
+
         return ProfilSIDTOResponse.builder()
                 .idProfilSI(profilSI.getId())
                 .name(profilSI.getName())
                 .direction(profilSI.getDirection().getName())
                 .ressources(ressourcesDTO)
                 .profilApps(profilAppsDTO)
+            .emplois(emploisDTO)
                 .dateCreated(profilSI.getDateCreated())
                 .dateUpdated(profilSI.getDateUpdated())
                 .build();

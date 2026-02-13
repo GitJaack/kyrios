@@ -117,7 +117,7 @@ a{
 .table-header, 
 .table-row {
     display: grid;
-    grid-template-columns: 1fr 1fr 0.8fr 0.5fr 0.3fr; 
+    grid-template-columns: repeat(4, 1fr) 150px; 
     gap: 1rem;
     padding: 1rem;
     align-items: center;
@@ -158,19 +158,34 @@ a{
 
 .actions{
     display: flex;
-    gap: 1.5rem;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.actions button {
-    border: none;
-    background: none;
+.view-button,
+.edit-button,
+.delete-button {
+    display: flex;
+    padding: 0.75rem;
+    border-radius: 0.25rem;
     cursor: pointer;
+    border: none; 
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+}
+
+.view-button:hover,
+.edit-button:hover { 
+    background-color: rgb(60, 130, 250, 0.1); 
+}
+
+.actions button:hover { 
+    background-color: rgb(60, 130, 250, 0.1); 
 }
 
 .actions img {
     width: 18px;
     height: 18px;
-    transition: opacity 0.2s ease;
 }
 
 .delete-button img {

@@ -146,13 +146,16 @@
                 <p class="form-description">Sélectionnez les ressources et leur type d'accès</p>
 
                 <c:forEach var="categorie" items="${categories}">
-                    <div class="category-section" x-data="{ open: false }">
+                    <div class="category-section" x-data="{ open: false, resourceIds: [<c:forEach var="ressource" items="${categorie.ressources}" varStatus="resStatus">${ressource.id}<c:if test="${!resStatus.last}">,</c:if></c:forEach>] }">
                         <div class="category-header" @click="open = !open">
                             <h4 class="category-title">${categorie.name}</h4>
-                            <img x-show="!open" src="/images/chevron-down.svg" alt="chevron down icon">
-                            </img>
-                            <img x-show="open" src="/images/chevron-up.svg" alt="chevron up icon">
-                            </img>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="category-count" x-text="checkedCount(resourceIds) + ' / ' + resourceIds.length"></span>
+                                <img x-show="!open" src="/images/chevron-down.svg" alt="chevron down icon">
+                                </img>
+                                <img x-show="open" src="/images/chevron-up.svg" alt="chevron up icon">
+                                </img>
+                            </div>
                         </div>
                         
                         <div class="category-content" x-show="open" x-collapse>
@@ -256,6 +259,12 @@
                     this.selectedRessources[ressource.id].isDefault = true;
                 }
             });
+        },
+
+        checkedCount(resourceIds) {
+            return resourceIds.reduce((count, id) => {
+                return count + (this.selectedRessources[id] && this.selectedRessources[id].checked ? 1 : 0);
+            }, 0);
         },
 
         onProfilSourceChange() {

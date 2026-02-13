@@ -1,5 +1,6 @@
 package fr.cmp.kyrios.controller.frontend;
 
+import fr.cmp.kyrios.model.Si.ProfilSIModel;
 import fr.cmp.kyrios.repository.Si.ProfilSIRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,7 +26,7 @@ public class HomeProfilSIController {
         model.addAttribute("contentPage", "homeProfilSI.jsp");
         model.addAttribute("pageCss", "homeProfilSI");
 
-        Page<fr.cmp.kyrios.model.Si.ProfilSIModel> profilPage = profilSIRepository.findAll(PageRequest.of(page, size));
+        Page<ProfilSIModel> profilPage = profilSIRepository.findAll(PageRequest.of(page, size));
 
         model.addAttribute("profilsSI", profilPage.getContent());
         model.addAttribute("currentPageNumber", page);

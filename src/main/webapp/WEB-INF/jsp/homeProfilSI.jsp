@@ -1,7 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<link href="/css/deleteProfilSI.css" rel="stylesheet">
 
-<div class="content-body">
+<div class="content-body" x-data="profilSIManager()">
         <div class="content-above">
             <div class="container-above-left">
                 <div class="search-container">
@@ -33,7 +34,7 @@
                 <p>Emploi</p>
                 <p>Direction</p>
                 <p>Dernière modification</p>
-                <p>Actions</p>
+                <p style="justify-self: end;">Actions</p>
             </div>
 
             <c:forEach var="profil" items="${profilsSI}">
@@ -48,13 +49,13 @@
                     <p>${profil.formattedDateUpdated}</p>
 
                     <div class="actions">
-                        <button class="view-button">
+                        <a href="/profilSI/view/${profil.id}" class="view-button">
                             <img src="/images/eye.svg" alt="eye icon">
-                        </button>
-                        <button class="edit-button">
+                        </a>
+                        <a href="/profilSI/edit/${profil.id}" class="edit-button">
                             <img src="/images/square-pen.svg" alt="square-pen icon">
-                        </button>
-                        <button class="delete-button">
+                        </a>
+                        <button type="button" class="delete-button" @click="showDeleteModal(${profil.id}, 'n°${profil.id} ${profil.name}')">
                             <img src="/images/trash-2.svg" alt="trash-2 icon">
                         </button>
                     </div>
@@ -92,5 +93,8 @@
                 </div>
             </c:if>
         </div>
+
+
+        <jsp:include page="deleteProfilSI.jsp" />
 
     </div>
