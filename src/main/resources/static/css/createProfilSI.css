@@ -9,12 +9,6 @@
     margin-bottom: 1.5rem;
 }
 
-.container-header span{
-    font-weight: 500;
-    font-size: var(--font-size-sm);
-    line-height: 1.25rem;
-}
-
 .container-header a{
     text-decoration: none;
     color: inherit;

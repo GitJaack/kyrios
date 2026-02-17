@@ -8,7 +8,7 @@
                     <p class="grid-item-title">Profil SI</p>
                     <p class="grid-item-value">${profilSICount}</p>
                 </div>
-                <div class="icon-container">
+                <div class="icon-container icon-blue-bg">
                     <img src="/images/users.svg" alt="users icon" class="icon-blue">
                 </div>
             </div>
@@ -18,7 +18,7 @@
                     <p class="grid-item-title">Emplois</p>
                     <p class="grid-item-value">${emploiCount}</p>
                 </div>
-                <div class="icon-container">
+                <div class="icon-container icon-green-bg">
                     <img src="/images/briefcase.svg" alt="briefcase icon" class="icon-green">
                 </div>
             </div>
@@ -28,7 +28,7 @@
                     <p class="grid-item-title">Profils applicatifs</p>
                     <p class="grid-item-value">${profilAppCount}</p>
                 </div>
-                <div class="icon-container">
+                <div class="icon-container icon-purple-bg">
                     <img src="/images/layers.svg" alt="layers icon" class="icon-purple">
                 </div>
             </div>
@@ -38,7 +38,7 @@
                     <p class="grid-item-title">Applications</p>
                     <p class="grid-item-value">${applicationCount}</p>
                 </div>
-                <div class="icon-container">
+                <div class="icon-container icon-orange-bg">
                     <img src="/images/folder-open.svg" alt="folder icon" class="icon-orange">
                 </div>
             </div>
@@ -55,7 +55,7 @@
                 <div class="quick-links">
                     <a href='/profilSI/create'">
                         <div class="quick-link">
-                            <div class="icon-container">
+                            <div class="icon-container icon-blue-bg">
                                 <img src="/images/users.svg" alt="users icon" class="icon-blue">
                             </div>
                             <div>
@@ -67,7 +67,7 @@
 
                     <a href='/emploi/create'">
                         <div class="quick-link">
-                            <div class="icon-container">
+                            <div class="icon-container icon-green-bg">
                                 <img src="/images/briefcase.svg" alt="briefcase icon" class="icon-green">
                             </div>
                             <div>
@@ -79,7 +79,7 @@
 
                     <a href='/profilApp/create'">
                         <div class="quick-link">
-                            <div class="icon-container">
+                            <div class="icon-container icon-purple-bg">
                                 <img src="/images/layers.svg" alt="layers icon" class="icon-purple">
                             </div>
                             <div>

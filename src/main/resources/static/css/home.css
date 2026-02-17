@@ -57,6 +57,22 @@
     filter: invert(57%) sepia(48%) saturate(749%) hue-rotate(10deg) brightness(95%) contrast(90%);
 }
 
+.icon-blue-bg{
+    background-color: hsl(210, 80%, 95%);
+}
+
+.icon-green-bg{
+    background-color: hsl(140, 55%, 93%);
+}
+
+.icon-purple-bg{
+    background-color: hsl(265, 60%, 95%);
+}
+
+.icon-orange-bg{
+    background-color: hsl(25, 85%, 94%);
+}
+
 .content-bottom{
     margin-top: 24px;
     display: grid;
@@ -113,15 +129,6 @@
 .quick-link:hover {
     background-color: hsl(220, 10%, 95%);
 }
-
-.icon-container{
-    display: flex;
-    align-items: center;
-    padding: 0.75rem;
-    border-radius: 0.5rem;
-    background-color: hsl(220, 15%, 95%);
-}
-
 
 .content-recent-activities{
     background-color: white;

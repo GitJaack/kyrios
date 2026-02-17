@@ -32,7 +32,6 @@
             <div class="table-header">
                 <p>Profil SI</p>
                 <p>Emploi</p>
-                <p>Direction</p>
                 <p>Dernière modification</p>
                 <p style="justify-self: end;">Actions</p>
             </div>
@@ -45,7 +44,6 @@
                             ${emploi.emploiName}${!status.last ? ', ' : ''}
                         </c:forEach>
                     </p>
-                    <p>${profil.direction.name}</p>
                     <p>${profil.formattedDateUpdated}</p>
 
                     <div class="actions">
