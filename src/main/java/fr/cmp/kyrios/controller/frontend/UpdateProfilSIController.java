@@ -34,7 +34,7 @@ public class UpdateProfilSIController {
         model.addAttribute("pageDescription", "Dernière modification : "
                 + DateTimeUtil.formatDisplayDateTime(profil.getDateUpdated()));
         model.addAttribute("contentPage", "updateProfilSI.jsp");
-        model.addAttribute("pageCss", "createProfilSI");
+        model.addAttribute("pageCss", "form");
         model.addAttribute("profilId", id);
         model.addAttribute("directionId", profil.getDirection() != null ? profil.getDirection().getId() : 0);
         model.addAttribute("categories", categorieSIRepository.findAll());

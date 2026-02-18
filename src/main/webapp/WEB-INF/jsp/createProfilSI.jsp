@@ -344,18 +344,21 @@
                     this.loading = false;
                     return;
                 }
+
                 if (!direction) {
                     this.messageType = 'error';
                     this.message = 'La direction est requise';
                     this.loading = false;
                     return;
                 }
+
                 if (!status) {
                     this.messageType = 'error';
                     this.message = 'Le statut ne peut pas être vide';
                     this.loading = false;
                     return;
                 }
+                
                 if (!profilSIName.trim()) {
                     this.messageType = 'error';
                     this.message = 'Le nom du profil SI ne peut pas être vide';
@@ -405,15 +408,15 @@
                     }
 
                     this.messageType = 'success';
-                    this.message = 'Profil SI créé avec succès!';
+                    this.message = 'Profil SI créé avec succès !';
 
                     setTimeout(() => {
                         window.location.href = '/profilSI';
-                    }, 2000);
+                    }, 1500);
                 } else {
-                    const error = await response.json();
+                    const errorData = await response.json();
                     this.messageType = 'error';
-                    this.message = error.message || 'Erreur lors de la création du profil SI';
+                    this.message = errorData.message || 'Erreur lors de la création du profil SI';
                 }
             } catch (error) {
                 console.error('Erreur:', error);

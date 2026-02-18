@@ -31,7 +31,7 @@ public class CreateEmploiController {
         model.addAttribute("pageTitle", "Création d'un emploi");
         model.addAttribute("pageHeader", "Création d'un emploi");
         model.addAttribute("contentPage", "createEmploi.jsp");
-        model.addAttribute("pageCss", "createProfilSI");
+        model.addAttribute("pageCss", "form");
 
         model.addAttribute("directions", directionRepository.findAll());
         model.addAttribute("services", serviceRepository.findAll());

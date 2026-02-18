@@ -66,7 +66,15 @@
 
                     <div class="emploi-info">
                         <img src="/images/user.svg" alt="user icon" class="icon-statut">
-                        <p>Profil SI : n°${emploi.profilSI.id} ${emploi.profilSI.name}</p>
+                        <c:choose>
+                            <c:when test="${not empty emploi.profilSI}">
+                                 <p>Profil SI : n°${emploi.profilSI.id} ${emploi.profilSI.name}</p>
+                            </c:when>
+                            
+                            <c:otherwise>
+                                <p>Profil SI : -</p>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
 
                     <div class="emploi-info update-info">

@@ -9,6 +9,7 @@
     <link href="/css/base.css" rel="stylesheet">
     <link href="/css/sidebar.css" rel="stylesheet">
     <link href="/css/main-content.css" rel="stylesheet">
+    <link href="/css/shared.css" rel="stylesheet">
     <c:if test="${not empty pageCss}">
         <link href="/css/${pageCss}.css" rel="stylesheet">
     </c:if>

@@ -31,7 +31,7 @@ public class CreateProfilSIController {
         model.addAttribute("pageTitle", "Création du profil SI");
         model.addAttribute("pageHeader", "Création du profil SI");
         model.addAttribute("contentPage", "createProfilSI.jsp");
-        model.addAttribute("pageCss", "createProfilSI");
+        model.addAttribute("pageCss", "form");
 
         model.addAttribute("directions", directionRepository.findAll());
         model.addAttribute("services", serviceRepository.findAll());
