@@ -10,6 +10,7 @@ import fr.cmp.kyrios.model.Si.ProfilSIModel;
 import fr.cmp.kyrios.repository.Emploi.DirectionRepository;
 import fr.cmp.kyrios.repository.Si.CategorieSIRepository;
 import fr.cmp.kyrios.service.ProfilSIService;
+import fr.cmp.kyrios.util.DateTimeUtil;
 
 @Controller
 
@@ -30,7 +31,8 @@ public class UpdateProfilSIController {
         model.addAttribute("currentPage", "/profilSI");
         model.addAttribute("pageTitle", "Modification du profil SI");
         model.addAttribute("pageHeader", "Modification du profil SI : n°" + id + " " + profil.getName());
-        model.addAttribute("pageDescription", "Dernière modification : " + profil.getFormattedDateUpdated());
+        model.addAttribute("pageDescription", "Dernière modification : "
+                + DateTimeUtil.formatDisplayDateTime(profil.getDateUpdated()));
         model.addAttribute("contentPage", "updateProfilSI.jsp");
         model.addAttribute("pageCss", "createProfilSI");
         model.addAttribute("profilId", id);

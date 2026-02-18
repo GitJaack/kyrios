@@ -44,7 +44,7 @@
                             ${emploi.emploiName}${!status.last ? ', ' : ''}
                         </c:forEach>
                     </p>
-                    <p>${profil.formattedDateUpdated}</p>
+                    <p>${DateUpdatedById[profil.id]}</p>
 
                     <div class="actions">
                         <a href="/profilSI/view/${profil.id}" class="view-button">
@@ -91,7 +91,6 @@
                 </div>
             </c:if>
         </div>
-
 
         <jsp:include page="deleteProfilSI.jsp" />
 

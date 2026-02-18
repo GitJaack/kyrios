@@ -14,6 +14,7 @@ import java.util.Map;
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
 import fr.cmp.kyrios.model.Si.ProfilSIRessource;
 import fr.cmp.kyrios.service.ProfilSIService;
+import fr.cmp.kyrios.util.DateTimeUtil;
 
 @Controller
 public class ViewProfilSIController {
@@ -37,7 +38,8 @@ public class ViewProfilSIController {
         model.addAttribute("currentPage", "/profilSI");
         model.addAttribute("pageTitle", "Consultation du profil SI");
         model.addAttribute("pageHeader", "Consultation du profil SI : n°" + id + " " + profil.getName());
-        model.addAttribute("pageDescription", "Dernière modification : " + profil.getFormattedDateUpdated());
+        model.addAttribute("pageDescription", "Dernière modification : "
+                + DateTimeUtil.formatDisplayDateTime(profil.getDateUpdated()));
         model.addAttribute("contentPage", "viewProfilSI.jsp");
         model.addAttribute("pageCss", "viewProfilSI");
 

@@ -25,20 +25,30 @@
                             <div class="emploi-title">${emploi.emploiName}</div>
 
                             <div class="emploi-row">
-                                <span class="emploi-label">Direction</span>
+                                <div class="emploi-label-with-icon">
+                                    <img src="/images/building-2.svg" alt="building-2 icon" class="icon-direction">
+                                    <span class="emploi-label">Direction</span>
+                                </div>
                                 <span class="emploi-value">${emploi.direction.name}</span>
                             </div>
 
                             <div class="emploi-row">
-                                <span class="emploi-label">Statut</span>
+                                <div class="emploi-label-with-icon">
+                                    <img src="/images/user.svg" alt="user icon" class="icon-statut">
+                                    <span class="emploi-label">Statut</span>
+                                </div>
                                 <span class="emploi-value">${emploi.status}</span>
                             </div>
 
+
                             <div class="emploi-row">
-                                <span class="emploi-label">Domaine</span>
+                                <div class="emploi-label-with-icon">
+                                    <img src="/images/map-pin.svg" alt="map-pinicon" class="icon-service">
+                                    <span class="emploi-label">Service</span>
+                                </div>
                                 <c:choose>
-                                    <c:when test="${not empty emploi.domaine}">
-                                        <span class="emploi-value">${emploi.domaine.name}</span>
+                                    <c:when test="${not empty emploi.service}">
+                                        <span class="emploi-value">${emploi.service.name}</span>
                                     </c:when>
                                     <c:otherwise>
                                         <span class="emploi-value">-</span>
@@ -47,10 +57,13 @@
                             </div>
 
                             <div class="emploi-row">
-                                <span class="emploi-label">Service</span>
+                                <div class="emploi-label-with-icon">
+                                    <img src="/images/landmark.svg" alt="landmark icon" class="icon-domaine">
+                                    <span class="emploi-label">Domaine</span>
+                                </div>
                                 <c:choose>
-                                    <c:when test="${not empty emploi.service}">
-                                        <span class="emploi-value">${emploi.service.name}</span>
+                                    <c:when test="${not empty emploi.domaine}">
+                                        <span class="emploi-value">${emploi.domaine.name}</span>
                                     </c:when>
                                     <c:otherwise>
                                         <span class="emploi-value">-</span>

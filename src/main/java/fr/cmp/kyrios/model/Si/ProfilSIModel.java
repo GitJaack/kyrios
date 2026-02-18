@@ -1,7 +1,6 @@
 package fr.cmp.kyrios.model.Si;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,14 +55,6 @@ public class ProfilSIModel {
 
     @Column(name = "date_updated")
     private LocalDateTime dateUpdated;
-
-    public String getFormattedDateCreated() {
-        return dateCreated != null ? dateCreated.format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH'h'mm")) : "";
-    }
-
-    public String getFormattedDateUpdated() {
-        return dateUpdated != null ? dateUpdated.format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH'h'mm")) : "";
-    }
 
     public ProfilSIModel() {
         this.emplois = new ArrayList<>();

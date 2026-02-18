@@ -69,7 +69,6 @@
     height: 18px;
 }
 
-.export-button,
 .create-button {
     display: flex;
     align-items: center;
@@ -87,7 +86,6 @@ a{
     color: inherit;
 }
 
-.export-button img,
 .create-button img {
     width: 18px;
     height: 18px;
@@ -95,7 +93,7 @@ a{
 }
 
 .create-button {
-    background-color: hsl(220, 70%, 50%);
+    background-color: hsl(220, 70%, 60%);
     color: white;
     border-color: hsl(220, 70%, 60%);
 }
@@ -105,91 +103,113 @@ a{
     opacity: 1;
 }
 
-.create-button:hover {
-    background-color: hsl(220, 70%, 60%);
+.emploi-section {
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: repeat(3,minmax(240px, 1fr));
+    gap: 1.5rem;
 }
 
-.content-below {
-    margin-top: 1rem;
-    background-color: white;
+.emploi-card {
     border: 1px solid hsl(220, 10%, 90%);
     border-radius: 0.5rem;
+    padding: 1.5rem;
+    background-color: white;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
+    transition: box-shadow 0.2s ease;
 }
 
-.table-header, 
-.table-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr) 150px; 
-    gap: 1rem;
-    padding: 1rem;
+.emploi-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.emploi-header{
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    margin-bottom: 1rem;
 }
 
-.table-header {
-    background-color: hsl(220, 10%, 98%);
-    border-bottom: 1px solid hsl(220, 10%, 90%);
+.emploi-status-container{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    background-color: hsl(220, 15%, 95%);
+    color: hsl(220, 20%, 30%);
+    font-size: var(--font-size-sm);
+    font-weight: 600
 }
 
-.table-header p {
-    font-weight: 600;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: hsl(220, 10%, 50%);
-}
-
-.table-row {
-    border-bottom: 1px solid hsl(220, 10%, 95%);
-    transition: background-color 0.2s;
-}
-
-.table-row:last-child {
-    border-bottom: none;
-}
-
-.table-row:hover {
-    background-color: hsl(220, 20%, 98%);
-}
-
-.table-row p {
-    font-size: 0.875rem;
-    color: hsl(220, 10%, 20%);
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.actions{
+.emploi-info{
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-.view-button,
-.edit-button,
-.delete-button {
-    display: flex;
-    padding: 0.75rem;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    border: none; 
-    background-color: transparent;
-    transition: background-color 0.2s ease;
-}
-
-.view-button:hover,
-.edit-button:hover { 
-    background-color: rgb(60, 130, 250, 0.1); 
-}
-
-.actions button:hover { 
-    background-color: rgb(60, 130, 250, 0.1); 
-}
-
-.actions img {
+.emploi-info img{
     width: 18px;
     height: 18px;
+    opacity: 0.6;
+}
+
+.emploi-info p{
+    color: hsl(220, 10%, 50%);
+}
+
+.update-info{
+    border-top: 1px solid hsl(220, 10%, 90%);
+    padding-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.emploi-actions{
+    display: flex;
+    gap: 0.5rem;
+}
+
+.edit-button{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    background-color: hsl(0, 0%, 98%);
+    border: 1px solid hsl(220, 10%, 90%);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    gap: 0.5rem;
+    cursor: pointer;
+    flex: 1;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.edit-button img,
+.delete-button img {
+    width: 18px;
+    height: 18px;
+    transition: filter 0.2s ease;
+}
+
+.edit-button:hover,
+.delete-button:hover {
+    color: rgb(60, 130, 245);
+    background-color: rgb(60, 130, 250, 0.1); 
+}
+
+.edit-button:hover img {
+    filter: brightness(0) saturate(100%) invert(36%) sepia(85%) saturate(747%) hue-rotate(188deg) brightness(98%) contrast(92%);
+}
+
+.delete-button {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    background-color: hsl(0, 0%, 98%);
+    border: 1px solid hsl(220, 10%, 90%);
+    cursor: pointer;
 }
 
 .delete-button img {
@@ -233,4 +253,20 @@ a{
 .pagination-link.disabled {
     opacity: 0.5;
     pointer-events: none;
+}
+
+.icon-direction {
+    filter: invert(52%) sepia(75%) saturate(1095%) hue-rotate(189deg) brightness(101%) contrast(97%);
+}
+
+.icon-statut {
+    filter: invert(59%) sepia(46%) saturate(646%) hue-rotate(110deg) brightness(96%) contrast(94%);
+}
+
+.icon-service {
+    filter: invert(64%) sepia(63%) saturate(640%) hue-rotate(8deg) brightness(98%) contrast(93%);
+}
+
+.icon-domaine {
+    filter: invert(55%) sepia(58%) saturate(1042%) hue-rotate(229deg) brightness(100%) contrast(92%);
 }
