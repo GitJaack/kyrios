@@ -31,8 +31,8 @@ public class UpdateProfilSIController {
         model.addAttribute("currentPage", "/profilSI");
         model.addAttribute("pageTitle", "Modification du profil SI");
         model.addAttribute("pageHeader", "Modification du profil SI : n°" + id + " " + profil.getName());
-        model.addAttribute("pageDescription", "Dernière modification : "
-                + DateTimeUtil.formatDisplayDateTime(profil.getDateUpdated()));
+        model.addAttribute("pageDescription",
+                "Dernière modification : " + DateTimeUtil.formatDisplayDateTime(profil.getDateUpdated()));
         model.addAttribute("contentPage", "updateProfilSI.jsp");
         model.addAttribute("pageCss", "form");
         model.addAttribute("profilId", id);

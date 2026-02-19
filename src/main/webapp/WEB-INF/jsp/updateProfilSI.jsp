@@ -221,7 +221,7 @@
 
 					if (response.ok) {
 						this.messageType = 'success';
-						this.message = 'Profil SI modifié avec succès!';
+						this.message = 'Profil SI modifié avec succès !';
 
 						setTimeout(() => {
 							window.location.href = '/profilSI';
