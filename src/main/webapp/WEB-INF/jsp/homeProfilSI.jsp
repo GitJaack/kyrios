@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<link href="/css/deleteProfilSI.css" rel="stylesheet">
+<link href="/css/deleteModal.css" rel="stylesheet">
 
 <div class="content-body" x-data="profilSIManager()">
         <div class="content-above">

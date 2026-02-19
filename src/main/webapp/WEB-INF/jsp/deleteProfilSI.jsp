@@ -50,7 +50,6 @@
             loading: false,
 
             showDeleteModal(profilId, profilName) {
-                console.log('showDeleteModal called with:', profilId, profilName);
                 this.selectedProfilId = profilId;
                 this.selectedProfilName = profilName;
                 this.affectedEmplois = [];
@@ -89,7 +88,7 @@
                     }
                 } catch (error) {
                     console.error('Erreur:', error);
-                    alert('Erreur de connexion au serveur');
+                    alert('Une erreur est survenue lors de la suppression du profil SI.');
                     this.loading = false;
                 }
             },

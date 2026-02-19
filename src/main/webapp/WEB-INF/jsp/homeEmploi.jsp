@@ -1,7 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<link href="/css/deleteModal.css" rel="stylesheet">
 
-<div class = "content-body">
+<div class = "content-body" x-data="emploiManager()">
     <div class="content-above">
         <div class="container-above-left">
             <div class="search-container">
@@ -125,4 +126,6 @@
                 </div>
             </c:if>
         </div>
+
+        <jsp:include page="deleteEmploi.jsp" />
 </div>
