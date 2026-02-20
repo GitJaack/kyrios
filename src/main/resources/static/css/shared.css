@@ -1,3 +1,7 @@
+.content-body {
+    padding: 1.5rem;
+}
+
 .content-above {
     display: flex;
     justify-content: space-between;

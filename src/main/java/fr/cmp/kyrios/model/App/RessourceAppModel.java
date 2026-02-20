@@ -10,10 +10,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "ressource_app", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"name", "application_id"})
+        @UniqueConstraint(columnNames = { "name", "application_id" })
 })
 @Data
 public class RessourceAppModel {
@@ -30,5 +31,6 @@ public class RessourceAppModel {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "application_id", nullable = false)
+    @ToString.Exclude
     private AppModel application;
 }

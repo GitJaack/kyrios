@@ -45,7 +45,7 @@
                         </c:forEach>
                     </p>
                     <p>${DateUpdatedById[profil.id]}</p>
-
+                   
                     <div class="actions">
                         <a href="/profilSI/view/${profil.id}" class="view-button">
                             <img src="/images/eye.svg" alt="eye icon">
@@ -91,6 +91,7 @@
                 </div>
             </c:if>
         </div>
+
 
         <jsp:include page="deleteProfilSI.jsp" />
 

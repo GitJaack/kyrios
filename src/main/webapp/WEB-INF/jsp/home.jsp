@@ -77,7 +77,7 @@
                         </div> 
                     </a>
 
-                    <a href='/profilApp/create'">
+                    <a href='/profil-app/create'">
                         <div class="quick-link">
                             <div class="icon-container icon-purple-bg">
                                 <img src="/images/layers.svg" alt="layers icon" class="icon-purple">

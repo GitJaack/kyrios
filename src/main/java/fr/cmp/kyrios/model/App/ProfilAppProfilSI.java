@@ -10,6 +10,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "profil_app_profil_si", uniqueConstraints = {
@@ -23,6 +24,7 @@ public class ProfilAppProfilSI {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "profil_app_id", nullable = false)
+    @ToString.Exclude
     private ProfilAppModel profilApp;
 
     @ManyToOne(optional = false)

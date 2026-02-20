@@ -25,7 +25,7 @@ public class HomeProfilSIController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         model.addAttribute("currentPage", "/profilSI");
-        model.addAttribute("pageTitle", "Gestion des profils SI - Kyrios");
+        model.addAttribute("pageTitle", "Gestion des profils SI");
         model.addAttribute("pageHeader", "Gestion des profils SI");
         model.addAttribute("pageDescription", "Gérer les profils système d'information");
         model.addAttribute("contentPage", "homeProfilSI.jsp");

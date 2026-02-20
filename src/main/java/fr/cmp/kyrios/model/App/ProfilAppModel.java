@@ -15,6 +15,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "profil_app")
@@ -29,6 +30,7 @@ public class ProfilAppModel {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "application_id", nullable = false)
+    @ToString.Exclude
     private AppModel application;
 
     @OneToMany(mappedBy = "profilApp", cascade = CascadeType.ALL, orphanRemoval = true)

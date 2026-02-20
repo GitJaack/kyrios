@@ -22,7 +22,7 @@
                 <img src="/images/briefcase.svg" alt="briefcase icon" class="icon">
                 Gestion des emplois</a></li>
 
-                <li><a href="/profilApp" class="${currentPage == '/profilApp' ? 'active' : ''}">
+                <li><a href="/profil-app" class="${currentPage == '/profil-app' ? 'active' : ''}">
                 <img src="/images/layers.svg" alt="layers icon" class="icon">
                 Gestion des profils applicatifs</a></li>
 

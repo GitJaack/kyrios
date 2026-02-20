@@ -1,14 +1,5 @@
-.content-body {
-    padding: 1.5rem;
-}
-
 .container-header{
     width: fit-content;
-}
-
-.container-header a {
-    text-decoration: none;
-    color: inherit;
 }
 
 .back-button {
