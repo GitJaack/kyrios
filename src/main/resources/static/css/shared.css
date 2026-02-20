@@ -157,3 +157,110 @@
 .icon-domaine {
     filter: invert(55%) sepia(58%) saturate(1042%) hue-rotate(229deg) brightness(100%) contrast(92%);
 }
+
+.profils-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.profil-card,
+.emploi-card {
+    background: white;
+    border: 1px solid hsl(220, 10%, 90%);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.2s ease;
+}
+
+.profil-card:hover,
+.emploi-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.profils-linked-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+}
+
+.profils-linked {
+    color: hsl(220, 20%, 30%);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    padding: 0.125rem 0.625rem;
+    background-color: hsl(220, 15%, 95%);
+    border-radius: 1rem;
+    width: fit-content;
+}
+
+.card-footer {
+    border-top: 1px solid hsl(220, 10%, 90%);
+    padding-top: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.profil-actions,
+.emploi-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.edit-button,
+.view-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    background-color: hsl(0, 0%, 98%);
+    border: 1px solid hsl(220, 10%, 90%);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    gap: 0.5rem;
+    cursor: pointer;
+    flex: 1;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.edit-button img,
+.view-button img {
+    width: 18px;
+    height: 18px;
+    transition: filter 0.2s ease;
+}
+
+.edit-button:hover,
+.view-button:hover {
+    color: rgb(60, 130, 245);
+    background-color: rgb(60, 130, 250, 0.1);
+}
+
+.edit-button:hover img,
+.view-button:hover img {
+    filter: brightness(0) saturate(100%) invert(36%) sepia(85%) saturate(747%) hue-rotate(188deg) brightness(98%) contrast(92%);
+}
+
+.delete-button {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    background-color: hsl(0, 0%, 98%);
+    border: 1px solid hsl(220, 10%, 90%);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.delete-button:hover {
+    background-color: rgb(245, 60, 60, 0.1);
+}
+
+.delete-button img {
+    width: 18px;
+    height: 18px;
+    filter: invert(21%) sepia(92%) saturate(6933%) hue-rotate(356deg) brightness(106%) contrast(116%);
+}

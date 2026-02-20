@@ -28,36 +28,40 @@
             </div>
         </div>
 
-        <div class="content-below">
-            <div class="table-header">
-                <p>Profil SI</p>
-                <p>Emploi</p>
-                <p>Dernière modification</p>
-                <p style="justify-self: end;">Actions</p>
-            </div>
-
+        <div class="profils-grid">
             <c:forEach var="profil" items="${profilsSI}">
-                <div class="table-row">
-                    <p>n°${profil.id} ${profil.name}</p>
-                    <p>
-                        <c:forEach var="emploi" items="${profil.emplois}" varStatus="status">
-                            ${emploi.emploiName}${!status.last ? ', ' : ''}
-                        </c:forEach>
-                    </p>
-                    <p>${DateUpdatedById[profil.id]}</p>
-                   
-                    <div class="actions">
-                        <a href="/profilSI/view/${profil.id}" class="view-button">
-                            <img src="/images/eye.svg" alt="eye icon">
-                        </a>
-                        <a href="/profilSI/edit/${profil.id}" class="edit-button">
-                            <img src="/images/square-pen.svg" alt="square-pen icon">
-                        </a>
-                        <button type="button" class="delete-button" @click="showDeleteModal(${profil.id}, 'n°${profil.id} ${profil.name}')">
-                            <img src="/images/trash-2.svg" alt="trash-2 icon">
-                        </button>
+                <div class="profil-card">
+                    <div style="margin-bottom: 0.75rem;">
+                        <p style="font-weight: 600; font-size: var(--font-size-base);">n°${profil.id} ${profil.name}</p>
                     </div>
 
+                    <div class="profils-linked-section">
+                        <p style="font-size: var(--font-size-sm); color: hsl(220, 10%, 50%);">Emplois associés</p>
+                        <div class="profils-linked-container">
+                            <c:forEach var="emploi" items="${profil.emplois}">
+                                <div class="profils-linked">
+                                    <p>${emploi.emploiName}</p>
+                                </div>
+                            </c:forEach>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <p style="font-size: var(--font-size-sm); color: hsl(220, 10%, 50%); margin-bottom: 0.5rem;">Dernière modification : ${DateUpdatedById[profil.id]}</p>
+                        <div class="profil-actions">
+                            <a href="/profilSI/view/${profil.id}" class="view-button">
+                                <img src="/images/eye.svg" alt="eye icon">
+                                <span>Voir</span>
+                            </a>
+                            <a href="/profilSI/edit/${profil.id}" class="edit-button">
+                                <img src="/images/square-pen.svg" alt="square-pen icon">
+                                <span>Modifier</span>
+                            </a>
+                            <button type="button" class="delete-button" @click="showDeleteModal(${profil.id}, 'n°${profil.id} ${profil.name}')">
+                                <img src="/images/trash-2.svg" alt="trash-2 icon">
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </c:forEach>
         </div>
@@ -91,7 +95,6 @@
                 </div>
             </c:if>
         </div>
-
 
         <jsp:include page="deleteProfilSI.jsp" />
 

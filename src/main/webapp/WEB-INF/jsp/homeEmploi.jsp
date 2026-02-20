@@ -78,7 +78,7 @@
                         </c:choose>
                     </div>
 
-                    <div class="emploi-info update-info">
+                    <div class="emploi-info card-footer">
                         <p>Derniere modification : ${dateUpdatedById[emploi.id]}</p>
                     </div>
 
@@ -98,34 +98,35 @@
     </div>
 
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-            <p style="color: hsl(220, 10%, 50%); font-size: 0.875rem;">
-                Total : ${totalItems} emplois
-            </p>
+        <p style="color: hsl(220, 10%, 50%); font-size: 0.875rem;">
+            Total : ${totalItems} emplois
+        </p>
 
-            <c:if test="${totalPages > 1}">
-                <div class="pagination" style="margin-top: 0; padding-bottom: 0;">
-                    <div class="pagination-container">
-                        <c:if test="${currentPageNumber > 0}">
-                            <a href="/emploi?page=${currentPageNumber - 1}" class="pagination-link">&laquo;</a>
-                        </c:if>
-                        <c:if test="${currentPageNumber == 0}">
-                            <span class="pagination-link disabled">&laquo;</span>
-                        </c:if>
+        <c:if test="${totalPages > 1}">
+            <div class="pagination" style="margin-top: 0; padding-bottom: 0;">
+                <div class="pagination-container">
+                    <c:if test="${currentPageNumber > 0}">
+                        <a href="/emploi?page=${currentPageNumber - 1}" class="pagination-link">&laquo;</a>
+                    </c:if>
+                    <c:if test="${currentPageNumber == 0}">
+                        <span class="pagination-link disabled">&laquo;</span>
+                    </c:if>
 
-                        <c:forEach begin="0" end="${totalPages - 1}" var="i">
-                            <a href="/emploi?page=${i}" class="pagination-link ${currentPageNumber == i ? 'active' : ''}">${i + 1}</a>
-                        </c:forEach>
+                    <c:forEach begin="0" end="${totalPages - 1}" var="i">
+                        <a href="/emploi?page=${i}" class="pagination-link ${currentPageNumber == i ? 'active' : ''}">${i + 1}</a>
+                    </c:forEach>
 
-                        <c:if test="${currentPageNumber < totalPages - 1}">
-                            <a href="/emploi?page=${currentPageNumber + 1}" class="pagination-link">&raquo;</a>
-                        </c:if>
-                        <c:if test="${currentPageNumber == totalPages - 1}">
-                             <span class="pagination-link disabled">&raquo;</span>
-                        </c:if>
-                    </div>
+                    <c:if test="${currentPageNumber < totalPages - 1}">
+                        <a href="/emploi?page=${currentPageNumber + 1}" class="pagination-link">&raquo;</a>
+                    </c:if>
+                    <c:if test="${currentPageNumber == totalPages - 1}">
+                            <span class="pagination-link disabled">&raquo;</span>
+                    </c:if>
                 </div>
-            </c:if>
-        </div>
+            </div>
+        </c:if>
+    </div>
 
-        <jsp:include page="deleteEmploi.jsp" />
+    <jsp:include page="deleteEmploi.jsp" />
+    
 </div>

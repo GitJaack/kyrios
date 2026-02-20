@@ -5,19 +5,6 @@
     gap: 1.5rem;
 }
 
-.emploi-card {
-    border: 1px solid hsl(220, 10%, 90%);
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-    background-color: white;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    transition: box-shadow 0.2s ease;
-}
-
-.emploi-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
 .emploi-header{
     display: flex;
     justify-content: space-between;
@@ -47,80 +34,4 @@
     width: 18px;
     height: 18px;
     opacity: 0.6;
-}
-
-.emploi-info p{
-    color: hsl(220, 10%, 50%);
-}
-
-.update-info{
-    border-top: 1px solid hsl(220, 10%, 90%);
-    padding-top: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.emploi-actions{
-    display: flex;
-    gap: 0.5rem;
-}
-
-.edit-button{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.5rem 0.75rem;
-    border-radius: 0.5rem;
-    background-color: hsl(0, 0%, 98%);
-    border: 1px solid hsl(220, 10%, 90%);
-    font-size: var(--font-size-sm);
-    font-weight: 500;
-    gap: 0.5rem;
-    cursor: pointer;
-    flex: 1;
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.edit-button img,
-.delete-button img {
-    width: 18px;
-    height: 18px;
-    transition: filter 0.2s ease;
-}
-
-.edit-button:hover,
-.delete-button:hover {
-    color: rgb(60, 130, 245);
-    background-color: rgb(60, 130, 250, 0.1); 
-}
-
-.edit-button:hover img {
-    filter: brightness(0) saturate(100%) invert(36%) sepia(85%) saturate(747%) hue-rotate(188deg) brightness(98%) contrast(92%);
-}
-
-.delete-button {
-    display: flex;
-    align-items: center;
-    padding: 0.5rem 0.75rem;
-    border-radius: 0.5rem;
-    background-color: hsl(0, 0%, 98%);
-    border: 1px solid hsl(220, 10%, 90%);
-    cursor: pointer;
-}
-
-.delete-button img {
-    filter: invert(21%) sepia(92%) saturate(6933%) hue-rotate(356deg) brightness(106%) contrast(116%);
-    opacity: 1;
-}
-
-
-.icon-statut {
-    filter: invert(59%) sepia(46%) saturate(646%) hue-rotate(110deg) brightness(96%) contrast(94%);
-}
-
-.icon-service {
-    filter: invert(64%) sepia(63%) saturate(640%) hue-rotate(8deg) brightness(98%) contrast(93%);
-}
-
-.icon-domaine {
-    filter: invert(55%) sepia(58%) saturate(1042%) hue-rotate(229deg) brightness(100%) contrast(92%);
 }
