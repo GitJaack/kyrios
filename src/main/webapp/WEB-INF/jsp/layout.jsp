@@ -10,6 +10,11 @@
     <link href="/css/sidebar.css" rel="stylesheet">
     <link href="/css/main-content.css" rel="stylesheet">
     <link href="/css/shared.css" rel="stylesheet">
+    <link href="/css/buttons.css" rel="stylesheet">
+    <link href="/css/cards.css" rel="stylesheet">
+    <c:if test="${not empty pageCssCommon}">
+        <link href="/css/${pageCssCommon}.css" rel="stylesheet">
+    </c:if>
     <c:if test="${not empty pageCss}">
         <link href="/css/${pageCss}.css" rel="stylesheet">
     </c:if>

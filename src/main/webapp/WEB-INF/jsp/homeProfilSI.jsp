@@ -28,9 +28,9 @@
             </div>
         </div>
 
-        <div class="profils-grid">
+        <div class="grid">
             <c:forEach var="profil" items="${profilsSI}">
-                <div class="profil-card">
+                <div class="card">
                     <div style="margin-bottom: 0.75rem;">
                         <p style="font-weight: 600; font-size: var(--font-size-base);">n°${profil.id} ${profil.name}</p>
                     </div>
@@ -48,7 +48,7 @@
 
                     <div class="card-footer">
                         <p style="font-size: var(--font-size-sm); color: hsl(220, 10%, 50%); margin-bottom: 0.5rem;">Dernière modification : ${DateUpdatedById[profil.id]}</p>
-                        <div class="profil-actions">
+                        <div class="actions">
                             <a href="/profilSI/view/${profil.id}" class="view-button">
                                 <img src="/images/eye.svg" alt="eye icon">
                                 <span>Voir</span>

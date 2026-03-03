@@ -25,7 +25,7 @@
 
     <div class="emploi-section">
         <c:forEach var="emploi" items="${emplois}">
-            <div class="emploi-card">
+            <div class="card">
                 <div class="emploi-header">
                     <p style="font-weight:600; font-size:1rem">${emploi.emploiName}</p>
                     <div class="emploi-status-container">
@@ -82,7 +82,7 @@
                         <p>Derniere modification : ${dateUpdatedById[emploi.id]}</p>
                     </div>
 
-                    <div class="emploi-actions">
+                    <div class="actions">
                         <a href="/emploi/edit/${emploi.id}" class="edit-button">
                             <img src="/images/square-pen.svg" alt="square-pen icon">
                             <span>Modifier</span>

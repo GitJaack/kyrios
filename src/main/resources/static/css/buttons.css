@@ -1,0 +1,148 @@
+/* === Base commune pour tous les boutons === */
+.filter-button,
+.export-button,
+.create-button,
+.edit-button,
+.view-button,
+.delete-button,
+.back-button,
+.save-button {
+    display: flex;
+    align-items: center;
+    border: 1px solid hsl(220, 10%, 90%);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Images communes */
+.filter-button img,
+.export-button img,
+.create-button img,
+.edit-button img,
+.view-button img,
+.delete-button img,
+.back-button img,
+.save-button img {
+    width: 18px;
+    height: 18px;
+    transition: filter 0.2s ease;
+}
+
+/* === Boutons neutres (filter, export, back) === */
+.filter-button {
+    padding: 0.5rem;
+    background-color: transparent;
+    justify-content: center;
+}
+
+.export-button {
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background-color: transparent;
+}
+
+.export-button img {
+    opacity: 0.6;
+}
+
+.back-button {
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: hsl(220, 10%, 98%);
+}
+
+.back-button span,
+.save-button span {
+    font-weight: 500;
+    line-height: 1.25rem;
+}
+
+.back-button img,
+.save-button img {
+    opacity: 0.7;
+}
+
+.back-button:hover {
+    color: rgb(60, 130, 245);
+    background-color: rgb(60, 130, 250, 0.1);
+}
+
+.back-button:hover img {
+    filter: brightness(0) saturate(100%) invert(36%) sepia(85%) saturate(747%) hue-rotate(188deg) brightness(98%) contrast(92%);
+}
+
+/* === Bouton primaire (create, save) === */
+.create-button,
+.save-button {
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background-color: hsl(220, 70%, 50%);
+    color: white;
+}
+
+.save-button {
+    padding: 0.5rem 1rem;
+    justify-content: center;
+}
+
+.create-button img,
+.save-button img {
+    filter: brightness(0) invert(1);
+    opacity: 1;
+}
+
+.create-button:hover,
+.save-button:hover {
+    background-color: hsl(220, 70%, 60%);
+}
+
+.save-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: hsl(220, 70%, 70%);
+}
+
+/* === Boutons secondaires (edit, view) === */
+.edit-button,
+.view-button {
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background-color: hsl(0, 0%, 98%);
+    font-weight: 500;
+    justify-content: center;
+    flex: 1;
+}
+
+.edit-button:hover,
+.view-button:hover {
+    color: rgb(60, 130, 245);
+    background-color: rgb(60, 130, 250, 0.1);
+}
+
+.edit-button:hover img,
+.view-button:hover img {
+    filter: brightness(0) saturate(100%) invert(36%) sepia(85%) saturate(747%) hue-rotate(188deg) brightness(98%) contrast(92%);
+}
+
+/* === Bouton danger (delete) === */
+.delete-button {
+    padding: 0.5rem 0.75rem;
+    background-color: hsl(0, 0%, 98%);
+}
+
+.delete-button:hover {
+    background-color: rgb(245, 60, 60, 0.1);
+}
+
+.delete-button img {
+    filter: invert(21%) sepia(92%) saturate(6933%) hue-rotate(356deg) brightness(106%) contrast(116%);
+}
+
+/* === Container d'actions === */
+.actions {
+    display: flex;
+    gap: 0.5rem;
+}

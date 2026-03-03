@@ -38,10 +38,10 @@
                     <p>${app.description}</p>
                 </div>
 
-                <div class="profils-grid">
+                <div class="grid">
                     <c:forEach var="profilApp" items="${profilApps}">
                         <c:if test="${profilApp.application.id == app.id}">
-                            <div class="profil-card">
+                            <div class="card">
                                 <div style="margin-bottom:0.75rem;">
                                     <p style="font-weight: 600; font-size: var(--font-size-base);">${profilApp.name}</p>
                                 </div>
@@ -58,7 +58,7 @@
                                 </div>
                                 <div class="card-footer">
                                     <p style="font-size: var(--font-size-sm); color: hsl(220, 10%, 50%); margin-bottom: 0.5rem;">Dernière modification : ${dateUpdatedById[profilApp.id]}</p>
-                                    <div class="profil-actions">
+                                    <div class="actions">
                                         <a href="/profil-app/view/${profilApp.id}" class="view-button">
                                             <img src="/images/eye.svg" alt="eye icon">
                                             <span>Voir</span>

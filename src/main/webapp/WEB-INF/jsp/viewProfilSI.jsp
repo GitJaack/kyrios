@@ -21,7 +21,7 @@
             <c:when test="${not empty profilSI.emplois}">
                 <div class="emplois-grid">
                     <c:forEach var="emploi" items="${profilSI.emplois}">
-                        <div class="emploi-card">
+                        <div class="card">
                             <div class="emploi-title">${emploi.emploiName}</div>
 
                             <div class="emploi-row">
