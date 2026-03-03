@@ -31,3 +31,18 @@ build/
 
 ### VS Code ###
 .vscode/
+### H2 Database Files (Recette) ###
+# Fichiers de BD locale - À ignorer absolument
+data/
+./data/
+*.mv.db
+*.trace.db
+
+### Logs ###
+logs/
+*.log
+
+### Fichiers temporaires ###
+*.tmp
+*.bak
+*.backup

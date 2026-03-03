@@ -3,6 +3,7 @@ package fr.cmp.kyrios.config;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -60,15 +61,27 @@ public class DataInitializer implements CommandLineRunner {
         @Autowired
         RessourceAppRepository ressourceAppRepository;
 
+        @Value("${app.init-data:true}")
+        private boolean initDataEnabled;
+
         @Override
         public void run(String... args) throws Exception {
                 // Vérifier si les données existent déjà
-                if (directionRepository.count() > 0) {
-                        System.out.println("Données de test déjà présentes, initialisation ignorée.");
+                long directionCount = directionRepository.count();
+
+                if (directionCount > 0) {
+                        System.out.println("[DATA_INIT] Initialisation ignorée.");
                         return;
                 }
 
-                System.out.println("Initialisation des données de test...");
+                // Vérifier si l'initialisation est désactivée via la property
+                if (!initDataEnabled) {
+                        System.out.println(
+                                        "[DATA_INIT] Initialisation des données désactivée (app.init-data=false).");
+                        return;
+                }
+
+                System.out.println("[DATA_INIT] Démarrage de l'initialisation des données de test...");
 
                 // ===== DIRECTIONS =====
                 DirectionModel dir = new DirectionModel();
