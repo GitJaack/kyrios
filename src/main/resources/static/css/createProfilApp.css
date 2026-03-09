@@ -1,0 +1,25 @@
+.ressources-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.resource-description {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.loading-message,
+.empty-message {
+    padding: 20px;
+    text-align: center;
+    display: none;
+}
+
+.placeholder-message {
+    padding: 20px;
+    text-align: center;
+}
+
+.placeholder-message p {
+    color: #666;
+}
