@@ -17,12 +17,6 @@ public class MissingRouteController {
         return renderNotFound(model, "/settings");
     }
 
-    @GetMapping("/profil-app/view/{id}")
-    public String profilAppViewNotFound(@PathVariable Integer id, Model model, HttpServletResponse response) {
-        response.setStatus(HttpStatus.NOT_FOUND.value());
-        return renderNotFound(model, "/profil-app/view/" + id);
-    }
-
     @GetMapping("/profil-app/edit/{id}")
     public String profilAppEditNotFound(@PathVariable Integer id, Model model, HttpServletResponse response) {
         response.setStatus(HttpStatus.NOT_FOUND.value());

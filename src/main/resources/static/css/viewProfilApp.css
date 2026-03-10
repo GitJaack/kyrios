@@ -1,0 +1,94 @@
+.container-header{
+    width: fit-content;
+}
+
+.section{
+    margin-top: 2rem;
+}
+
+.card-container {
+    border: 1px solid hsl(220, 10%, 90%);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background-color: white;
+}
+
+.application-name {
+    margin: 0;
+    font-weight: 500;
+    color: hsl(220, 20%, 20%);
+}
+
+.application-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.icon-container {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+}
+
+.icon-purple {
+    filter: invert(30%) sepia(48%) saturate(749%) hue-rotate(250deg) brightness(95%) contrast(90%);
+}
+
+.icon-purple-bg {
+    background-color: hsl(265, 60%, 95%);
+}
+
+.application-details{
+    display: flex;
+    gap: 0.25rem;
+}
+
+.application-details p{
+    color: hsl(220, 10%, 50%);
+    font-size: 0.875rem;
+}
+
+.card-title{
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.ressources-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+
+.ressource-name{
+    font-weight: 500;
+}
+
+.ressource-item {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    background-color: hsl(220, 20%, 98%);
+}
+
+.ressource-description {
+    color: hsl(220, 10%, 50%);
+}
+
+.profilSI-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.profilSI-list span{
+    color: hsl(220, 20%, 30%);
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.empty-message {
+    color: hsl(220, 10%, 50%);
+    font-style: italic;
+}
+
