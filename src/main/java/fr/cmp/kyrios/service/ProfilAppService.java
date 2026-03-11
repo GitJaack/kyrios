@@ -22,6 +22,7 @@ import fr.cmp.kyrios.model.App.RessourceAppModel;
 import fr.cmp.kyrios.model.App.dto.ProfilAppDTOCreate;
 import fr.cmp.kyrios.model.App.dto.ProfilAppDTODeleteResponse;
 import fr.cmp.kyrios.model.App.dto.ProfilAppDTOResponse;
+import fr.cmp.kyrios.model.Emploi.dto.ProfilSISimpleDTO;
 
 @Service
 public class ProfilAppService {
@@ -192,7 +193,9 @@ public class ProfilAppService {
                 .name(profilApp.getName())
                 .application(profilApp.getApplication().getName())
                 .profilSI(profilApp.getProfilSI().stream()
-                        .map(liaison -> liaison.getProfilSI().getName())
+                .map(liaison -> new ProfilSISimpleDTO(
+                    liaison.getProfilSI().getId(),
+                    liaison.getProfilSI().getName()))
                         .collect(Collectors.toList()))
                 .ressourcesApp(profilApp.getProfilAppRessources().stream()
                         .map(liaison -> liaison.getRessource().getName())

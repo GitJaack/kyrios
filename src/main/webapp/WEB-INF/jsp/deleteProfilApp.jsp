@@ -17,8 +17,18 @@
 
             <div class="modal-body">
                 <p class="modal-message">
-                    Vous êtes sur le point de supprimer le profil applicatif : <strong x-text="selectedProfilAppName"></strong>
+                    Suppression du profil applicatif : <strong x-text="selectedProfilAppName"></strong>
                 </p>
+
+                <div class="warning-box">
+                    <p class="warning-title">Profils SI impactés :</p>
+                    <ul class="list">
+                        <template x-for="profilSI in affectedProfilSI" :key="profilSI.id">
+                            <li x-text="'n°' + profilSI.id + ' - ' + profilSI.name"></li>
+                        </template>
+                    </ul>
+                </div>
+
             </div>
 
             <div class="modal-footer">
@@ -38,12 +48,26 @@
             showModal: false,
             selectedProfilAppId: null,
             selectedProfilAppName: '',
+            affectedProfilSI: [],
             loading: false,
 
             showDeleteModal(profilAppId, profilAppName) {
                 this.selectedProfilAppId = profilAppId;
                 this.selectedProfilAppName = profilAppName;
                 this.showModal = true;
+                this.loadAffectedProfilSI();
+            },
+
+            async loadAffectedProfilSI() {
+                try {
+                    const response = await fetch('/api/profil-app/' + this.selectedProfilAppId);
+                    if (response.ok) {
+                        const profilApp = await response.json();
+                        this.affectedProfilSI = profilApp.profilSI || [];
+                    }
+                } catch (error) {
+                    console.error('Erreur lors du chargement des données:', error);
+                }
             },
 
             async confirmDelete() {
@@ -74,6 +98,7 @@
                 this.showModal = false;
                 this.selectedProfilAppId = null;
                 this.selectedProfilAppName = '';
+                this.affectedProfilSI = [];
             }
         };
     }

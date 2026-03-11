@@ -22,7 +22,7 @@
 
                 <div class="warning-box">
                     <p class="warning-title">Emplois impactés :</p>
-                    <ul class="emplois-list">
+                    <ul class="list">
                         <template x-for="emploi in affectedEmplois" :key="emploi.id">
                             <li x-text="'n°' + emploi.id + ' - ' + emploi.emploiName"></li>
                         </template>

@@ -3,6 +3,7 @@ package fr.cmp.kyrios.model.App.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import fr.cmp.kyrios.model.Emploi.dto.ProfilSISimpleDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +25,7 @@ public class ProfilAppDTOResponse {
     private String application;
 
     @Schema(description = "Liste des noms des profils SI associés", example = "[Developpeur, Admin]")
-    private List<String> profilSI;
+    private List<ProfilSISimpleDTO> profilSI;
 
     @Schema(description = "Liste des noms des ressources d'application associées", example = "[BTSY, BTAC]")
     private List<String> ressourcesApp;

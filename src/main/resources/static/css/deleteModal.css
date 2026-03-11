@@ -79,13 +79,13 @@
 	font-size: 0.9rem;
 }
 
-.emplois-list {
+.list {
 	list-style: none;
 	padding: 0;
 	margin: 0;
 }
 
-.emplois-list li {
+.list li {
 	padding: 0.5rem 0.75rem;
 	color: #78350f;
 	font-size: 0.9rem;
@@ -93,7 +93,7 @@
 	margin-bottom: 0.5rem;
 }
 
-.emplois-list li:last-child {
+.list li:last-child {
 	margin-bottom: 0;
 }
 
