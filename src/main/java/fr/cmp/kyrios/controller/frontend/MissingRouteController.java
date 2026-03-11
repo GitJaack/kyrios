@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class MissingRouteController {
@@ -15,12 +14,6 @@ public class MissingRouteController {
     public String settingsNotFound(Model model, HttpServletResponse response) {
         response.setStatus(HttpStatus.NOT_FOUND.value());
         return renderNotFound(model, "/settings");
-    }
-
-    @GetMapping("/profil-app/edit/{id}")
-    public String profilAppEditNotFound(@PathVariable Integer id, Model model, HttpServletResponse response) {
-        response.setStatus(HttpStatus.NOT_FOUND.value());
-        return renderNotFound(model, "/profil-app/edit/" + id);
     }
 
     private String renderNotFound(Model model, String path) {

@@ -105,13 +105,49 @@ public class ProfilAppService {
             }
         }
 
+        Set<Integer> targetProfilSIIds = new HashSet<>();
+        for (Integer profilSIId : dto.getProfilSIIds()) {
+            if (!targetProfilSIIds.add(profilSIId)) {
+                throw new IllegalArgumentException(
+                        "Le profil SI " + profilSIId + " est présent plusieurs fois dans la liste");
+            }
+        }
+
+        for (Integer profilSIId : targetProfilSIIds) {
+            boolean linkedToAnotherProfilApp = updateProfilApp.getProfilSI().stream()
+                    .noneMatch(liaison -> liaison.getProfilSI().getId() == profilSIId)
+                    && profilAppProfilSIRepository.existsByApplicationIdAndProfilSIId(
+                            updateProfilApp.getApplication().getId(),
+                            profilSIId);
+
+            if (linkedToAnotherProfilApp) {
+                ProfilSIModel profilSI = entityFinder.findProfilSIOrThrow(profilSIId);
+                throw new IllegalArgumentException(
+                        "Le profil SI '" + profilSI.getName()
+                                + "' est déjà associé à un profil applicatif dans l'application '"
+                                + updateProfilApp.getApplication().getName() + "'");
+            }
+        }
+
         updateProfilApp.setName(dto.getName());
         updateProfilApp.setDateUpdated(LocalDateTime.now());
 
-        updateProfilApp.getProfilSI().removeIf(r -> true);
-        profilAppRepository.flush();
+        updateProfilApp.getProfilSI().removeIf(liaison -> !targetProfilSIIds.contains(liaison.getProfilSI().getId()));
 
-        createProfilSILiaisons(updateProfilApp, dto.getProfilSIIds());
+        Set<Integer> currentProfilSIIds = updateProfilApp.getProfilSI().stream()
+                .map(liaison -> liaison.getProfilSI().getId())
+                .collect(Collectors.toSet());
+
+        for (Integer profilSIId : targetProfilSIIds) {
+            if (!currentProfilSIIds.contains(profilSIId)) {
+                ProfilSIModel profilSI = entityFinder.findProfilSIOrThrow(profilSIId);
+                ProfilAppProfilSI liaison = new ProfilAppProfilSI();
+                liaison.setProfilApp(updateProfilApp);
+                liaison.setProfilSI(profilSI);
+                liaison.setApplication(updateProfilApp.getApplication());
+                updateProfilApp.getProfilSI().add(liaison);
+            }
+        }
 
         updateProfilApp.getProfilAppRessources().removeIf(r -> true);
         profilAppRepository.flush();
