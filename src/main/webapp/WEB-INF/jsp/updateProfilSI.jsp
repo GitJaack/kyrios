@@ -60,7 +60,7 @@
 
 						<div class="category-content" x-show="open" x-collapse>
 							<c:forEach var="ressource" items="${categorie.ressources}">
-								<div class="ressource-item">
+								<label class="ressource-item">
 									<div class="ressource-checkbox">
 										<input type="checkbox"
 											   id="ressource_${ressource.id}"
@@ -76,7 +76,7 @@
 										<option value="LECTURE">Lecture</option>
 										<option value="LECTURE_ECRITURE">Lecture/Écriture</option>
 									</select>
-								</div>
+								</label>
 							</c:forEach>
 						</div>
 					</div>

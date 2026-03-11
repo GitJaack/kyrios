@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import fr.cmp.kyrios.model.App.ProfilAppProfilSI;
 import fr.cmp.kyrios.model.Si.ProfilSIModel;
 import fr.cmp.kyrios.model.Si.ProfilSIRessource;
 import fr.cmp.kyrios.service.ProfilSIService;
@@ -24,6 +25,8 @@ public class ViewProfilSIController {
     @GetMapping("/profilSI/view/{id}")
     public String viewProfilSI(@PathVariable int id, Model model) {
         ProfilSIModel profil = profilSIService.getById(id);
+
+        List<ProfilAppProfilSI> profilApp = profil.getProfilApps();
 
         Map<String, List<ProfilSIRessource>> ressourcesByCategorie = new LinkedHashMap<>();
         if (profil.getProfilSIRessources() != null) {
@@ -45,6 +48,7 @@ public class ViewProfilSIController {
 
         model.addAttribute("profilSI", profil);
         model.addAttribute("ressourcesByCategorie", ressourcesByCategorie);
+        model.addAttribute("profilApp", profilApp);
 
         return "layout";
     }

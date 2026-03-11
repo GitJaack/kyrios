@@ -110,4 +110,36 @@
         </c:choose>
     </div>
 
+    <div class="profilApp-section">
+        <div class="profilApp-header">
+            <h2>Profils applicatifs associes</h2>
+        </div>
+
+         <c:choose>
+            <c:when test="${not empty profilApp}">
+                <div class="profilApp-grid">
+                    <c:forEach var="profilAppLink" items="${profilApp}">
+                        <div class="profilApp-card">
+                            <p class="profilApp-card-header">Application</p>
+
+                            <p style="font-weight:600">
+                                ${profilAppLink.application.name}
+                            </p>
+
+                            <p class="profilApp-container">
+                                ${profilAppLink.profilApp.name}
+                            </p>
+
+
+                        </div>
+                    </c:forEach>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <p class="ressources-empty">Aucun profil applicatif associe a ce profil SI.</p>
+            </c:otherwise>
+        </c:choose>
+
+    </div>
+
 </div>

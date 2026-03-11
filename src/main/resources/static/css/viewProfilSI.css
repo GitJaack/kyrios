@@ -2,36 +2,40 @@
     width: fit-content;
 }
 
-.emplois-section {
+.emplois-section,
+.ressources-section,
+.profilApp-section {
     margin-top: 2rem;
 }
 
 .emplois-header,
-.ressources-header {
+.ressources-header,
+.profilApp-header {
     display: flex;
     align-items: baseline;
     gap: 0.75rem;
 }
 
 .emplois-header h2,
-.ressources-header h2 {
+.ressources-header h2,
+.profilApp-header h2 {
     margin: 0;
     font-size: 1.125rem;
     font-weight: 600;
 }
 
-.emplois-subtitle {
+.emplois-subtitle,
+.ressources-subtitle,
+.profilApp-subtitle {
     margin: 0;
     color: hsl(220, 10%, 50%);
     font-size: var(--font-size-sm);
 }
 
-.ressources-section {
-    margin-top: 2rem;
-}
-
-.ressources-subtitle {
-    margin: 0;
+.emploi-label,
+.ressource-acces,
+.emplois-empty,
+.ressources-empty {
     color: hsl(220, 10%, 50%);
     font-size: var(--font-size-sm);
 }
@@ -43,7 +47,9 @@
     gap: 1rem;
 }
 
-.card {
+.card,
+.ressource-card,
+.profilApp-card {
     border: 1px solid hsl(220, 10%, 90%);
     border-radius: 0.75rem;
     padding: 1rem;
@@ -80,11 +86,6 @@
     opacity: 0.6;
 }
 
-.emploi-label {
-    color: hsl(220, 10%, 50%);
-    font-size: var(--font-size-sm);
-}
-
 .emploi-value {
     font-weight: 500;
     text-align: right;
@@ -92,8 +93,6 @@
 
 .emplois-empty {
     margin-top: 0.75rem;
-    color: hsl(220, 10%, 50%);
-    font-size: var(--font-size-sm);
 }
 
 .ressources-grid {
@@ -101,13 +100,6 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(240px, 1fr));
     gap: 1rem;
-}
-
-.ressource-card {
-    border: 1px solid hsl(220, 10%, 90%);
-    border-radius: 0.75rem;
-    padding: 1rem;
-    background-color: hsl(0, 0%, 100%);
 }
 
 .ressource-title {
@@ -136,14 +128,27 @@
     font-weight: 500;
 }
 
-.ressource-acces {
-    color: hsl(220, 10%, 50%);
-    font-size: var(--font-size-sm);
-}
-
 .ressources-empty {
     margin-top: 0.75rem;
+}
+
+.profilApp-grid{
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(240px, 1fr));
+    gap: 1rem;
+}
+
+.profilApp-card-header {
     color: hsl(220, 10%, 50%);
     font-size: var(--font-size-sm);
 }
 
+.profilApp-container{
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 1rem;
+    background-color: hsl(220, 70%, 50%);
+    width: fit-content;
+    color:white
+}
