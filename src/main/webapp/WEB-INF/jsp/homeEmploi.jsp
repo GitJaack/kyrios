@@ -27,7 +27,7 @@
         <c:forEach var="emploi" items="${emplois}">
             <div class="card">
                 <div class="emploi-header">
-                    <p style="font-weight:600; font-size:1rem">${emploi.emploiName}</p>
+                    <p style="font-weight:600; font-size:1rem">${emploi.emploi}</p>
                     <div class="emploi-status-container">
                         ${emploi.status}
                     </div>
@@ -36,14 +36,14 @@
                 <div style="display: flex; flex-direction: column;gap: 0.5rem;">
                     <div class="emploi-info">
                         <img src="/images/building-2.svg" alt="building-2 icon" class="icon-direction">
-                        <p>${emploi.direction.name}</p>
+                        <p>${emploi.direction}</p>
                     </div>
 
                     <div class="emploi-info">
                         <img src="/images/map-pin.svg" alt="map-pin icon" class="icon-service">
                         <c:choose>
                             <c:when test="${not empty emploi.service}">
-                                <p>${emploi.service.name}</p>
+                                <p>${emploi.service}</p>
                             </c:when>
 
                             <c:otherwise>
@@ -56,7 +56,7 @@
                         <img src="/images/landmark.svg" alt="landmark icon" class="icon-domaine">
                         <c:choose>
                             <c:when test="${not empty emploi.domaine}">
-                                <p>${emploi.domaine.name}</p>
+                                <p>${emploi.domaine}</p>
                             </c:when>
                             
                             <c:otherwise>
@@ -88,7 +88,7 @@
                             <span>Modifier</span>
                         </a>
 
-                        <button class="delete-button" type="button" @click="showDeleteModal(${emploi.id}, '${emploi.emploiName}')">
+                        <button class="delete-button" type="button" @click="showDeleteModal(${emploi.id}, '${emploi.emploi}')">
                                 <img src="/images/trash-2.svg" alt="trash-2 icon">
                         </button>
                     </div>

@@ -116,11 +116,11 @@
             loading: false,
             message: '',
             messageType: '',
-            emploiName: '${emploi.emploiName}',
-            selectedDirection: ${emploi.direction != null ? emploi.direction.id : "''"},
+            emploiName: '${emploi.emploi}',
+            selectedDirection: ${selectedDirectionId != null ? selectedDirectionId : "''"},
             selectedStatus: '${emploi.status}',
-            selectedService: ${emploi.service != null ? emploi.service.id : "''"},
-            selectedDomaine: ${emploi.domaine != null ? emploi.domaine.id : "''"},
+            selectedService: ${selectedServiceId != null ? selectedServiceId : "''"},
+            selectedDomaine: ${selectedDomaineId != null ? selectedDomaineId : "''"},
             selectedProfilSI: ${emploi.profilSI != null ? emploi.profilSI.id : "''"},
             
             async submitForm() {

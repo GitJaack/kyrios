@@ -1,0 +1,50 @@
+.auth-toast {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(92vw, 420px);
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid hsl(220, 10%, 85%);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    padding: 0.85rem;
+    z-index: 9999;
+    display: grid;
+    gap: 0.65rem;
+}
+
+.auth-toast-title {
+    font-size: 0.95rem;
+}
+
+.auth-toast-text {
+    margin: 0;
+    color: hsl(220, 10%, 40%);
+    font-size: 0.9rem;
+}
+
+.auth-toast-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.auth-toast-later,
+.auth-toast-login {
+    border-radius: 8px;
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+    font: inherit;
+}
+
+.auth-toast-later {
+    border: 1px solid hsl(220, 10%, 85%);
+    background: #fff;
+}
+
+.auth-toast-login {
+    border: none;
+    background: hsl(220, 70%, 50%);
+    color: #fff;
+}

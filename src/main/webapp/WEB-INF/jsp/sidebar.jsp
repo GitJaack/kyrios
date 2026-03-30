@@ -34,9 +34,11 @@
 
         <div class="nav-bottom">
             <ul>
-                <li><a href="/login">
-                <img src="/images/log-in.svg" alt="login icon" class="icon">
-                Connexion</a></li>
+                <c:if test="${pageContext.request.userPrincipal == null}">
+                    <li><a href="/login">
+                    <img src="/images/log-in.svg" alt="login icon" class="icon">
+                    Connexion</a></li>
+                </c:if>
             </ul>
         </div>
         

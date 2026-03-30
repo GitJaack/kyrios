@@ -32,7 +32,7 @@
             <c:forEach var="profil" items="${profilsSI}">
                 <div class="card">
                     <div style="margin-bottom: 0.75rem;">
-                        <p style="font-weight: 600; font-size: var(--font-size-base);">n°${profil.id} ${profil.name}</p>
+                        <p style="font-weight: 600; font-size: var(--font-size-base);">n°${profil.idProfilSI} ${profil.name}</p>
                     </div>
 
                     <div class="profils-linked-section">
@@ -47,17 +47,17 @@
                     </div>
 
                     <div class="card-footer">
-                        <p style="font-size: var(--font-size-sm); color: hsl(220, 10%, 50%); margin-bottom: 0.5rem;">Dernière modification : ${DateUpdatedById[profil.id]}</p>
+                        <p style="font-size: var(--font-size-sm); color: hsl(220, 10%, 50%); margin-bottom: 0.5rem;">Dernière modification : ${DateUpdatedById[profil.idProfilSI]}</p>
                         <div class="actions">
-                            <a href="/profilSI/view/${profil.id}" class="view-button">
+                            <a href="/profilSI/view/${profil.idProfilSI}" class="view-button">
                                 <img src="/images/eye.svg" alt="eye icon">
                                 <span>Voir</span>
                             </a>
-                            <a href="/profilSI/edit/${profil.id}" class="edit-button">
+                            <a href="/profilSI/edit/${profil.idProfilSI}" class="edit-button">
                                 <img src="/images/square-pen.svg" alt="square-pen icon">
                                 <span>Modifier</span>
                             </a>
-                            <button type="button" class="delete-button" @click="showDeleteModal(${profil.id}, 'n°${profil.id} ${profil.name}')">
+                            <button type="button" class="delete-button" @click="showDeleteModal(${profil.idProfilSI}, 'n°${profil.idProfilSI} ${profil.name}')">
                                 <img src="/images/trash-2.svg" alt="trash-2 icon">
                             </button>
                         </div>

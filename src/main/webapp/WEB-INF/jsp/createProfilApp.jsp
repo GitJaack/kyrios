@@ -176,7 +176,7 @@ function profilAppForm() {
                     name: profilAppName,
                     applicationId: parseInt(selectedApplicationId),
                     profilSIIds: selectedProfilSIIds,
-                    ressourceIds: selectedRessourceIds
+                    ressourceAppIds: selectedRessourceIds
                 }
 
                 const response = await fetch('/api/profil-app', {

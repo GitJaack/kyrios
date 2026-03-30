@@ -12,6 +12,7 @@
     <link href="/css/shared.css" rel="stylesheet">
     <link href="/css/buttons.css" rel="stylesheet">
     <link href="/css/cards.css" rel="stylesheet">
+    <link href="/css/auth-guard.css" rel="stylesheet">
     <c:if test="${not empty pageCssCommon}">
         <link href="/css/${pageCssCommon}.css" rel="stylesheet">
     </c:if>
@@ -20,9 +21,10 @@
     </c:if>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="/js/auth-guard.js"></script>
 </head>
 
-<body>
+<body data-authenticated="${pageContext.request.userPrincipal != null}">
     <jsp:include page="sidebar.jsp"/>
     
     <main class="main-content">

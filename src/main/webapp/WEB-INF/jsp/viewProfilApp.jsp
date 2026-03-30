@@ -19,14 +19,7 @@
                 </div>
                 
                 <div>
-                    <p class="application-name">${profilApp.application.name}</p>
-                    <div class="application-details">
-                        <p>${profilApp.application.direction.name}</p>
-                        <p>-</p>
-                        <c:if test="${not empty profilApp.application.description}">
-                            <p class="application-description">${profilApp.application.description}</p>
-                        </c:if>
-                    </div>
+                    <p class="application-name">${profilApp.application}</p>
                 </div>
             </div>
         </div>
@@ -38,7 +31,7 @@
             <div class="profilSI-list">
                 <c:forEach var="profilSILinked" items="${profilApp.profilSI}">
                     <div class="ressource-item">
-                        <span>n°${profilSILinked.profilSI.id} ${profilSILinked.profilSI.name}</span>
+                        <span>n°${profilSILinked.id} ${profilSILinked.name}</span>
                     </div>
                 </c:forEach>
                 <c:if test="${empty profilApp.profilSI}">
@@ -52,15 +45,12 @@
         <div class="card-container">
             <div class="card-title">Ressources associées</div>
             <div class="ressources-list">
-                <c:forEach var="ressourceLinked" items="${profilApp.profilAppRessources}">
+                <c:forEach var="ressourceName" items="${profilApp.ressourcesApp}">
                     <div class="ressource-item">
-                        <span class="ressource-name">${ressourceLinked.ressource.name}</span>
-                        <c:if test="${not empty ressourceLinked.ressource.description}">
-                            <span class="ressource-description"> - ${ressourceLinked.ressource.description}</span>
-                        </c:if>
+                        <span class="ressource-name">${ressourceName}</span>
                     </div>
                 </c:forEach>
-                <c:if test="${empty profilApp.profilAppRessources}">
+                <c:if test="${empty profilApp.ressourcesApp}">
                     <p class="empty-message">Aucune ressource associee</p>
                 </c:if>
             </div>

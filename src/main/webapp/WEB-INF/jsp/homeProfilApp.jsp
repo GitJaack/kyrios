@@ -34,13 +34,13 @@
         <c:forEach var="app" items="${apps}">
             <div x-show="activeTab === ${app.id}" x-transition>
                 <div class="app-info">
-                    <p style="font-weight: 600;">${app.direction.name}</p>
+                    <p style="font-weight: 600;">${app.direction}</p>
                     <p>${app.description}</p>
                 </div>
 
                 <div class="grid">
                     <c:forEach var="profilApp" items="${profilApps}">
-                        <c:if test="${profilApp.application.id == app.id}">
+                        <c:if test="${profilApp.applicationId == app.id}">
                             <div class="card">
                                 <div style="margin-bottom:0.75rem;">
                                     <p style="font-weight: 600; font-size: var(--font-size-base);">${profilApp.name}</p>
@@ -51,7 +51,7 @@
                                     <div class="profils-linked-container">
                                         <c:forEach var="profilSI" items="${profilApp.profilSI}">
                                             <div class="profils-linked">
-                                                <p>${profilSI.profilSI.name}</p>
+                                                <p>${profilSI.name}</p>
                                             </div>
                                         </c:forEach>
                                     </div>

@@ -31,7 +31,7 @@
 
 	<div class="content-form">
 		<input type="hidden" id="initialProfilAppName" value="<c:out value='${profilApp.name}' />">
-		<input type="hidden" id="initialApplicationName" value="<c:out value='${profilApp.application.name}' />">
+		<input type="hidden" id="initialApplicationName" value="<c:out value='${profilApp.application}' />">
 
 		<form id="updateProfilAppForm" action="#" method="post" @submit.prevent="submitForm()">
 			<div class="form-section">
@@ -104,21 +104,22 @@ function profilAppUpdateForm() {
 		loading: false,
 		message: '',
 		messageType: '',
-		applicationId: ${profilApp.application.id},
+		applicationId: ${profilApp.applicationId},
+		existingRessourceNames: [
+			<c:forEach var="ressourceName" items="${profilApp.ressourcesApp}" varStatus="status">
+				'${ressourceName}'<c:if test="${!status.last}">,</c:if>
+			</c:forEach>
+		],
 		applicationName: '',
 		profilAppName: '',
 		resources: [],
 		loadingResources: false,
 		selectedProfilSIIds: [
-			<c:forEach var="profilSILink" items="${profilApp.profilSI}" varStatus="status">
-				'${profilSILink.profilSI.id}'<c:if test="${!status.last}">,</c:if>
+			<c:forEach var="profilSI" items="${profilApp.profilSI}" varStatus="status">
+				'${profilSI.id}'<c:if test="${!status.last}">,</c:if>
 			</c:forEach>
 		],
-		selectedRessourceIds: [
-			<c:forEach var="ressourceLink" items="${profilApp.profilAppRessources}" varStatus="status">
-				'${ressourceLink.ressource.id}'<c:if test="${!status.last}">,</c:if>
-			</c:forEach>
-		],
+		selectedRessourceIds: [],
 
 		init() {
 			this.profilAppName = document.getElementById('initialProfilAppName').value;
@@ -134,6 +135,9 @@ function profilAppUpdateForm() {
 					throw new Error('Erreur lors du chargement des ressources');
 				}
 				this.resources = await response.json();
+				this.selectedRessourceIds = this.resources
+					.filter(resource => this.existingRessourceNames.includes(resource.name))
+					.map(resource => String(resource.id));
 			} catch (error) {
 				console.error('Erreur:', error);
 				this.message = 'Erreur lors du chargement des ressources: ' + error.message;

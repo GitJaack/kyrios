@@ -19,20 +19,4 @@
     color: hsl(220, 10%, 50%);
 }
 
-.logout-button {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    gap: 0.5rem;
-    padding:0.5rem;
-    border-radius: 8px;
-    transition: background-color 0.2s ease;
-}
 
-.logout-button img {
-    filter: invert(60%);
-}
-
-.logout-button:hover {
-    background-color:  hsl(220, 10%, 90%);
-}

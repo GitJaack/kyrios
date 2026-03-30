@@ -7,8 +7,12 @@
         <p>${pageDescription}</p>
     </div>
 
-    <div class="logout-button">
-        <img src="/images/log-out.svg" alt="log-out icon" class="log-out icon">
-        <p>Déconnexion</p>
-    </div>
+    <c:if test="${pageContext.request.userPrincipal != null}">
+        <form action="/logout" method="post" class="logout-form">
+            <button type="submit" class="logout-button">
+                <img src="/images/log-out.svg" alt="log-out icon" class="log-out icon">
+                <span>Déconnexion</span>
+            </button>
+        </form>
+    </c:if>
 </div>

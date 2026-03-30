@@ -18,18 +18,18 @@
         </div>
 
         <c:choose>
-            <c:when test="${not empty profilSI.emplois}">
+            <c:when test="${not empty emploisAssocies}">
                 <div class="emplois-grid">
-                    <c:forEach var="emploi" items="${profilSI.emplois}">
+                    <c:forEach var="emploi" items="${emploisAssocies}">
                         <div class="card">
-                            <div class="emploi-title">${emploi.emploiName}</div>
+                            <div class="emploi-title">${emploi.emploi}</div>
 
                             <div class="emploi-row">
                                 <div class="emploi-label-with-icon">
                                     <img src="/images/building-2.svg" alt="building-2 icon" class="icon-direction">
                                     <span class="emploi-label">Direction</span>
                                 </div>
-                                <span class="emploi-value">${emploi.direction.name}</span>
+                                <span class="emploi-value">${emploi.direction}</span>
                             </div>
 
                             <div class="emploi-row">
@@ -48,7 +48,7 @@
                                 </div>
                                 <c:choose>
                                     <c:when test="${not empty emploi.service}">
-                                        <span class="emploi-value">${emploi.service.name}</span>
+                                        <span class="emploi-value">${emploi.service}</span>
                                     </c:when>
                                     <c:otherwise>
                                         <span class="emploi-value">-</span>
@@ -63,7 +63,7 @@
                                 </div>
                                 <c:choose>
                                     <c:when test="${not empty emploi.domaine}">
-                                        <span class="emploi-value">${emploi.domaine.name}</span>
+                                        <span class="emploi-value">${emploi.domaine}</span>
                                     </c:when>
                                     <c:otherwise>
                                         <span class="emploi-value">-</span>
@@ -93,10 +93,10 @@
                         <div class="ressource-card">
                             <div class="ressource-title">${entry.key}</div>
                             <ul class="ressource-list">
-                                <c:forEach var="profilRessource" items="${entry.value}">
+                                <c:forEach var="ressource" items="${entry.value}">
                                     <li class="ressource-item">
-                                        <span class="ressource-name">${profilRessource.ressource.name}</span>
-                                        <span class="ressource-acces">${profilRessource.typeAcces}</span>
+                                        <span class="ressource-name">${ressource.name}</span>
+                                        <span class="ressource-acces">${ressource.typeAcces}</span>
                                     </li>
                                 </c:forEach>
                             </ul>
@@ -123,11 +123,11 @@
                             <p class="profilApp-card-header">Application</p>
 
                             <p style="font-weight:600">
-                                ${profilAppLink.application.name}
+                                ${profilAppLink.application}
                             </p>
 
                             <p class="profilApp-container">
-                                ${profilAppLink.profilApp.name}
+                                ${profilAppLink.name}
                             </p>
 
 

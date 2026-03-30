@@ -6,7 +6,8 @@
 .view-button,
 .delete-button,
 .back-button,
-.save-button {
+.save-button,
+.logout-button {
     display: flex;
     align-items: center;
     border: 1px solid hsl(220, 10%, 90%);
@@ -25,7 +26,8 @@
 .view-button img,
 .delete-button img,
 .back-button img,
-.save-button img {
+.save-button img,
+.logout-button img {
     width: 18px;
     height: 18px;
     transition: filter 0.2s ease;
@@ -48,29 +50,34 @@
     opacity: 0.6;
 }
 
-.back-button {
+.back-button,
+.logout-button {
     gap: 0.5rem;
     padding: 0.5rem 1rem;
     background-color: hsl(220, 10%, 98%);
 }
 
 .back-button span,
-.save-button span {
+.save-button span,
+.logout-button span {
     font-weight: 500;
     line-height: 1.25rem;
 }
 
 .back-button img,
-.save-button img {
+.save-button img,
+.logout-button img {
     opacity: 0.7;
 }
 
-.back-button:hover {
+.back-button:hover,
+.logout-button:hover {
     color: rgb(60, 130, 245);
     background-color: rgb(60, 130, 250, 0.1);
 }
 
-.back-button:hover img {
+.back-button:hover img,
+.logout-button:hover img {
     filter: brightness(0) saturate(100%) invert(36%) sepia(85%) saturate(747%) hue-rotate(188deg) brightness(98%) contrast(92%);
 }
 
