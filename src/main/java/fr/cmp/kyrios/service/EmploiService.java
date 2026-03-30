@@ -7,84 +7,127 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import fr.cmp.kyrios.dao.EmploiDao;
+import fr.cmp.kyrios.dao.ReferenceDao;
 import fr.cmp.kyrios.model.Emploi.EmploiModel;
 import fr.cmp.kyrios.model.Emploi.dto.EmploiDTOCreate;
 import fr.cmp.kyrios.model.Emploi.dto.EmploiDTOResponse;
 import fr.cmp.kyrios.model.Emploi.dto.ProfilSISimpleDTO;
-import fr.cmp.kyrios.model.Si.ProfilSIModel;
-import fr.cmp.kyrios.repository.Emploi.EmploiRepository;
-import fr.cmp.kyrios.util.EntityFinder;
 
 @Service
 public class EmploiService {
     @Autowired
-    private EmploiRepository emploiRepository;
+    private ReferenceDao jdbcReferenceRepository;
 
     @Autowired
-    private EntityFinder entityFinder;
+    private EmploiDao emploiJdbcRepository;
 
-    public List<EmploiModel> listAll() {
-        return emploiRepository.findAll();
+    public List<EmploiDTOResponse> listAll() {
+        return emploiJdbcRepository.findAll().stream()
+                .map(this::toDTOFromJdbcRow)
+                .toList();
     }
 
-    public EmploiModel getById(int id) {
-        return entityFinder.findEmploiOrThrow(id);
-    }
-
-    @Transactional
-    public EmploiModel create(EmploiDTOCreate dto) {
-        ProfilSIModel profil = entityFinder.findProfilSIOrThrow(dto.getProfilSI());
-
-        EmploiModel emploi = new EmploiModel();
-        emploi.setEmploiName(dto.getEmploi().getEmploi());
-        emploi.setDirection(entityFinder.findDirectionOrThrow(dto.getEmploi().getDirection()));
-        emploi.setService(entityFinder.findServiceOrNull(dto.getEmploi().getService()));
-        emploi.setDomaine(entityFinder.findDomaineOrNull(dto.getEmploi().getDomaine()));
-        emploi.setStatus(dto.getEmploi().getStatus());
-        emploi.setProfilSI(profil);
-        emploi.setDateCreated(LocalDateTime.now());
-
-        return emploiRepository.save(emploi);
+    public EmploiDTOResponse getById(int id) {
+        var row = emploiJdbcRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Emploi avec l'ID " + id + " non trouvé"));
+        return toDTOFromJdbcRow(row);
     }
 
     @Transactional
-    public EmploiModel update(int id, EmploiDTOCreate dto) {
-        EmploiModel emploi = getById(id);
+    public EmploiDTOResponse create(EmploiDTOCreate dto) {
+        if (!jdbcReferenceRepository.existsProfilSIById(dto.getProfilSI())) {
+            throw new IllegalArgumentException("Profil SI avec l'ID " + dto.getProfilSI() + " non trouve");
+        }
 
-        emploi.setEmploiName(dto.getEmploi().getEmploi());
-        emploi.setDirection(entityFinder.findDirectionOrThrow(dto.getEmploi().getDirection()));
-        emploi.setService(entityFinder.findServiceOrNull(dto.getEmploi().getService()));
-        emploi.setDomaine(entityFinder.findDomaineOrNull(dto.getEmploi().getDomaine()));
-        emploi.setStatus(dto.getEmploi().getStatus());
-        emploi.setDateUpdated(LocalDateTime.now());
+        if (!jdbcReferenceRepository.existsDirectionById(dto.getEmploi().getDirection())) {
+            throw new IllegalArgumentException(
+                    "Direction avec l'ID " + dto.getEmploi().getDirection() + " non trouvee");
+        }
 
-        ProfilSIModel profil = entityFinder.findProfilSIOrThrow(dto.getProfilSI());
-        emploi.setProfilSI(profil);
+        if (dto.getEmploi().getService() != null
+                && !jdbcReferenceRepository.existsServiceById(dto.getEmploi().getService())) {
+            throw new IllegalArgumentException("Service avec l'ID " + dto.getEmploi().getService() + " non trouve");
+        }
 
-        return emploiRepository.save(emploi);
+        if (dto.getEmploi().getDomaine() != null
+                && !jdbcReferenceRepository.existsDomaineById(dto.getEmploi().getDomaine())) {
+            throw new IllegalArgumentException("Domaine avec l'ID " + dto.getEmploi().getDomaine() + " non trouve");
+        }
+
+        int id = emploiJdbcRepository.insert(
+                dto.getEmploi().getEmploi(),
+                dto.getEmploi().getDirection(),
+                dto.getEmploi().getService(),
+                dto.getEmploi().getDomaine(),
+                dto.getEmploi().getStatus().name(),
+                dto.getProfilSI(),
+                LocalDateTime.now());
+
+        return getById(id);
+    }
+
+    @Transactional
+    public EmploiDTOResponse update(int id, EmploiDTOCreate dto) {
+        if (!jdbcReferenceRepository.existsEmploiById(id)) {
+            throw new IllegalArgumentException("Emploi avec l'ID " + id + " non trouve");
+        }
+
+        if (!jdbcReferenceRepository.existsDirectionById(dto.getEmploi().getDirection())) {
+            throw new IllegalArgumentException(
+                    "Direction avec l'ID " + dto.getEmploi().getDirection() + " non trouvee");
+        }
+
+        if (dto.getEmploi().getService() != null
+                && !jdbcReferenceRepository.existsServiceById(dto.getEmploi().getService())) {
+            throw new IllegalArgumentException("Service avec l'ID " + dto.getEmploi().getService() + " non trouve");
+        }
+
+        if (dto.getEmploi().getDomaine() != null
+                && !jdbcReferenceRepository.existsDomaineById(dto.getEmploi().getDomaine())) {
+            throw new IllegalArgumentException("Domaine avec l'ID " + dto.getEmploi().getDomaine() + " non trouve");
+        }
+
+        if (!jdbcReferenceRepository.existsProfilSIById(dto.getProfilSI())) {
+            throw new IllegalArgumentException("Profil SI avec l'ID " + dto.getProfilSI() + " non trouve");
+        }
+
+        emploiJdbcRepository.update(
+                id,
+                dto.getEmploi().getEmploi(),
+                dto.getEmploi().getDirection(),
+                dto.getEmploi().getService(),
+                dto.getEmploi().getDomaine(),
+                dto.getEmploi().getStatus().name(),
+                dto.getProfilSI(),
+                LocalDateTime.now());
+
+        return getById(id);
     }
 
     public void delete(int id) {
-        EmploiModel emploi = getById(id);
-        emploiRepository.delete(emploi);
+        if (!jdbcReferenceRepository.existsEmploiById(id)) {
+            throw new IllegalArgumentException("Emploi avec l'ID " + id + " non trouve");
+        }
+        emploiJdbcRepository.deleteById(id);
     }
 
-    public EmploiDTOResponse toDTO(EmploiModel emploi) {
+    private EmploiDTOResponse toDTOFromJdbcRow(EmploiDao.EmploiReadRow row) {
         ProfilSISimpleDTO profilDTO = null;
-        if (emploi.getProfilSI() != null) {
-            profilDTO = new ProfilSISimpleDTO(emploi.getProfilSI().getId(), emploi.getProfilSI().getName());
+        if (row.profilSIId() != null) {
+            profilDTO = new ProfilSISimpleDTO(row.profilSIId(), row.profilSIName());
         }
 
         return EmploiDTOResponse.builder()
-                .id(emploi.getId())
-                .emploi(emploi.getEmploiName())
-                .direction(emploi.getDirection() != null ? emploi.getDirection().getName() : null)
-                .service(emploi.getService() != null ? emploi.getService().getName() : null)
-                .domaine(emploi.getDomaine() != null ? emploi.getDomaine().getName() : null)
-                .status(emploi.getStatus())
+                .id(row.id())
+                .emploi(row.emploiName())
+                .direction(row.direction())
+                .service(row.service())
+                .domaine(row.domaine())
+                .status(EmploiModel.Status.valueOf(row.status()))
                 .profilSI(profilDTO)
-                .dateCreated(emploi.getDateCreated())
-                .dateUpdated(emploi.getDateUpdated())
+                .dateCreated(row.dateCreated())
+                .dateUpdated(row.dateUpdated())
                 .build();
     }
 }

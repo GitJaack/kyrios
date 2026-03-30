@@ -24,6 +24,9 @@ public class ProfilAppDTOResponse {
     @Schema(description = "Nom de l'application associée", example = "THEMIS")
     private String application;
 
+    @Schema(description = "ID de l'application associée", example = "1")
+    private Integer applicationId;
+
     @Schema(description = "Liste des noms des profils SI associés", example = "[Developpeur, Admin]")
     private List<ProfilSISimpleDTO> profilSI;
 

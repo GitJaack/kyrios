@@ -6,7 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import fr.cmp.kyrios.model.App.ProfilAppModel;
+import fr.cmp.kyrios.model.App.dto.ProfilAppDTOResponse;
 import fr.cmp.kyrios.service.ProfilAppService;
 import fr.cmp.kyrios.util.DateTimeUtil;
 
@@ -17,7 +17,7 @@ public class ViewProfilAppController {
 
     @GetMapping("/profil-app/view/{id}")
     public String viewProfilApp(@PathVariable int id, Model model) {
-        ProfilAppModel profilApp = profilAppService.getById(id);
+        ProfilAppDTOResponse profilApp = profilAppService.getById(id);
 
         model.addAttribute("currentPage", "/profil-app");
         model.addAttribute("pageTitle", "Consultation du profil applicatif");

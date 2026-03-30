@@ -5,25 +5,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import fr.cmp.kyrios.repository.Emploi.DirectionRepository;
-import fr.cmp.kyrios.repository.Emploi.ServiceRepository;
-import fr.cmp.kyrios.repository.Emploi.DomaineRepository;
-import fr.cmp.kyrios.repository.Si.CategorieSIRepository;
 import fr.cmp.kyrios.model.Emploi.EmploiModel;
+import fr.cmp.kyrios.service.FrontendReferenceDataService;
 
 @Controller
 public class CreateProfilSIController {
     @Autowired
-    private CategorieSIRepository categorieSIRepository;
-
-    @Autowired
-    private DirectionRepository directionRepository;
-
-    @Autowired
-    private ServiceRepository serviceRepository;
-
-    @Autowired
-    private DomaineRepository domaineRepository;
+    private FrontendReferenceDataService frontendReferenceDataService;
 
     @GetMapping("/profilSI/create")
     public String createProfilSI(Model model) {
@@ -33,12 +21,12 @@ public class CreateProfilSIController {
         model.addAttribute("contentPage", "createProfilSI.jsp");
         model.addAttribute("pageCss", "form");
 
-        model.addAttribute("directions", directionRepository.findAll());
-        model.addAttribute("services", serviceRepository.findAll());
-        model.addAttribute("domaines", domaineRepository.findAll());
+        model.addAttribute("directions", frontendReferenceDataService.getDirectionsWithDefaultRessources());
+        model.addAttribute("services", frontendReferenceDataService.getServices());
+        model.addAttribute("domaines", frontendReferenceDataService.getDomaines());
         model.addAttribute("statusOptions", EmploiModel.Status.values());
 
-        model.addAttribute("categories", categorieSIRepository.findAll());
+        model.addAttribute("categories", frontendReferenceDataService.getCategoriesWithRessources());
 
         return "layout";
     }

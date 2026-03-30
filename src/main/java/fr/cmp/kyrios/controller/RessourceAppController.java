@@ -9,11 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import fr.cmp.kyrios.model.App.RessourceAppModel;
 import fr.cmp.kyrios.model.App.dto.RessourceAppDTOCreate;
 import fr.cmp.kyrios.model.App.dto.RessourceAppDTOResponse;
 import fr.cmp.kyrios.service.RessourceAppService;
-import fr.cmp.kyrios.util.EntityFinder;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -32,9 +30,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Tag(name = "Ressource App", description = "Gestion des ressources App")
 public class RessourceAppController {
     @Autowired
-    private EntityFinder entityFinder;
-
-    @Autowired
     private RessourceAppService ressourceAppService;
 
     @GetMapping()
@@ -44,9 +39,7 @@ public class RessourceAppController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public List<RessourceAppDTOResponse> list() {
-        return ressourceAppService.listAll().stream()
-                .map(ressourceAppService::toDTO)
-                .toList();
+        return ressourceAppService.listAll();
     }
 
     @GetMapping("/{id}")
@@ -57,7 +50,7 @@ public class RessourceAppController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public RessourceAppDTOResponse get(@PathVariable int id) {
-        return ressourceAppService.toDTO(entityFinder.findRessourceAppOrThrow(id));
+        return ressourceAppService.getById(id);
     }
 
     @GetMapping("/ressource-application/")
@@ -68,7 +61,7 @@ public class RessourceAppController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public List<RessourceAppDTOResponse> getByApplicationId(@RequestParam int id) {
-        return ressourceAppService.toDTOList(ressourceAppService.getRessourcesByApp(id));
+        return ressourceAppService.getRessourcesByAppReadOnlyJdbc(id);
     }
 
     @PostMapping()
@@ -80,8 +73,8 @@ public class RessourceAppController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public ResponseEntity<RessourceAppDTOResponse> create(@Valid @RequestBody RessourceAppDTOCreate dto) {
-        RessourceAppModel created = ressourceAppService.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ressourceAppService.toDTO(created));
+        RessourceAppDTOResponse created = ressourceAppService.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @DeleteMapping("/{id}")

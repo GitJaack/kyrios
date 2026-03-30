@@ -11,65 +11,8 @@ import org.springframework.web.context.request.WebRequest;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-        @ExceptionHandler(EmploiNotFoundException.class)
-        public ResponseEntity<ErrorResponse> handleEmploiNotFound(EmploiNotFoundException ex, WebRequest request) {
-                ErrorResponse errorResponse = ErrorResponse.builder()
-                                .message(ex.getMessage())
-                                .build();
-
-                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-        }
-
-        @ExceptionHandler(ProfilSINotFoundException.class)
-        public ResponseEntity<ErrorResponse> handleProfilSINotFound(ProfilSINotFoundException ex, WebRequest request) {
-                ErrorResponse errorResponse = ErrorResponse.builder()
-                                .message(ex.getMessage())
-                                .build();
-
-                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-        }
-
-        @ExceptionHandler(RessourceSINotFoundException.class)
-        public ResponseEntity<ErrorResponse> handleRessourceSINotFound(RessourceSINotFoundException ex,
-                        WebRequest request) {
-                ErrorResponse errorResponse = ErrorResponse.builder()
-                                .message(ex.getMessage())
-                                .build();
-
-                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-        }
-
-        @ExceptionHandler(CategorieNotFoundException.class)
-        public ResponseEntity<ErrorResponse> handleCategorieNotFound(CategorieNotFoundException ex,
-                        WebRequest request) {
-                ErrorResponse errorResponse = ErrorResponse.builder()
-                                .message(ex.getMessage())
-                                .build();
-
-                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-        }
-
-        @ExceptionHandler(AppNotFoundException.class)
-        public ResponseEntity<ErrorResponse> handleAppNotFound(AppNotFoundException ex, WebRequest request) {
-                ErrorResponse errorResponse = ErrorResponse.builder()
-                                .message(ex.getMessage())
-                                .build();
-
-                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-        }
-
         @ExceptionHandler(ProfilAppNotFoundException.class)
         public ResponseEntity<ErrorResponse> handleProfilAppNotFound(ProfilAppNotFoundException ex,
-                        WebRequest request) {
-                ErrorResponse errorResponse = ErrorResponse.builder()
-                                .message(ex.getMessage())
-                                .build();
-
-                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-        }
-
-        @ExceptionHandler(RessourceAppNotFoundException.class)
-        public ResponseEntity<ErrorResponse> handleRessourceAppNotFound(RessourceAppNotFoundException ex,
                         WebRequest request) {
                 ErrorResponse errorResponse = ErrorResponse.builder()
                                 .message(ex.getMessage())

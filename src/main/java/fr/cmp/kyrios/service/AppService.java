@@ -7,66 +7,75 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import fr.cmp.kyrios.model.App.AppModel;
+import fr.cmp.kyrios.dao.AppDao;
+import fr.cmp.kyrios.dao.ReferenceDao;
+import fr.cmp.kyrios.mapper.AppMapper;
 import fr.cmp.kyrios.model.App.dto.AppDTOCreate;
 import fr.cmp.kyrios.model.App.dto.AppDTOResponse;
-import fr.cmp.kyrios.repository.App.AppRepository;
-import fr.cmp.kyrios.util.EntityFinder;
 
 @Service
 public class AppService {
     @Autowired
-    private AppRepository appRepository;
+    private AppDao appJdbcRepository;
 
     @Autowired
-    private EntityFinder entityFinder;
+    private ReferenceDao jdbcReferenceRepository;
 
-    public List<AppModel> listAll() {
-        return appRepository.findAll();
+    public List<AppDTOResponse> listAll() {
+        return appJdbcRepository.findAll().stream()
+                .map(AppMapper::toDto)
+                .toList();
     }
 
-    public AppModel getById(int id) {
-        return entityFinder.findApplicationOrThrow(id);
-    }
-
-    @Transactional
-    public AppModel create(AppDTOCreate dto) {
-        if (appRepository.findByName(dto.getName()).isPresent()) {
-            throw new IllegalArgumentException("Une application avec le nom '" + dto.getName() + "' existe déjà");
-        }
-        AppModel app = new AppModel();
-        app.setName(dto.getName());
-        app.setDirection(entityFinder.findDirectionOrThrow(dto.getDirectionId()));
-        app.setDescription(dto.getDescription());
-        app.setDateCreated(LocalDateTime.now());
-        return appRepository.save(app);
+    public AppDTOResponse getById(int id) {
+        AppDao.AppReadRow row = appJdbcRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Application avec l'ID " + id + " non trouvee"));
+        return AppMapper.toDto(row);
     }
 
     @Transactional
-    public AppModel update(int id, AppDTOCreate dto) {
-        AppModel app = getById(id);
-        if (!app.getName().equals(dto.getName()) && appRepository.findByName(dto.getName()).isPresent()) {
+    public AppDTOResponse create(AppDTOCreate dto) {
+        if (appJdbcRepository.existsByName(dto.getName())) {
             throw new IllegalArgumentException("Une application avec le nom '" + dto.getName() + "' existe déjà");
         }
-        app.setName(dto.getName());
-        app.setDirection(entityFinder.findDirectionOrThrow(dto.getDirectionId()));
-        app.setDescription(dto.getDescription());
-        return appRepository.save(app);
+
+        if (!jdbcReferenceRepository.existsDirectionById(dto.getDirectionId())) {
+            throw new IllegalArgumentException("Direction avec l'ID " + dto.getDirectionId() + " non trouvee");
+        }
+
+        int appId = appJdbcRepository.insert(
+                dto.getName(),
+                dto.getDirectionId(),
+                dto.getDescription(),
+                LocalDateTime.now());
+
+        return getById(appId);
+    }
+
+    @Transactional
+    public AppDTOResponse update(int id, AppDTOCreate dto) {
+        AppDao.AppReadRow app = appJdbcRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Application avec l'ID " + id + " non trouvée"));
+
+        if (!app.name().equals(dto.getName()) && appJdbcRepository.existsByNameExcludingId(dto.getName(), id)) {
+            throw new IllegalArgumentException("Une application avec le nom '" + dto.getName() + "' existe déjà");
+        }
+
+        if (!jdbcReferenceRepository.existsDirectionById(dto.getDirectionId())) {
+            throw new IllegalArgumentException("Direction avec l'ID " + dto.getDirectionId() + " non trouvee");
+        }
+
+        appJdbcRepository.update(id, dto.getName(), dto.getDirectionId(), dto.getDescription());
+
+        return getById(id);
     }
 
     @Transactional
     public void delete(int id) {
-        AppModel app = getById(id);
-        appRepository.delete(app);
+        if (appJdbcRepository.findById(id).isEmpty()) {
+            throw new IllegalArgumentException("Application avec l'ID " + id + " non trouvee");
+        }
+        appJdbcRepository.deleteById(id);
     }
 
-    public AppDTOResponse toDTO(AppModel app) {
-        return AppDTOResponse.builder()
-                .id(app.getId())
-                .name(app.getName())
-                .direction(app.getDirection() != null ? app.getDirection().getName() : null)
-                .description(app.getDescription())
-                .dateCreated(app.getDateCreated())
-                .build();
-    }
 }

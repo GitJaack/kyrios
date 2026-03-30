@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import fr.cmp.kyrios.model.Si.CategorieSIModel;
 import fr.cmp.kyrios.model.Si.dto.categorieSI.CategorieSIDTOCreate;
 import fr.cmp.kyrios.model.Si.dto.categorieSI.CategorieSIDTOResponse;
 import fr.cmp.kyrios.service.CategorieSIService;
@@ -39,9 +38,7 @@ public class CategorieSIController {
                         @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
         })
         public List<CategorieSIDTOResponse> list() {
-                return categorieSIService.listAll().stream()
-                                .map(categorieSIService::toDTO)
-                                .toList();
+                return categorieSIService.listAll();
         }
 
         @GetMapping("/{id}")
@@ -52,7 +49,7 @@ public class CategorieSIController {
                         @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
         })
         public CategorieSIDTOResponse get(@PathVariable int id) {
-                return categorieSIService.toDTO(categorieSIService.getById(id));
+                return categorieSIService.getById(id);
         }
 
         @PostMapping()
@@ -63,8 +60,8 @@ public class CategorieSIController {
                         @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
         })
         public ResponseEntity<CategorieSIDTOResponse> create(@Valid @RequestBody CategorieSIDTOCreate dto) {
-                CategorieSIModel created = categorieSIService.create(dto);
-                return ResponseEntity.status(HttpStatus.CREATED).body(categorieSIService.toDTO(created));
+                CategorieSIDTOResponse created = categorieSIService.create(dto);
+                return ResponseEntity.status(HttpStatus.CREATED).body(created);
         }
 
         @PutMapping("/{id}")
@@ -77,8 +74,8 @@ public class CategorieSIController {
         })
         public ResponseEntity<CategorieSIDTOResponse> update(@PathVariable int id,
                         @Valid @RequestBody CategorieSIDTOCreate dto) {
-                CategorieSIModel updated = categorieSIService.update(id, dto.getName());
-                return ResponseEntity.ok(categorieSIService.toDTO(updated));
+                CategorieSIDTOResponse updated = categorieSIService.update(id, dto.getName());
+                return ResponseEntity.ok(updated);
         }
 
         @DeleteMapping("/{id}")

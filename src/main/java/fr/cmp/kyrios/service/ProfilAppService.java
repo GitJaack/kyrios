@@ -7,18 +7,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import fr.cmp.kyrios.model.Si.ProfilSIModel;
-import fr.cmp.kyrios.repository.App.ProfilAppProfilSIRepository;
-import fr.cmp.kyrios.repository.App.ProfilAppRepository;
-import fr.cmp.kyrios.util.EntityFinder;
+import fr.cmp.kyrios.dao.ReferenceDao;
+import fr.cmp.kyrios.dao.ProfilAppDao;
+import fr.cmp.kyrios.exception.ProfilAppNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import fr.cmp.kyrios.model.App.ProfilAppModel;
-import fr.cmp.kyrios.model.App.ProfilAppProfilSI;
-import fr.cmp.kyrios.model.App.ProfilAppRessource;
-import fr.cmp.kyrios.model.App.RessourceAppModel;
 import fr.cmp.kyrios.model.App.dto.ProfilAppDTOCreate;
 import fr.cmp.kyrios.model.App.dto.ProfilAppDTODeleteResponse;
 import fr.cmp.kyrios.model.App.dto.ProfilAppDTOResponse;
@@ -26,40 +22,43 @@ import fr.cmp.kyrios.model.Emploi.dto.ProfilSISimpleDTO;
 
 @Service
 public class ProfilAppService {
+    @Autowired
+    private ProfilAppDao profilAppJdbcRepository;
 
     @Autowired
-    private ProfilAppRepository profilAppRepository;
+    private ReferenceDao jdbcReferenceRepository;
 
-    @Autowired
-    private ProfilAppProfilSIRepository profilAppProfilSIRepository;
-
-    @Autowired
-    private EntityFinder entityFinder;
-
-    public List<ProfilAppModel> listAll() {
-        return profilAppRepository.findAll();
+    public List<ProfilAppDTOResponse> listAll() {
+        return profilAppJdbcRepository.findAll().stream()
+                .map(this::toDTOFromJdbcRow)
+                .toList();
     }
 
-    public ProfilAppModel getById(int id) {
-        return entityFinder.findProfilAppOrThrow(id);
+    public List<ProfilAppDTOResponse> getByApplicationReadOnlyJdbc(int applicationId) {
+        if (!jdbcReferenceRepository.existsApplicationById(applicationId)) {
+            throw new IllegalArgumentException("Application avec l'ID " + applicationId + " non trouvee");
+        }
+        return profilAppJdbcRepository.findByApplicationId(applicationId).stream()
+                .map(this::toDTOFromJdbcRow)
+                .toList();
     }
 
-    public List<ProfilAppModel> getByApplication(int applicationId) {
-        entityFinder.findApplicationOrThrow(applicationId);
-        return profilAppRepository.findByApplicationId(applicationId);
+    public ProfilAppDTOResponse getById(int id) {
+        ProfilAppDao.ProfilAppReadRow row = profilAppJdbcRepository.findById(id)
+                .orElseThrow(() -> new ProfilAppNotFoundException("Profil App avec l'ID " + id + " non trouvé"));
+        return toDTOFromJdbcRow(row);
     }
 
     @Transactional
-    public ProfilAppModel create(ProfilAppDTOCreate dto) {
-        if (profilAppRepository.findByNameAndApplicationId(dto.getName(), dto.getApplicationId()).isPresent()) {
+    public ProfilAppDTOResponse create(ProfilAppDTOCreate dto) {
+        if (profilAppJdbcRepository.existsByNameAndApplicationId(dto.getName(), dto.getApplicationId())) {
             throw new IllegalArgumentException(
                     "Un profil d'application avec le nom '" + dto.getName() + "' existe déjà dans cette application");
         }
 
-        ProfilAppModel profilApp = new ProfilAppModel();
-        profilApp.setName(dto.getName());
-        profilApp.setApplication(entityFinder.findApplicationOrThrow(dto.getApplicationId()));
-        profilApp.setDateCreated(LocalDateTime.now());
+        String applicationName = jdbcReferenceRepository.findApplicationNameById(dto.getApplicationId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Application avec l'ID " + dto.getApplicationId() + " non trouvee"));
 
         Set<Integer> uniqueIds = new HashSet<>();
         for (Integer profilSIId : dto.getProfilSIIds()) {
@@ -70,36 +69,65 @@ public class ProfilAppService {
         }
 
         for (Integer profilSIId : dto.getProfilSIIds()) {
-            if (profilAppProfilSIRepository.existsByApplicationIdAndProfilSIId(profilApp.getApplication().getId(),
-                    profilSIId)) {
-                ProfilSIModel profilSI = entityFinder.findProfilSIOrThrow(profilSIId);
+            String profilSIName = jdbcReferenceRepository.findProfilSINameById(profilSIId)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Profil SI avec l'ID " + profilSIId + " non trouve"));
+
+            if (profilAppJdbcRepository.existsProfilSIInApplication(dto.getApplicationId(), profilSIId)) {
                 throw new IllegalArgumentException(
-                        "Le profil SI '" + profilSI.getName()
+                        "Le profil SI '" + profilSIName
                                 + "' est déjà associé à un profil applicatif dans l'application '"
-                                + profilApp.getApplication().getName() + "'");
+                                + applicationName + "'");
             }
         }
 
-        createProfilSILiaisons(profilApp, dto.getProfilSIIds());
-
         if (dto.getRessourceAppIds() != null && !dto.getRessourceAppIds().isEmpty()) {
-            createRessourceAppLiaisons(profilApp, dto.getRessourceAppIds());
+            for (Integer ressourceAppId : dto.getRessourceAppIds()) {
+                ReferenceDao.RessourceAppRef ressourceApp = jdbcReferenceRepository
+                        .findRessourceAppById(ressourceAppId)
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Ressource App avec l'ID " + ressourceAppId + " non trouvee"));
+                if (ressourceApp.applicationId() != dto.getApplicationId()) {
+                    throw new IllegalArgumentException(
+                            "La ressource '" + ressourceApp.name() + "' n'appartient pas à l'application '"
+                                    + applicationName + "'");
+                }
+            }
         }
 
-        return profilAppRepository.save(profilApp);
+        int newProfilAppId = profilAppJdbcRepository.insertProfilApp(dto.getName(), dto.getApplicationId(),
+                LocalDateTime.now());
+
+        for (Integer profilSIId : dto.getProfilSIIds()) {
+            profilAppJdbcRepository.insertProfilSILink(newProfilAppId, profilSIId, dto.getApplicationId());
+        }
+
+        if (dto.getRessourceAppIds() != null && !dto.getRessourceAppIds().isEmpty()) {
+            for (Integer ressourceAppId : dto.getRessourceAppIds()) {
+                profilAppJdbcRepository.insertRessourceLink(newProfilAppId, ressourceAppId);
+            }
+        }
+
+        return getById(newProfilAppId);
     }
 
     @Transactional
-    public ProfilAppModel update(int id, ProfilAppDTOCreate dto) {
-        ProfilAppModel updateProfilApp = getById(id);
+    public ProfilAppDTOResponse update(int id, ProfilAppDTOCreate dto) {
+        ProfilAppDao.ProfilAppReadRow currentProfilApp = profilAppJdbcRepository.findById(id)
+                .orElseThrow(() -> new ProfilAppNotFoundException("Profil App avec l'ID " + id + " non trouvé"));
 
-        if (updateProfilApp.getApplication().getId() != dto.getApplicationId()) {
+        if (currentProfilApp.applicationId() != dto.getApplicationId()) {
             throw new IllegalArgumentException(
                     "Impossible de changer l'application d'un profil applicatif");
         }
 
-        if (!updateProfilApp.getName().equals(dto.getName())) {
-            if (profilAppRepository.findByNameAndApplicationId(dto.getName(), dto.getApplicationId()).isPresent()) {
+        String applicationName = jdbcReferenceRepository.findApplicationNameById(dto.getApplicationId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Application avec l'ID " + dto.getApplicationId() + " non trouvee"));
+
+        if (!currentProfilApp.name().equals(dto.getName())) {
+            if (profilAppJdbcRepository.existsByNameAndApplicationIdExcludingId(dto.getName(), dto.getApplicationId(),
+                    id)) {
                 throw new IllegalArgumentException(
                         "Un profil d'application avec le nom '" + dto.getName()
                                 + "' existe déjà dans cette application");
@@ -115,71 +143,78 @@ public class ProfilAppService {
         }
 
         for (Integer profilSIId : targetProfilSIIds) {
-            boolean linkedToAnotherProfilApp = updateProfilApp.getProfilSI().stream()
-                    .noneMatch(liaison -> liaison.getProfilSI().getId() == profilSIId)
-                    && profilAppProfilSIRepository.existsByApplicationIdAndProfilSIId(
-                            updateProfilApp.getApplication().getId(),
-                            profilSIId);
+            String profilSIName = jdbcReferenceRepository.findProfilSINameById(profilSIId)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Profil SI avec l'ID " + profilSIId + " non trouve"));
+
+            boolean linkedToAnotherProfilApp = profilAppJdbcRepository
+                    .existsProfilSIInApplicationExcludingProfilApp(dto.getApplicationId(), profilSIId, id);
 
             if (linkedToAnotherProfilApp) {
-                ProfilSIModel profilSI = entityFinder.findProfilSIOrThrow(profilSIId);
                 throw new IllegalArgumentException(
-                        "Le profil SI '" + profilSI.getName()
+                        "Le profil SI '" + profilSIName
                                 + "' est déjà associé à un profil applicatif dans l'application '"
-                                + updateProfilApp.getApplication().getName() + "'");
+                                + applicationName + "'");
             }
         }
-
-        updateProfilApp.setName(dto.getName());
-        updateProfilApp.setDateUpdated(LocalDateTime.now());
-
-        updateProfilApp.getProfilSI().removeIf(liaison -> !targetProfilSIIds.contains(liaison.getProfilSI().getId()));
-
-        Set<Integer> currentProfilSIIds = updateProfilApp.getProfilSI().stream()
-                .map(liaison -> liaison.getProfilSI().getId())
-                .collect(Collectors.toSet());
-
-        for (Integer profilSIId : targetProfilSIIds) {
-            if (!currentProfilSIIds.contains(profilSIId)) {
-                ProfilSIModel profilSI = entityFinder.findProfilSIOrThrow(profilSIId);
-                ProfilAppProfilSI liaison = new ProfilAppProfilSI();
-                liaison.setProfilApp(updateProfilApp);
-                liaison.setProfilSI(profilSI);
-                liaison.setApplication(updateProfilApp.getApplication());
-                updateProfilApp.getProfilSI().add(liaison);
-            }
-        }
-
-        updateProfilApp.getProfilAppRessources().removeIf(r -> true);
-        profilAppRepository.flush();
 
         if (dto.getRessourceAppIds() != null && !dto.getRessourceAppIds().isEmpty()) {
-            createRessourceAppLiaisons(updateProfilApp, dto.getRessourceAppIds());
+            for (Integer ressourceAppId : dto.getRessourceAppIds()) {
+                ReferenceDao.RessourceAppRef ressourceApp = jdbcReferenceRepository
+                        .findRessourceAppById(ressourceAppId)
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Ressource App avec l'ID " + ressourceAppId + " non trouvee"));
+                if (ressourceApp.applicationId() != dto.getApplicationId()) {
+                    throw new IllegalArgumentException(
+                            "La ressource '" + ressourceApp.name() + "' n'appartient pas à l'application '"
+                                    + applicationName + "'");
+                }
+            }
         }
 
-        return profilAppRepository.save(updateProfilApp);
+        profilAppJdbcRepository.updateProfilApp(id, dto.getName(), LocalDateTime.now());
+
+        profilAppJdbcRepository.deleteProfilSIByProfilAppId(id);
+        for (Integer profilSIId : dto.getProfilSIIds()) {
+            profilAppJdbcRepository.insertProfilSILink(id, profilSIId, dto.getApplicationId());
+        }
+
+        profilAppJdbcRepository.deleteRessourcesByProfilAppId(id);
+
+        if (dto.getRessourceAppIds() != null && !dto.getRessourceAppIds().isEmpty()) {
+            for (Integer ressourceAppId : dto.getRessourceAppIds()) {
+                profilAppJdbcRepository.insertRessourceLink(id, ressourceAppId);
+            }
+        }
+
+        return getById(id);
     }
 
     @Transactional
     public ProfilAppDTODeleteResponse delete(int id) {
-        ProfilAppModel profilApp = getById(id);
+        ProfilAppDao.ProfilAppReadRow profilApp = profilAppJdbcRepository.findById(id)
+                .orElseThrow(() -> new ProfilAppNotFoundException("Profil App avec l'ID " + id + " non trouvé"));
 
         List<ProfilAppDTODeleteResponse.ProfilSIInfo> profilSIDetaches = new ArrayList<>();
 
-        if (profilApp.getProfilSI() != null && !profilApp.getProfilSI().isEmpty()) {
-            for (ProfilAppProfilSI liaison : profilApp.getProfilSI()) {
+        List<ProfilAppDao.ProfilSIReadRow> linkedProfilsSI = profilAppJdbcRepository
+                .findProfilSIByProfilAppId(id);
+        if (!linkedProfilsSI.isEmpty()) {
+            for (ProfilAppDao.ProfilSIReadRow profilSI : linkedProfilsSI) {
                 profilSIDetaches.add(ProfilAppDTODeleteResponse.ProfilSIInfo.builder()
-                        .id(liaison.getProfilSI().getId())
-                        .name(liaison.getProfilSI().getName())
+                        .id(profilSI.id())
+                        .name(profilSI.name())
                         .build());
             }
         }
 
-        profilAppRepository.delete(profilApp);
+        profilAppJdbcRepository.deleteRessourcesByProfilAppId(id);
+        profilAppJdbcRepository.deleteProfilSIByProfilAppId(id);
+        profilAppJdbcRepository.deleteProfilAppById(id);
 
         String message = profilSIDetaches.isEmpty()
-                ? "Profil d'application " + profilApp.getName() + " supprimé avec succès. Aucun profil SI n'était lié."
-                : "Profil d'application " + profilApp.getName() + " supprimé avec succès. "
+                ? "Profil d'application " + profilApp.name() + " supprimé avec succès. Aucun profil SI n'était lié."
+                : "Profil d'application " + profilApp.name() + " supprimé avec succès. "
                         + profilSIDetaches.size() + " profil SI détaché.";
         return ProfilAppDTODeleteResponse.builder()
                 .message(message)
@@ -187,50 +222,19 @@ public class ProfilAppService {
                 .build();
     }
 
-    public ProfilAppDTOResponse toDTO(ProfilAppModel profilApp) {
+    private ProfilAppDTOResponse toDTOFromJdbcRow(ProfilAppDao.ProfilAppReadRow row) {
         return ProfilAppDTOResponse.builder()
-                .id(profilApp.getId())
-                .name(profilApp.getName())
-                .application(profilApp.getApplication().getName())
-                .profilSI(profilApp.getProfilSI().stream()
-                .map(liaison -> new ProfilSISimpleDTO(
-                    liaison.getProfilSI().getId(),
-                    liaison.getProfilSI().getName()))
+                .id(row.id())
+                .name(row.name())
+                .application(row.applicationName())
+                .applicationId(row.applicationId())
+                .profilSI(profilAppJdbcRepository.findProfilSIByProfilAppId(row.id()).stream()
+                        .map(profilSI -> new ProfilSISimpleDTO(profilSI.id(), profilSI.name()))
                         .collect(Collectors.toList()))
-                .ressourcesApp(profilApp.getProfilAppRessources().stream()
-                        .map(liaison -> liaison.getRessource().getName())
-                        .collect(Collectors.toList()))
-                .dateCreated(profilApp.getDateCreated())
-                .dateUpdated(profilApp.getDateUpdated())
+                .ressourcesApp(profilAppJdbcRepository.findRessourcesByProfilAppId(row.id()))
+                .dateCreated(row.dateCreated())
+                .dateUpdated(row.dateUpdated())
                 .build();
-    }
-
-    private void createProfilSILiaisons(ProfilAppModel profilApp, List<Integer> profilSIIds) {
-        for (Integer profilSIId : profilSIIds) {
-            ProfilSIModel profilSI = entityFinder.findProfilSIOrThrow(profilSIId);
-            ProfilAppProfilSI liaison = new ProfilAppProfilSI();
-            liaison.setProfilApp(profilApp);
-            liaison.setProfilSI(profilSI);
-            liaison.setApplication(profilApp.getApplication());
-            profilApp.getProfilSI().add(liaison);
-        }
-    }
-
-    private void createRessourceAppLiaisons(ProfilAppModel profilApp, List<Integer> ressourceAppIds) {
-        for (Integer ressourceAppId : ressourceAppIds) {
-            RessourceAppModel ressourceApp = entityFinder.findRessourceAppOrThrow(ressourceAppId);
-
-            if (ressourceApp.getApplication().getId() != profilApp.getApplication().getId()) {
-                throw new IllegalArgumentException(
-                        "La ressource '" + ressourceApp.getName() + "' n'appartient pas à l'application '"
-                                + profilApp.getApplication().getName() + "'");
-            }
-
-            ProfilAppRessource liaison = new ProfilAppRessource();
-            liaison.setProfilApp(profilApp);
-            liaison.setRessource(ressourceApp);
-            profilApp.getProfilAppRessources().add(liaison);
-        }
     }
 
 }

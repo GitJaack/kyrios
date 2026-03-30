@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 
-import fr.cmp.kyrios.model.Si.RessourceSIModel;
 import fr.cmp.kyrios.model.Si.dto.ressourceSI.RessourceSIDTO;
 import fr.cmp.kyrios.model.Si.dto.ressourceSI.RessourceSIDTOCreate;
 import fr.cmp.kyrios.service.RessourceSIService;
@@ -41,9 +40,7 @@ public class RessourceSIController {
 
     })
     public List<RessourceSIDTO> list() {
-        return ressourceSIService.listAll().stream()
-                .map(ressourceSIService::toDTO)
-                .toList();
+        return ressourceSIService.listAll();
     }
 
     @GetMapping("/{id}")
@@ -54,7 +51,7 @@ public class RessourceSIController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public RessourceSIDTO get(@PathVariable int id) {
-        return ressourceSIService.toDTO(ressourceSIService.getById(id));
+        return ressourceSIService.getById(id);
     }
 
     @GetMapping("/defaut")
@@ -65,7 +62,7 @@ public class RessourceSIController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public List<RessourceSIDTO> getRessourcesDefaut(@RequestParam int id) {
-        return ressourceSIService.toDTOList(ressourceSIService.getRessourcesParDefautByDirection(id));
+        return ressourceSIService.getRessourcesParDefautByDirectionReadOnlyJdbc(id);
     }
 
     @GetMapping("/by-categorie")
@@ -76,7 +73,7 @@ public class RessourceSIController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public List<RessourceSIDTO> getByCategorie(@RequestParam int id) {
-        return ressourceSIService.toDTOList(ressourceSIService.getRessourcesByCategorie(id));
+        return ressourceSIService.getRessourcesByCategorieReadOnlyJdbc(id);
     }
 
     @PostMapping
@@ -88,8 +85,8 @@ public class RessourceSIController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public ResponseEntity<RessourceSIDTO> create(@Valid @RequestBody RessourceSIDTOCreate dto) {
-        RessourceSIModel created = ressourceSIService.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ressourceSIService.toDTO(created));
+        RessourceSIDTO created = ressourceSIService.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @DeleteMapping("/{id}")

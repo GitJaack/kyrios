@@ -1,14 +1,16 @@
 package fr.cmp.kyrios.controller.frontend;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import fr.cmp.kyrios.model.Si.ProfilSIModel;
-import fr.cmp.kyrios.repository.Emploi.DirectionRepository;
-import fr.cmp.kyrios.repository.Si.CategorieSIRepository;
+import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTOResponse;
+import fr.cmp.kyrios.model.common.IdNameDTO;
+import fr.cmp.kyrios.service.FrontendReferenceDataService;
 import fr.cmp.kyrios.service.ProfilSIService;
 import fr.cmp.kyrios.util.DateTimeUtil;
 
@@ -19,14 +21,13 @@ public class UpdateProfilSIController {
     private ProfilSIService profilSIService;
 
     @Autowired
-    private CategorieSIRepository categorieSIRepository;
-
-    @Autowired
-    private DirectionRepository directionRepository;
+    private FrontendReferenceDataService frontendReferenceDataService;
 
     @GetMapping("/profilSI/edit/{id}")
     public String updateProfilSI(@PathVariable int id, Model model) {
-        ProfilSIModel profil = profilSIService.getById(id);
+        ProfilSIDTOResponse profil = profilSIService.getById(id);
+        List<IdNameDTO> directions = frontendReferenceDataService.getDirections();
+        Integer directionId = resolveIdByName(directions, profil.getDirection());
 
         model.addAttribute("currentPage", "/profilSI");
         model.addAttribute("pageTitle", "Modification du profil SI");
@@ -36,11 +37,22 @@ public class UpdateProfilSIController {
         model.addAttribute("contentPage", "updateProfilSI.jsp");
         model.addAttribute("pageCss", "form");
         model.addAttribute("profilId", id);
-        model.addAttribute("directionId", profil.getDirection() != null ? profil.getDirection().getId() : 0);
-        model.addAttribute("categories", categorieSIRepository.findAll());
-        model.addAttribute("directions", directionRepository.findAll());
+        model.addAttribute("directionId", directionId != null ? directionId : 0);
+        model.addAttribute("categories", frontendReferenceDataService.getCategoriesWithRessources());
+        model.addAttribute("directions", frontendReferenceDataService.getDirectionsWithDefaultRessources());
 
         return "layout";
+    }
+
+    private Integer resolveIdByName(List<IdNameDTO> options, String name) {
+        if (name == null || name.isBlank()) {
+            return null;
+        }
+        return options.stream()
+                .filter(option -> name.equals(option.getName()))
+                .map(IdNameDTO::getId)
+                .findFirst()
+                .orElse(null);
     }
 
 }

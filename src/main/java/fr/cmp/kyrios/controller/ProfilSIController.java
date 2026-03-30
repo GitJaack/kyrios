@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import fr.cmp.kyrios.model.Si.ProfilSIModel;
 import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTOCreate;
 import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTOCreateResponse;
 import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTODeleteResponse;
@@ -45,14 +44,10 @@ public class ProfilSIController {
         })
         public List<ProfilSIDTOResponse> list(@RequestParam(required = false) Integer directionId) {
                 if (directionId != null) {
-                        return profilSIService.getByDirection(directionId).stream()
-                                        .map(profilSIService::toResponseDTO)
-                                        .toList();
+                        return profilSIService.getByDirectionReadOnlyJdbc(directionId);
                 }
 
-                return profilSIService.listAll().stream()
-                                .map(profilSIService::toResponseDTO)
-                                .toList();
+                return profilSIService.listAll();
         }
 
         @GetMapping("/{id}")
@@ -63,8 +58,7 @@ public class ProfilSIController {
                         @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
         })
         public ProfilSIDTOResponse get(@PathVariable int id) {
-                ProfilSIModel profil = profilSIService.getById(id);
-                return profilSIService.toResponseDTO(profil);
+                return profilSIService.getById(id);
         }
 
         @PostMapping()
@@ -89,8 +83,8 @@ public class ProfilSIController {
         })
         public ResponseEntity<ProfilSIDTOResponse> update(@PathVariable int id,
                         @Valid @RequestBody ProfilSIUpdateDTO dto) {
-                ProfilSIModel updated = profilSIService.update(id, dto);
-                return ResponseEntity.ok(profilSIService.toResponseDTO(updated));
+                ProfilSIDTOResponse updated = profilSIService.update(id, dto);
+                return ResponseEntity.ok(updated);
         }
 
         @DeleteMapping("/{id}")

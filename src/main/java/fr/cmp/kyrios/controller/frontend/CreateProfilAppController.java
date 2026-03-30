@@ -1,20 +1,23 @@
 package fr.cmp.kyrios.controller.frontend;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import fr.cmp.kyrios.repository.App.AppRepository;
-import fr.cmp.kyrios.repository.Si.ProfilSIRepository;
+import fr.cmp.kyrios.model.common.IdNameDTO;
+import fr.cmp.kyrios.service.AppService;
+import fr.cmp.kyrios.service.ProfilSIService;
 
 @Controller
 public class CreateProfilAppController {
     @Autowired
-    private AppRepository appRepository;
+    private AppService appService;
 
     @Autowired
-    private ProfilSIRepository profilSIRepository;
+    private ProfilSIService profilSIService;
 
     @GetMapping("/profil-app/create")
     public String createProfilApp(Model model) {
@@ -25,8 +28,16 @@ public class CreateProfilAppController {
         model.addAttribute("pageCssCommon", "form");
         model.addAttribute("pageCss", "createProfilApp");
 
-        model.addAttribute("apps", appRepository.findAll());
-        model.addAttribute("profilsSI", profilSIRepository.findAll());
+        List<IdNameDTO> apps = appService.listAll().stream()
+                .map(app -> new IdNameDTO(app.getId(), app.getName()))
+                .toList();
+
+        List<IdNameDTO> profilsSI = profilSIService.listAll().stream()
+                .map(profil -> new IdNameDTO(profil.getIdProfilSI(), profil.getName()))
+                .toList();
+
+        model.addAttribute("apps", apps);
+        model.addAttribute("profilsSI", profilsSI);
 
         return "layout";
     }

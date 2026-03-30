@@ -21,7 +21,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.media.Content;
 
 import jakarta.validation.Valid;
-import fr.cmp.kyrios.model.Emploi.EmploiModel;
 import fr.cmp.kyrios.model.Emploi.dto.EmploiDTOCreate;
 import fr.cmp.kyrios.model.Emploi.dto.EmploiDTOResponse;
 import fr.cmp.kyrios.service.EmploiService;
@@ -41,9 +40,7 @@ public class EmploiController {
 
     })
     public List<EmploiDTOResponse> list() {
-        return emploiService.listAll().stream()
-                .map(emploiService::toDTO)
-                .toList();
+        return emploiService.listAll();
     }
 
     @GetMapping("/{id}")
@@ -54,7 +51,7 @@ public class EmploiController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public EmploiDTOResponse get(@PathVariable int id) {
-        return emploiService.toDTO(emploiService.getById(id));
+        return emploiService.getById(id);
     }
 
     @PostMapping
@@ -65,8 +62,8 @@ public class EmploiController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public ResponseEntity<EmploiDTOResponse> create(@Valid @RequestBody EmploiDTOCreate dto) {
-        EmploiModel created = emploiService.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(emploiService.toDTO(created));
+        EmploiDTOResponse created = emploiService.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
@@ -78,8 +75,8 @@ public class EmploiController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public ResponseEntity<EmploiDTOResponse> update(@PathVariable int id, @Valid @RequestBody EmploiDTOCreate dto) {
-        EmploiModel updated = emploiService.update(id, dto);
-        return ResponseEntity.ok(emploiService.toDTO(updated));
+        EmploiDTOResponse updated = emploiService.update(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")

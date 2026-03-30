@@ -2,7 +2,6 @@ package fr.cmp.kyrios.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import fr.cmp.kyrios.model.App.ProfilAppModel;
 import fr.cmp.kyrios.model.App.dto.ProfilAppDTOCreate;
 import fr.cmp.kyrios.model.App.dto.ProfilAppDTODeleteResponse;
 import fr.cmp.kyrios.model.App.dto.ProfilAppDTOResponse;
@@ -43,9 +42,7 @@ public class ProfilAppController {
                         @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
         })
         public List<ProfilAppDTOResponse> list() {
-                return profilAppService.listAll().stream()
-                                .map(profilAppService::toDTO)
-                                .toList();
+                return profilAppService.listAll();
         }
 
         @GetMapping("/{id}")
@@ -56,8 +53,7 @@ public class ProfilAppController {
                         @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
         })
         public ProfilAppDTOResponse get(@PathVariable int id) {
-                ProfilAppModel profilApp = profilAppService.getById(id);
-                return profilAppService.toDTO(profilApp);
+                return profilAppService.getById(id);
         }
 
         @GetMapping("/by-application")
@@ -68,9 +64,7 @@ public class ProfilAppController {
                         @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
         })
         public List<ProfilAppDTOResponse> listByApplication(@RequestParam int applicationId) {
-                return profilAppService.getByApplication(applicationId).stream()
-                                .map(profilAppService::toDTO)
-                                .toList();
+                return profilAppService.getByApplicationReadOnlyJdbc(applicationId);
         }
 
         @PostMapping
@@ -82,8 +76,8 @@ public class ProfilAppController {
                         @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
         })
         public ResponseEntity<ProfilAppDTOResponse> create(@Valid @RequestBody ProfilAppDTOCreate dto) {
-                ProfilAppModel createdProfilApp = profilAppService.create(dto);
-                return ResponseEntity.status(HttpStatus.CREATED).body(profilAppService.toDTO(createdProfilApp));
+                ProfilAppDTOResponse createdProfilApp = profilAppService.create(dto);
+                return ResponseEntity.status(HttpStatus.CREATED).body(createdProfilApp);
         }
 
         @PutMapping("/{id}")
@@ -96,8 +90,8 @@ public class ProfilAppController {
         })
         public ResponseEntity<ProfilAppDTOResponse> update(@PathVariable int id,
                         @Valid @RequestBody ProfilAppDTOCreate dto) {
-                ProfilAppModel updatedProfilApp = profilAppService.update(id, dto);
-                return ResponseEntity.ok(profilAppService.toDTO(updatedProfilApp));
+                ProfilAppDTOResponse updatedProfilApp = profilAppService.update(id, dto);
+                return ResponseEntity.ok(updatedProfilApp);
         }
 
         @DeleteMapping("/{id}")

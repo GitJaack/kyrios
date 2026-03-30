@@ -1,16 +1,15 @@
 package fr.cmp.kyrios.controller.frontend;
 
-import fr.cmp.kyrios.model.Si.ProfilSIModel;
-import fr.cmp.kyrios.repository.Si.ProfilSIRepository;
+import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTOResponse;
+import fr.cmp.kyrios.service.ProfilSIService;
 import fr.cmp.kyrios.util.DateTimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -18,7 +17,7 @@ import java.util.Map;
 public class HomeProfilSIController {
 
     @Autowired
-    private ProfilSIRepository profilSIRepository;
+    private ProfilSIService profilSIService;
 
     @GetMapping("/profilSI")
     public String profilSI(Model model,
@@ -31,18 +30,24 @@ public class HomeProfilSIController {
         model.addAttribute("contentPage", "homeProfilSI.jsp");
         model.addAttribute("pageCss", "homeProfilSI");
 
-        Page<ProfilSIModel> profilPage = profilSIRepository.findAll(PageRequest.of(page, size));
+        List<ProfilSIDTOResponse> allProfils = profilSIService.listAll();
+        int totalItems = allProfils.size();
+        int totalPages = totalItems == 0 ? 1 : (int) Math.ceil((double) totalItems / size);
+        int safePage = Math.max(0, Math.min(page, totalPages - 1));
+        int fromIndex = Math.min(safePage * size, totalItems);
+        int toIndex = Math.min(fromIndex + size, totalItems);
+        List<ProfilSIDTOResponse> profils = allProfils.subList(fromIndex, toIndex);
 
         Map<Integer, String> dateUpdatedById = new LinkedHashMap<>();
-        for (ProfilSIModel profil : profilPage.getContent()) {
-            dateUpdatedById.put(profil.getId(), DateTimeUtil.formatDisplayDateTime(profil.getDateUpdated()));
+        for (ProfilSIDTOResponse profil : profils) {
+            dateUpdatedById.put(profil.getIdProfilSI(), DateTimeUtil.formatDisplayDateTime(profil.getDateUpdated()));
         }
 
-        model.addAttribute("profilsSI", profilPage.getContent());
+        model.addAttribute("profilsSI", profils);
         model.addAttribute("DateUpdatedById", dateUpdatedById);
-        model.addAttribute("currentPageNumber", page);
-        model.addAttribute("totalPages", profilPage.getTotalPages());
-        model.addAttribute("totalItems", profilPage.getTotalElements());
+        model.addAttribute("currentPageNumber", safePage);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalItems", totalItems);
 
         return "layout";
     }

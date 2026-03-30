@@ -1,327 +1,215 @@
 package fr.cmp.kyrios.config;
 
+import java.sql.PreparedStatement;
 import java.time.LocalDateTime;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-
-import fr.cmp.kyrios.model.App.AppModel;
-import fr.cmp.kyrios.model.App.ProfilAppModel;
-import fr.cmp.kyrios.model.App.ProfilAppProfilSI;
-import fr.cmp.kyrios.model.App.RessourceAppModel;
-import fr.cmp.kyrios.model.Emploi.DirectionModel;
-import fr.cmp.kyrios.model.Emploi.DomaineModel;
-import fr.cmp.kyrios.model.Emploi.EmploiModel;
-import fr.cmp.kyrios.model.Emploi.ServiceModel;
-import fr.cmp.kyrios.model.Si.CategorieSIModel;
-import fr.cmp.kyrios.model.Si.ProfilSIModel;
-import fr.cmp.kyrios.model.Si.ProfilSIRessource;
-import fr.cmp.kyrios.model.Si.RessourceSIModel;
-import fr.cmp.kyrios.repository.App.AppRepository;
-import fr.cmp.kyrios.repository.App.ProfilAppProfilSIRepository;
-import fr.cmp.kyrios.repository.App.ProfilAppRepository;
-import fr.cmp.kyrios.repository.App.RessourceAppRepository;
-import fr.cmp.kyrios.repository.Emploi.DirectionRepository;
-import fr.cmp.kyrios.repository.Emploi.DomaineRepository;
-import fr.cmp.kyrios.repository.Emploi.EmploiRepository;
-import fr.cmp.kyrios.repository.Emploi.ServiceRepository;
-import fr.cmp.kyrios.repository.Si.CategorieSIRepository;
-import fr.cmp.kyrios.repository.Si.ProfilSIRepository;
-import fr.cmp.kyrios.repository.Si.RessourceSIRepository;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
 
-        @Autowired
-        private DirectionRepository directionRepository;
-        @Autowired
-        private ServiceRepository serviceRepository;
-        @Autowired
-        private DomaineRepository domaineRepository;
-        @Autowired
-        private ProfilSIRepository profilSIRepository;
-        @Autowired
-        private EmploiRepository emploiRepository;
-        @Autowired
-        private CategorieSIRepository categorieSIRepository;
-        @Autowired
-        private RessourceSIRepository ressourceSIRepository;
-
-        @Autowired
-        private AppRepository appRepository;
-
-        @Autowired
-        private ProfilAppRepository profilAppRepository;
-
-        @Autowired
-        private ProfilAppProfilSIRepository profilAppProfilSIRepository;
-
-        @Autowired
-        RessourceAppRepository ressourceAppRepository;
+        private final JdbcTemplate jdbcTemplate;
 
         @Value("${app.init-data:true}")
         private boolean initDataEnabled;
 
+        public DataInitializer(JdbcTemplate jdbcTemplate) {
+                this.jdbcTemplate = jdbcTemplate;
+        }
+
         @Override
-        public void run(String... args) throws Exception {
-                // Vérifier si les données existent déjà
-                long directionCount = directionRepository.count();
+        public void run(String... args) {
+                System.out.println("[DATA_INIT] Demarrage de l'initialisation des donnees de test...");
 
-                if (directionCount > 0) {
-                        System.out.println("[DATA_INIT] Initialisation ignorée.");
-                        return;
-                }
+                LocalDateTime now = LocalDateTime.now();
 
-                // Vérifier si l'initialisation est désactivée via la property
-                if (!initDataEnabled) {
-                        System.out.println(
-                                        "[DATA_INIT] Initialisation des données désactivée (app.init-data=false).");
-                        return;
-                }
+                int dirDsi = insertAndGetId("INSERT INTO directions (name) VALUES (?)",
+                                "Direction des Systemes d'Information");
+                int dirAgence = insertAndGetId("INSERT INTO directions (name) VALUES (?)", "Agence Comptable");
 
-                System.out.println("[DATA_INIT] Démarrage de l'initialisation des données de test...");
+                int svcRestaurant = insertAndGetId("INSERT INTO services (name) VALUES (?)", "Restaurant");
+                insertAndGetId("INSERT INTO services (name) VALUES (?)", "Maintenance");
 
-                // ===== DIRECTIONS =====
-                DirectionModel dir = new DirectionModel();
-                dir.setName("Direction des Systemes d'Information");
-                dir = directionRepository.save(dir);
+                int domRegie = insertAndGetId("INSERT INTO domaines (name) VALUES (?)", "Regie Caisse");
+                insertAndGetId("INSERT INTO domaines (name) VALUES (?)", "PSG");
 
-                DirectionModel dir2 = new DirectionModel();
-                dir2.setName("Agence Comptable");
-                dir2 = directionRepository.save(dir2);
+                int profil1 = insertAndGetId(
+                                "INSERT INTO profils_si (name, date_created) VALUES (?, ?)",
+                                "Developpeur fullstack", now);
+                int profil2 = insertAndGetId(
+                                "INSERT INTO profils_si (name, date_created) VALUES (?, ?)",
+                                "Developpeur windev", now);
 
-                // ===== SERVICES =====
-                ServiceModel svcInfra = new ServiceModel();
-                svcInfra.setName("Restaurant");
-                svcInfra = serviceRepository.save(svcInfra);
+                insertAndGetId(
+                                "INSERT INTO emplois (emploi_name, direction_id, service_id, domaine_id, status, profil_si_id, date_created) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                                "Developpeur Fullstack", dirDsi, svcRestaurant, domRegie, "PERMANENT", profil1, now);
+                insertAndGetId(
+                                "INSERT INTO emplois (emploi_name, direction_id, service_id, domaine_id, status, profil_si_id, date_created) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                                "Developpeur Windev", dirAgence, null, null, "PERMANENT", profil2, now);
 
-                ServiceModel svcInfra2 = new ServiceModel();
-                svcInfra2.setName("Maintenance");
-                svcInfra2 = serviceRepository.save(svcInfra2);
+                int catService = insertAndGetId("INSERT INTO categories (name) VALUES (?)", "Repertoires de service");
+                int catFonctionnels = insertAndGetId("INSERT INTO categories (name) VALUES (?)",
+                                "Repertoires fonctionnels / transverses");
 
-                // ===== DOMAINES =====
-                DomaineModel domJava = new DomaineModel();
-                domJava.setName("Régie Caisse");
-                domJava = domaineRepository.save(domJava);
+                int resAgenceComptable = insertAndGetId(
+                                "INSERT INTO ressource_si (categorie_id, name, type_acces) VALUES (?, ?, ?)",
+                                catService, "SVC_Agence Comptable", "LECTURE_ECRITURE");
+                int resAssesseurs = insertAndGetId(
+                                "INSERT INTO ressource_si (categorie_id, name, type_acces) VALUES (?, ?, ?)",
+                                catService, "SVC_Assesseurs", "LECTURE_ECRITURE");
+                int resBureau = insertAndGetId(
+                                "INSERT INTO ressource_si (categorie_id, name, type_acces) VALUES (?, ?, ?)",
+                                catService, "SVC_Bureau", "LECTURE_ECRITURE");
+                int resComptabilite = insertAndGetId(
+                                "INSERT INTO ressource_si (categorie_id, name, type_acces) VALUES (?, ?, ?)",
+                                catService, "SVC_Comptabilite", "LECTURE_ECRITURE");
 
-                DomaineModel domJava2 = new DomaineModel();
-                domJava2.setName("PSG");
-                domJava2 = domaineRepository.save(domJava2);
+                int resComitesCos = insertAndGetId(
+                                "INSERT INTO ressource_si (categorie_id, name, type_acces) VALUES (?, ?, ?)",
+                                catFonctionnels, "FON_COMITES\\COS", "LECTURE_ECRITURE");
+                int resComitesAlm = insertAndGetId(
+                                "INSERT INTO ressource_si (categorie_id, name, type_acces) VALUES (?, ?, ?)",
+                                catFonctionnels, "FON_COMITES\\COMITE ALM", "LECTURE_ECRITURE");
+                int resComitesCodir = insertAndGetId(
+                                "INSERT INTO ressource_si (categorie_id, name, type_acces) VALUES (?, ?, ?)",
+                                catFonctionnels, "FON_COMITES\\CODIR", "LECTURE_ECRITURE");
+                int resComitesCopil = insertAndGetId(
+                                "INSERT INTO ressource_si (categorie_id, name, type_acces) VALUES (?, ?, ?)",
+                                catFonctionnels, "FON_COMITES\\COPIL", "LECTURE_ECRITURE");
 
-                // ===== PROFILS SI =====
-                ProfilSIModel profil1 = new ProfilSIModel();
-                profil1.setName("Developpeur fullstack");
-                profil1.setDateCreated(LocalDateTime.now());
-                profil1 = profilSIRepository.save(profil1);
+                jdbcTemplate.update(
+                                "INSERT INTO direction_ressources_default (direction_id, ressource_id) VALUES (?, ?)",
+                                dirDsi,
+                                resAgenceComptable);
+                jdbcTemplate.update(
+                                "INSERT INTO direction_ressources_default (direction_id, ressource_id) VALUES (?, ?)",
+                                dirDsi,
+                                resBureau);
+                jdbcTemplate.update(
+                                "INSERT INTO direction_ressources_default (direction_id, ressource_id) VALUES (?, ?)",
+                                dirDsi,
+                                resComitesCos);
+                jdbcTemplate.update(
+                                "INSERT INTO direction_ressources_default (direction_id, ressource_id) VALUES (?, ?)",
+                                dirDsi,
+                                resComitesCodir);
 
-                ProfilSIModel profil2 = new ProfilSIModel();
-                profil2.setName("Developpeur windev");
-                profil2.setDateCreated(LocalDateTime.now());
-                profil2 = profilSIRepository.save(profil2);
+                jdbcTemplate.update(
+                                "INSERT INTO direction_ressources_default (direction_id, ressource_id) VALUES (?, ?)",
+                                dirAgence, resComptabilite);
+                jdbcTemplate.update(
+                                "INSERT INTO direction_ressources_default (direction_id, ressource_id) VALUES (?, ?)",
+                                dirAgence, resAssesseurs);
+                jdbcTemplate.update(
+                                "INSERT INTO direction_ressources_default (direction_id, ressource_id) VALUES (?, ?)",
+                                dirAgence, resComitesAlm);
+                jdbcTemplate.update(
+                                "INSERT INTO direction_ressources_default (direction_id, ressource_id) VALUES (?, ?)",
+                                dirAgence, resComitesCopil);
 
-                // ===== EMPLOIS =====
-                EmploiModel emp = new EmploiModel();
-                emp.setEmploiName("Developpeur Fullstack");
-                emp.setDirection(dir);
-                emp.setService(svcInfra);
-                emp.setDomaine(domJava);
-                emp.setStatus(EmploiModel.Status.PERMANENT);
-                emp.setProfilSI(profil1);
-                emp.setDateCreated(LocalDateTime.now());
-                emp = emploiRepository.save(emp);
-                ;
-                EmploiModel emp2 = new EmploiModel();
-                emp2.setEmploiName("Developpeur Windev");
-                emp2.setDirection(dir2);
-                emp2.setService(null);
-                emp2.setDomaine(null);
-                emp2.setStatus(EmploiModel.Status.PERMANENT);
-                emp2.setProfilSI(profil2);
-                emp2.setDateCreated(LocalDateTime.now());
-                emp2 = emploiRepository.save(emp2);
-                ;
+                jdbcTemplate.update("UPDATE profils_si SET direction_id = ? WHERE id = ?", dirDsi, profil1);
+                jdbcTemplate.update("UPDATE profils_si SET direction_id = ? WHERE id = ?", dirAgence, profil2);
 
-                profil1.getEmplois().add(emp);
-                profil2.getEmplois().add(emp2);
+                jdbcTemplate.update(
+                                "INSERT INTO profil_si_ressources (profil_si_id, ressource_id, type_acces) VALUES (?, ?, ?)",
+                                profil1, resAgenceComptable, "LECTURE_ECRITURE");
+                jdbcTemplate.update(
+                                "INSERT INTO profil_si_ressources (profil_si_id, ressource_id, type_acces) VALUES (?, ?, ?)",
+                                profil1, resBureau, "LECTURE_ECRITURE");
+                jdbcTemplate.update(
+                                "INSERT INTO profil_si_ressources (profil_si_id, ressource_id, type_acces) VALUES (?, ?, ?)",
+                                profil1, resComitesCos, "LECTURE_ECRITURE");
+                jdbcTemplate.update(
+                                "INSERT INTO profil_si_ressources (profil_si_id, ressource_id, type_acces) VALUES (?, ?, ?)",
+                                profil1, resComitesCodir, "LECTURE_ECRITURE");
 
-                // ===== CATEGORIES SI =====
-                CategorieSIModel catRepertoiresService = new CategorieSIModel();
-                catRepertoiresService.setName("Répertoires de service");
-                catRepertoiresService = categorieSIRepository.save(catRepertoiresService);
+                jdbcTemplate.update(
+                                "INSERT INTO profil_si_ressources (profil_si_id, ressource_id, type_acces) VALUES (?, ?, ?)",
+                                profil2, resComptabilite, "LECTURE_ECRITURE");
+                jdbcTemplate.update(
+                                "INSERT INTO profil_si_ressources (profil_si_id, ressource_id, type_acces) VALUES (?, ?, ?)",
+                                profil2, resAssesseurs, "LECTURE_ECRITURE");
+                jdbcTemplate.update(
+                                "INSERT INTO profil_si_ressources (profil_si_id, ressource_id, type_acces) VALUES (?, ?, ?)",
+                                profil2, resComitesAlm, "LECTURE_ECRITURE");
+                jdbcTemplate.update(
+                                "INSERT INTO profil_si_ressources (profil_si_id, ressource_id, type_acces) VALUES (?, ?, ?)",
+                                profil2, resComitesCopil, "LECTURE_ECRITURE");
 
-                CategorieSIModel catRepertoiresFonctionnels = new CategorieSIModel();
-                catRepertoiresFonctionnels.setName("Répertoires fonctionnels / transverses");
-                catRepertoiresFonctionnels = categorieSIRepository.save(catRepertoiresFonctionnels);
+                int appThemis = insertAndGetId(
+                                "INSERT INTO applications (name, direction_id, description, date_created) VALUES (?, ?, ?, ?)",
+                                "THEMIS", dirDsi, "Application de gestion THEMIS", now);
+                int appFluxa = insertAndGetId(
+                                "INSERT INTO applications (name, direction_id, description, date_created) VALUES (?, ?, ?, ?)",
+                                "FLUXA", dirAgence, "Application de gestion FLUXA", now);
 
-                // ===== RESSOURCES SI - Répertoires de service =====
-                RessourceSIModel resAgenceComptable = createRessource(catRepertoiresService, "SVC_Agence Comptable",
-                                RessourceSIModel.TypeAcces.LECTURE_ECRITURE);
-                RessourceSIModel resAssesseurs = createRessource(catRepertoiresService, "SVC_Assesseurs",
-                                RessourceSIModel.TypeAcces.LECTURE_ECRITURE);
-                RessourceSIModel resBureau = createRessource(catRepertoiresService, "SVC_Bureau",
-                                RessourceSIModel.TypeAcces.LECTURE_ECRITURE);
-                RessourceSIModel resComptabilite = createRessource(catRepertoiresService, "SVC_Comptabilité",
-                                RessourceSIModel.TypeAcces.LECTURE_ECRITURE);
+                int profilApp1 = insertAndGetId(
+                                "INSERT INTO profil_app (name, application_id, date_created) VALUES (?, ?, ?)",
+                                "Developpeur", appThemis, now);
+                int profilApp2 = insertAndGetId(
+                                "INSERT INTO profil_app (name, application_id, date_created) VALUES (?, ?, ?)",
+                                "Developpeur", appFluxa, now);
+                int profilApp3 = insertAndGetId(
+                                "INSERT INTO profil_app (name, application_id, date_created) VALUES (?, ?, ?)",
+                                "Comptable", appFluxa, now);
 
-                // ===== RESSOURCES SI - Répertoires fonctionnels / transverses =====
-                RessourceSIModel resComitesCos = createRessource(catRepertoiresFonctionnels, "FON_COMITES\\COS",
-                                RessourceSIModel.TypeAcces.LECTURE_ECRITURE);
-                RessourceSIModel resComitesAlm = createRessource(catRepertoiresFonctionnels, "FON_COMITES\\COMITE ALM",
-                                RessourceSIModel.TypeAcces.LECTURE_ECRITURE);
-                RessourceSIModel resComitesCodir = createRessource(catRepertoiresFonctionnels, "FON_COMITES\\CODIR",
-                                RessourceSIModel.TypeAcces.LECTURE_ECRITURE);
-                RessourceSIModel resComitesCopil = createRessource(catRepertoiresFonctionnels, "FON_COMITES\\COPIL",
-                                RessourceSIModel.TypeAcces.LECTURE_ECRITURE);
+                jdbcTemplate.update(
+                                "INSERT INTO profil_app_profil_si (profil_app_id, profil_si_id, application_id) VALUES (?, ?, ?)",
+                                profilApp1, profil1, appThemis);
+                jdbcTemplate.update(
+                                "INSERT INTO profil_app_profil_si (profil_app_id, profil_si_id, application_id) VALUES (?, ?, ?)",
+                                profilApp1, profil2, appThemis);
+                jdbcTemplate.update(
+                                "INSERT INTO profil_app_profil_si (profil_app_id, profil_si_id, application_id) VALUES (?, ?, ?)",
+                                profilApp2, profil2, appFluxa);
+                jdbcTemplate.update(
+                                "INSERT INTO profil_app_profil_si (profil_app_id, profil_si_id, application_id) VALUES (?, ?, ?)",
+                                profilApp3, profil1, appFluxa);
 
-                // ===== RESSOURCES PAR DÉFAUT POUR LES DIRECTIONS =====
-                // Assigner des ressources par défaut pour la Direction des Systèmes
-                // d'Information
-                dir.getRessourcesDefault().add(resAgenceComptable);
-                dir.getRessourcesDefault().add(resBureau);
-                dir.getRessourcesDefault().add(resComitesCos);
-                dir.getRessourcesDefault().add(resComitesCodir);
-                dir = directionRepository.save(dir);
+                insertAndGetId(
+                                "INSERT INTO ressource_app (application_id, name, description) VALUES (?, ?, ?)",
+                                appThemis, "BTSY", "Acces Synthese Client");
+                insertAndGetId(
+                                "INSERT INTO ressource_app (application_id, name, description) VALUES (?, ?, ?)",
+                                appThemis, "BTAC", "Accueil");
+                insertAndGetId(
+                                "INSERT INTO ressource_app (application_id, name, description) VALUES (?, ?, ?)",
+                                appThemis, "BTAD", "Administrateur");
+                insertAndGetId(
+                                "INSERT INTO ressource_app (application_id, name, description) VALUES (?, ?, ?)",
+                                appFluxa, "Connexion/Accueil", null);
+                insertAndGetId(
+                                "INSERT INTO ressource_app (application_id, name, description) VALUES (?, ?, ?)",
+                                appFluxa, "Televerer un document", null);
 
-                // Assigner des ressources par défaut pour la direction Comptable
-                dir2.getRessourcesDefault().add(resComptabilite);
-                dir2.getRessourcesDefault().add(resAssesseurs);
-                dir2.getRessourcesDefault().add(resComitesAlm);
-                dir2.getRessourcesDefault().add(resComitesCopil);
-                dir2 = directionRepository.save(dir2);
-
-                // ===== ASSIGNER LES RESSOURCES AUX PROFILS SI =====
-                // Profil 1 : Assigner la direction et ses ressources par défaut
-                profil1.setDirection(dir);
-                profil1 = profilSIRepository.save(profil1); // Sauvegarder d'abord pour avoir un ID
-
-                // Créer les associations avec les ressources
-                for (RessourceSIModel ressource : dir.getRessourcesDefault()) {
-                        associateRessourceToProfile(profil1, ressource, ressource.getTypeAcces());
-                }
-                profil1 = profilSIRepository.save(profil1);
-
-                // Profil 2 : Assigner la direction et ses ressources par défaut
-                profil2.setDirection(dir2);
-                profil2 = profilSIRepository.save(profil2); // Sauvegarder d'abord pour avoir un ID
-
-                // Créer les associations avec les ressources
-                for (RessourceSIModel ressource : dir2.getRessourcesDefault()) {
-                        associateRessourceToProfile(profil2, ressource, ressource.getTypeAcces());
-                }
-                profil2 = profilSIRepository.save(profil2);
-
-                AppModel app = new AppModel();
-                app.setName("THEMIS");
-                app.setDirection(dir);
-                app.setDescription("Application de gestion THEMIS");
-                app.setDateCreated(LocalDateTime.now());
-                app = appRepository.save(app);
-
-                AppModel app2 = new AppModel();
-                app2.setName("FLUXA");
-                app2.setDirection(dir2);
-                app2.setDescription("Application de gestion FLUXA");
-                app2.setDateCreated(LocalDateTime.now());
-                app2 = appRepository.save(app2);
-
-                ProfilAppModel profilApp1 = new ProfilAppModel();
-                profilApp1.setName("Developpeur");
-                profilApp1.setApplication(app);
-                profilApp1.setDateCreated(LocalDateTime.now());
-                profilApp1 = profilAppRepository.save(profilApp1);
-
-                ProfilAppProfilSI liaison1 = new ProfilAppProfilSI();
-                liaison1.setProfilApp(profilApp1);
-                liaison1.setProfilSI(profil1);
-                liaison1.setApplication(app);
-                liaison1 = profilAppProfilSIRepository.save(liaison1);
-
-                ProfilAppProfilSI liaison2 = new ProfilAppProfilSI();
-                liaison2.setProfilApp(profilApp1);
-                liaison2.setProfilSI(profil2);
-                liaison2.setApplication(app);
-                liaison2 = profilAppProfilSIRepository.save(liaison2);
-
-                ProfilAppModel profilApp2 = new ProfilAppModel();
-                profilApp2.setName("Developpeur");
-                profilApp2.setApplication(app2);
-                profilApp2.setDateCreated(LocalDateTime.now());
-                profilApp2 = profilAppRepository.save(profilApp2);
-
-                ProfilAppProfilSI liaison3 = new ProfilAppProfilSI();
-                liaison3.setProfilApp(profilApp2);
-                liaison3.setProfilSI(profil2);
-                liaison3.setApplication(app2);
-                liaison3 = profilAppProfilSIRepository.save(liaison3);
-
-                ProfilAppModel profilApp3 = new ProfilAppModel();
-                profilApp3.setName("Comptable");
-                profilApp3.setApplication(app2);
-                profilApp3.setDateCreated(LocalDateTime.now());
-                profilApp3 = profilAppRepository.save(profilApp3);
-
-                ProfilAppProfilSI liaison4 = new ProfilAppProfilSI();
-                liaison4.setProfilApp(profilApp3);
-                liaison4.setProfilSI(profil1);
-                liaison4.setApplication(app2);
-                liaison4 = profilAppProfilSIRepository.save(liaison4);
-
-                RessourceAppModel resApp1 = new RessourceAppModel();
-                resApp1.setApplication(app);
-                resApp1.setName("BTSY");
-                resApp1.setDescription("Acces Synthese Client");
-                resApp1 = ressourceAppRepository.save(resApp1);
-
-                RessourceAppModel resApp2 = new RessourceAppModel();
-                resApp2.setApplication(app);
-                resApp2.setName("BTAC");
-                resApp2.setDescription("Accueil");
-                resApp2 = ressourceAppRepository.save(resApp2);
-
-                RessourceAppModel resApp3 = new RessourceAppModel();
-                resApp3.setApplication(app);
-                resApp3.setName("BTAD");
-                resApp3.setDescription("Administrateur");
-                resApp3 = ressourceAppRepository.save(resApp3);
-
-                RessourceAppModel resApp4 = new RessourceAppModel();
-                resApp4.setApplication(app2);
-                resApp4.setName("Connexion/Accueil");
-                resApp4 = ressourceAppRepository.save(resApp4);
-
-                RessourceAppModel resApp5 = new RessourceAppModel();
-                resApp5.setApplication(app2);
-                resApp5.setName("Televerer un document");
-                resApp5 = ressourceAppRepository.save(resApp5);
-
-                System.out.println("Données de test initialisées avec succès!");
-
+                System.out.println("[DATA_INIT] Donnees de test initialisees avec succes.");
         }
 
-        /**
-         * Crée une ressource SI
-         */
-        private RessourceSIModel createRessource(CategorieSIModel categorie, String name,
-                        RessourceSIModel.TypeAcces typeAcces) {
-                RessourceSIModel ressource = new RessourceSIModel();
-                ressource.setCategorie(categorie);
-                ressource.setName(name);
-                ressource.setTypeAcces(typeAcces);
-                return ressourceSIRepository.save(ressource);
-        }
+        private int insertAndGetId(String sql, Object... params) {
+                KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        /**
-         * Associe une ressource à un profil SI avec un type d'accès spécifique
-         */
-        private void associateRessourceToProfile(ProfilSIModel profil, RessourceSIModel ressource,
-                        RessourceSIModel.TypeAcces typeAcces) {
-                ProfilSIRessource profilSIRessource = new ProfilSIRessource();
-                profilSIRessource.setProfilSI(profil);
-                profilSIRessource.setRessource(ressource);
-                profilSIRessource.setTypeAcces(typeAcces);
-                profil.getProfilSIRessources().add(profilSIRessource);
-        }
+                jdbcTemplate.update(connection -> {
+                        PreparedStatement statement = connection.prepareStatement(sql, new String[] { "id" });
+                        for (int i = 0; i < params.length; i++) {
+                                Object value = params[i];
+                                if (value == null) {
+                                        statement.setNull(i + 1, java.sql.Types.NULL);
+                                } else {
+                                        statement.setObject(i + 1, value);
+                                }
+                        }
+                        return statement;
+                }, keyHolder);
 
+                Number key = keyHolder.getKey();
+                if (key == null) {
+                        throw new IllegalStateException("Impossible de recuperer l'ID genere");
+                }
+                return key.intValue();
+        }
 }

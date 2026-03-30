@@ -8,11 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import fr.cmp.kyrios.model.App.AppModel;
 import fr.cmp.kyrios.model.App.dto.AppDTOCreate;
 import fr.cmp.kyrios.model.App.dto.AppDTOResponse;
 import fr.cmp.kyrios.service.AppService;
-import fr.cmp.kyrios.util.EntityFinder;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -35,9 +33,6 @@ public class AppController {
     @Autowired
     private AppService appService;
 
-    @Autowired
-    private EntityFinder entityFinder;
-
     @GetMapping()
     @Operation(summary = "Récupérer toutes les applications")
     @ApiResponses(value = {
@@ -45,9 +40,7 @@ public class AppController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public List<AppDTOResponse> list() {
-        return appService.listAll().stream()
-                .map(appService::toDTO)
-                .toList();
+        return appService.listAll();
     }
 
     @GetMapping("/{id}")
@@ -58,7 +51,7 @@ public class AppController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public AppDTOResponse get(@PathVariable int id) {
-        return appService.toDTO(entityFinder.findApplicationOrThrow(id));
+        return appService.getById(id);
     }
 
     @PostMapping
@@ -69,8 +62,8 @@ public class AppController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public ResponseEntity<AppDTOResponse> create(@Valid @RequestBody AppDTOCreate dto) {
-        AppModel created = appService.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(appService.toDTO(created));
+        AppDTOResponse created = appService.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
@@ -82,8 +75,8 @@ public class AppController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public ResponseEntity<AppDTOResponse> update(@PathVariable int id, @Valid @RequestBody AppDTOCreate dto) {
-        AppModel updated = appService.update(id, dto);
-        return ResponseEntity.ok(appService.toDTO(updated));
+        AppDTOResponse updated = appService.update(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
