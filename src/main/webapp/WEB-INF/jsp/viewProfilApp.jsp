@@ -45,7 +45,13 @@
         <div class="card-container">
             <div class="card-title">Ressources associées</div>
             <div class="ressources-list">
+                <c:set var="currentCategory" value="" />
                 <c:forEach var="ressource" items="${profilApp.ressourcesAppDetails}">
+                    <c:set var="ressourceCategory" value="${empty ressource.category ? 'Sans categorie' : ressource.category}" />
+                    <c:if test="${ressourceCategory ne currentCategory}">
+                        <div class="ressource-category">${ressourceCategory}</div>
+                        <c:set var="currentCategory" value="${ressourceCategory}" />
+                    </c:if>
                     <div class="ressource-item">
                         <span class="ressource-name">${ressource.name}</span>
                         <c:if test="${not empty ressource.description}">

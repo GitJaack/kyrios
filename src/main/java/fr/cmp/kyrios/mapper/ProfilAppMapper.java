@@ -19,6 +19,8 @@ public final class ProfilAppMapper {
                         .name(ressource.name())
                         .description(ressource.description())
                         .application(ressource.applicationName())
+                        .categoryId(ressource.categoryId())
+                        .category(ressource.categoryName())
                         .build())
                 .toList();
 

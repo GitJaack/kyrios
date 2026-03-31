@@ -17,6 +17,12 @@ public class RessourceAppDTOResponse {
     @Schema(description = "Nom de l'application associée", example = "THEMIS")
     private String application;
 
+    @Schema(description = "ID de la categorie de la ressource", example = "1")
+    private Integer categoryId;
+
+    @Schema(description = "Categorie de la ressource", example = "Code ecran")
+    private String category;
+
     @Schema(description = "Nom de la ressource", example = "BTSY")
     private String name;
 

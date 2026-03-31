@@ -16,6 +16,9 @@ public class RessourceAppDTOUpdate {
     @Schema(description = "Nom de la ressource", example = "BTSY")
     private String name;
 
+    @Schema(description = "ID de la categorie de la ressource", example = "1")
+    private Integer categoryId;
+
     @Schema(description = "Description de la ressource", example = "Acces Synthese Client")
     private String description;
 }

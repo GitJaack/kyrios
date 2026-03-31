@@ -54,8 +54,19 @@ public class RessourceAppService {
                     "Application avec l'ID " + dto.getApplicationId() + " non trouvee");
         }
 
+        if (dto.getCategoryId() != null) {
+            ReferenceDao.RessourceAppCategorieRef category = jdbcReferenceRepository
+                    .findRessourceAppCategorieById(dto.getCategoryId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Categorie avec l'ID " + dto.getCategoryId() + " non trouvee"));
+            if (category.applicationId() != dto.getApplicationId()) {
+                throw new IllegalArgumentException(
+                        "La categorie '" + category.name() + "' n'appartient pas a l'application selectionnee");
+            }
+        }
+
         int ressourceId = ressourceAppJdbcRepository.insert(dto.getName(), dto.getDescription(),
-                dto.getApplicationId());
+                dto.getCategoryId(), dto.getApplicationId());
         return getById(ressourceId);
     }
 
@@ -73,7 +84,18 @@ public class RessourceAppService {
                     + "' existe déjà dans cette application.");
         }
 
-        ressourceAppJdbcRepository.update(id, dto.getName(), dto.getDescription());
+        if (dto.getCategoryId() != null) {
+            ReferenceDao.RessourceAppCategorieRef category = jdbcReferenceRepository
+                    .findRessourceAppCategorieById(dto.getCategoryId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Categorie avec l'ID " + dto.getCategoryId() + " non trouvee"));
+            if (category.applicationId() != ressourceApp.applicationId()) {
+                throw new IllegalArgumentException(
+                        "La categorie '" + category.name() + "' n'appartient pas a l'application de cette ressource");
+            }
+        }
+
+        ressourceAppJdbcRepository.update(id, dto.getName(), dto.getDescription(), dto.getCategoryId());
 
         return getById(id);
     }

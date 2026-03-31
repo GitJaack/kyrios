@@ -39,6 +39,10 @@ public class ReferenceDao {
         return existsById("ressource_si", id);
     }
 
+    public boolean existsRessourceAppCategorieById(int id) {
+        return existsById("categories_app", id);
+    }
+
     public boolean existsEmploiById(int id) {
         return existsById("emplois", id);
     }
@@ -77,6 +81,15 @@ public class ReferenceDao {
         return rows.stream().findFirst();
     }
 
+    public Optional<RessourceAppCategorieRef> findRessourceAppCategorieById(int id) {
+        String sql = "SELECT id, name, application_id FROM categories_app WHERE id = ?";
+        List<RessourceAppCategorieRef> rows = jdbcTemplate.query(sql,
+                (rs, rowNum) -> new RessourceAppCategorieRef(rs.getInt("id"), rs.getString("name"),
+                        rs.getInt("application_id")),
+                id);
+        return rows.stream().findFirst();
+    }
+
     private boolean existsById(String table, int id) {
         String sql = "SELECT COUNT(1) FROM " + table + " WHERE id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, id);
@@ -90,5 +103,8 @@ public class ReferenceDao {
     }
 
     public record RessourceAppRef(int id, String name, int applicationId) {
+    }
+
+    public record RessourceAppCategorieRef(int id, String name, int applicationId) {
     }
 }

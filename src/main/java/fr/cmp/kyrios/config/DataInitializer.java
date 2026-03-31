@@ -1,6 +1,7 @@
 package fr.cmp.kyrios.config;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -30,7 +31,9 @@ public class DataInitializer implements CommandLineRunner {
 
                 Integer directionCount = jdbcTemplate.queryForObject("SELECT COUNT(1) FROM directions", Integer.class);
                 if (directionCount != null && directionCount > 0) {
-                        System.out.println("[DATA_INIT] Donnees deja presentes, initialisation ignoree.");
+                        System.out.println(
+                                        "[DATA_INIT] Donnees deja presentes, verification des ressources applicatives.");
+                        seedThemisResourcesIfMissing();
                         return;
                 }
 
@@ -429,6 +432,83 @@ public class DataInitializer implements CommandLineRunner {
                         insertServiceResource(catApplicationsExterne, ressource);
                 }
 
+                seedThemisResources(appThemis);
+
+                System.out.println("[DATA_INIT] Donnees de test initialisees avec succes.");
+        }
+
+        private int insertAndGetId(String sql, Object... params) {
+                KeyHolder keyHolder = new GeneratedKeyHolder();
+
+                jdbcTemplate.update(connection -> {
+                        PreparedStatement statement = connection.prepareStatement(sql, new String[] { "id" });
+                        for (int i = 0; i < params.length; i++) {
+                                Object value = params[i];
+                                if (value == null) {
+                                        statement.setNull(i + 1, java.sql.Types.NULL);
+                                } else {
+                                        statement.setObject(i + 1, value);
+                                }
+                        }
+                        return statement;
+                }, keyHolder);
+
+                Number key = keyHolder.getKey();
+                if (key == null) {
+                        throw new IllegalStateException("Impossible de recuperer l'ID genere");
+                }
+                return key.intValue();
+        }
+
+        private int insertServiceResource(int categorieId, String name) {
+                return insertAndGetId(
+                                "INSERT INTO ressource_si (categorie_id, name, type_acces) VALUES (?, ?, ?)",
+                                categorieId,
+                                name,
+                                "LECTURE_ECRITURE");
+        }
+
+        private int insertAppCategory(int applicationId, String name) {
+                return insertAndGetId(
+                                "INSERT INTO categories_app (application_id, name) VALUES (?, ?)",
+                                applicationId,
+                                name);
+        }
+
+        private int insertAppResource(int applicationId, Integer categoryId, String name, String description) {
+                return insertAndGetId(
+                                "INSERT INTO ressource_app (application_id, category_id, name, description) VALUES (?, ?, ?, ?)",
+                                applicationId,
+                                categoryId,
+                                name,
+                                description);
+        }
+
+        private void seedThemisResourcesIfMissing() {
+                Integer appThemisId = jdbcTemplate.queryForObject(
+                                "SELECT id FROM applications WHERE name = ?",
+                                Integer.class,
+                                "Thémis");
+                if (appThemisId == null) {
+                        System.out.println("[DATA_INIT] Application Thémis introuvable, ressources non initialisees.");
+                        return;
+                }
+
+                Integer ressourceCount = jdbcTemplate.queryForObject(
+                                "SELECT COUNT(1) FROM ressource_app WHERE application_id = ?",
+                                Integer.class,
+                                appThemisId);
+                if (ressourceCount != null && ressourceCount > 0) {
+                        System.out.println("[DATA_INIT] Ressources Thémis deja presentes, initialisation ignoree.");
+                        return;
+                }
+
+                seedThemisResources(appThemisId);
+        }
+
+        private void seedThemisResources(int appThemisId) {
+                int catThemisCodeEcran = getOrCreateAppCategory(appThemisId, "Code ecran");
+
                 String[][] themisRessources = {
                                 { "BTSY", "Acces Synthese Client" },
                                 { "BTAC", "Accueil" },
@@ -516,48 +596,19 @@ public class DataInitializer implements CommandLineRunner {
                 };
 
                 for (String[] themisRessource : themisRessources) {
-                        insertAppResource(appThemis, themisRessource[0], themisRessource[1]);
+                        insertAppResource(appThemisId, catThemisCodeEcran, themisRessource[0], themisRessource[1]);
                 }
-
-                System.out.println("[DATA_INIT] Donnees de test initialisees avec succes.");
         }
 
-        private int insertAndGetId(String sql, Object... params) {
-                KeyHolder keyHolder = new GeneratedKeyHolder();
-
-                jdbcTemplate.update(connection -> {
-                        PreparedStatement statement = connection.prepareStatement(sql, new String[] { "id" });
-                        for (int i = 0; i < params.length; i++) {
-                                Object value = params[i];
-                                if (value == null) {
-                                        statement.setNull(i + 1, java.sql.Types.NULL);
-                                } else {
-                                        statement.setObject(i + 1, value);
-                                }
-                        }
-                        return statement;
-                }, keyHolder);
-
-                Number key = keyHolder.getKey();
-                if (key == null) {
-                        throw new IllegalStateException("Impossible de recuperer l'ID genere");
-                }
-                return key.intValue();
-        }
-
-        private int insertServiceResource(int categorieId, String name) {
-                return insertAndGetId(
-                                "INSERT INTO ressource_si (categorie_id, name, type_acces) VALUES (?, ?, ?)",
-                                categorieId,
-                                name,
-                                "LECTURE_ECRITURE");
-        }
-
-        private int insertAppResource(int applicationId, String name, String description) {
-                return insertAndGetId(
-                                "INSERT INTO ressource_app (application_id, name, description) VALUES (?, ?, ?)",
+        private int getOrCreateAppCategory(int applicationId, String name) {
+                List<Integer> rows = jdbcTemplate.query(
+                                "SELECT id FROM categories_app WHERE application_id = ? AND name = ?",
+                                (rs, rowNum) -> rs.getInt("id"),
                                 applicationId,
-                                name,
-                                description);
+                                name);
+                if (!rows.isEmpty()) {
+                        return rows.get(0);
+                }
+                return insertAppCategory(applicationId, name);
         }
 }

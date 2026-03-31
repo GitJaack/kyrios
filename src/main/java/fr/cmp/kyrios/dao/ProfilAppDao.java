@@ -164,22 +164,27 @@ public class ProfilAppDao {
 
     public List<RessourceAppReadRow> findRessourcesByProfilAppId(int profilAppId) {
         String sql = """
-                SELECT ra.id,
-                       ra.name,
-                       ra.description,
-                       a.name AS application_name
-                FROM profil_app_ressources par
-                JOIN ressource_app ra ON ra.id = par.ressource_app_id
-                JOIN applications a ON a.id = ra.application_id
-                WHERE par.profil_app_id = ?
-                ORDER BY ra.name
-                """;
+                    SELECT ra.id,
+                           ra.name,
+                           ra.description,
+                       a.name AS application_name,
+                       ra.category_id,
+                       ca.name AS category_name
+                    FROM profil_app_ressources par
+                    JOIN ressource_app ra ON ra.id = par.ressource_app_id
+                    JOIN applications a ON a.id = ra.application_id
+                LEFT JOIN categories_app ca ON ca.id = ra.category_id
+                    WHERE par.profil_app_id = ?
+                ORDER BY ra.id
+                    """;
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> new RessourceAppReadRow(
                 rs.getInt("id"),
                 rs.getString("name"),
                 rs.getString("description"),
-                rs.getString("application_name")), profilAppId);
+                rs.getString("application_name"),
+                (Integer) rs.getObject("category_id"),
+                rs.getString("category_name")), profilAppId);
     }
 
     public record ProfilAppReadRow(int id, String name, int applicationId, String applicationName,
@@ -189,6 +194,7 @@ public class ProfilAppDao {
     public record ProfilSIReadRow(int id, String name) {
     }
 
-    public record RessourceAppReadRow(int id, String name, String description, String applicationName) {
+    public record RessourceAppReadRow(int id, String name, String description, String applicationName,
+            Integer categoryId, String categoryName) {
     }
 }

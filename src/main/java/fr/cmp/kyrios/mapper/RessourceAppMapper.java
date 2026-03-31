@@ -13,6 +13,8 @@ public final class RessourceAppMapper {
                 .name(ressourceApp.name())
                 .description(ressourceApp.description())
                 .application(ressourceApp.applicationName())
+                .categoryId(ressourceApp.categoryId())
+                .category(ressourceApp.categoryName())
                 .build();
     }
 }

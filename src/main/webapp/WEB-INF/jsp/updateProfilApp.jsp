@@ -76,19 +76,24 @@
 						<p>Chargement des ressources...</p>
 					</div>
 
-					<div x-show="!loadingResources && resources.length > 0" class="ressources-grid">
-						<template x-for="resource in resources" :key="resource.id">
-							<label class="ressource-item" :for="'resource' + resource.id">
-								<div class="ressource-checkbox">
-									<input type="checkbox" :id="'resource' + resource.id" :value="resource.id" x-model="selectedRessourceIds">
-									<span x-text="resource.name"></span>
-									<span class="resource-description" x-show="resource.description" x-text="' - ' + resource.description"></span>
-								</div>
-							</label>
+					<div x-show="!loadingResources && groupedResources.length > 0" class="ressources-grid">
+						<template x-for="group in groupedResources" :key="group.key">
+							<div class="ressource-group">
+								<div class="ressource-category" x-text="group.label"></div>
+								<template x-for="resource in group.resources" :key="resource.id">
+									<label class="ressource-item" :for="'resource' + resource.id">
+										<div class="ressource-checkbox">
+											<input type="checkbox" :id="'resource' + resource.id" :value="resource.id" x-model="selectedRessourceIds">
+											<span x-text="resource.name"></span>
+											<span class="resource-description" x-show="resource.description" x-text="' - ' + resource.description"></span>
+										</div>
+									</label>
+								</template>
+							</div>
 						</template>
 					</div>
 
-					<div x-show="!loadingResources && resources.length === 0" class="empty-message" style="display: none;">
+					<div x-show="!loadingResources && groupedResources.length === 0" class="empty-message" style="display: none;">
 						<p>Aucune ressource disponible pour cette application</p>
 					</div>
 				</div>
@@ -113,7 +118,26 @@ function profilAppUpdateForm() {
 		applicationName: '',
 		profilAppName: '',
 		resources: [],
+		groupedResources: [],
 		loadingResources: false,
+
+		buildGroupedResources(resources) {
+			const grouped = [];
+			let currentGroup = null;
+			resources.forEach(resource => {
+				const category = resource.category ? resource.category : 'Sans categorie';
+				if (!currentGroup || currentGroup.label !== category) {
+					currentGroup = {
+						key: `cat-${category}`,
+						label: category,
+						resources: []
+					};
+					grouped.push(currentGroup);
+				}
+				currentGroup.resources.push(resource);
+			});
+			return grouped;
+		},
 		selectedProfilSIIds: [
 			<c:forEach var="profilSI" items="${profilApp.profilSI}" varStatus="status">
 				'${profilSI.id}'<c:if test="${!status.last}">,</c:if>
@@ -135,6 +159,7 @@ function profilAppUpdateForm() {
 					throw new Error('Erreur lors du chargement des ressources');
 				}
 				this.resources = await response.json();
+				this.groupedResources = this.buildGroupedResources(this.resources);
 				this.selectedRessourceIds = this.resources
 					.filter(resource => this.existingRessourceNames.includes(resource.name))
 					.map(resource => String(resource.id));
@@ -143,6 +168,7 @@ function profilAppUpdateForm() {
 				this.message = 'Erreur lors du chargement des ressources: ' + error.message;
 				this.messageType = 'error';
 				this.resources = [];
+				this.groupedResources = [];
 			} finally {
 				this.loadingResources = false;
 			}

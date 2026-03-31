@@ -8,6 +8,17 @@
     font-size: 0.9rem;
 }
 
+.ressource-group {
+    display: contents;
+}
+
+.ressource-category {
+    grid-column: 1 / -1;
+    margin-top: 0.5rem;
+    font-weight: 600;
+    color: #4a5568;
+}
+
 .loading-message,
 .empty-message {
     padding: 20px;

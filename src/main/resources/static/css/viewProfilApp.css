@@ -71,6 +71,13 @@
     background-color: hsl(220, 20%, 98%);
 }
 
+.ressource-category {
+    grid-column: 1 / -1;
+    margin-top: 0.25rem;
+    font-weight: 600;
+    color: hsl(220, 15%, 35%);
+}
+
 .ressource-description {
     color: hsl(220, 10%, 50%);
 }
