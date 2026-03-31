@@ -90,13 +90,17 @@
             <c:when test="${not empty ressourcesByCategorie}">
                 <div class="ressources-grid">
                     <c:forEach var="entry" items="${ressourcesByCategorie}">
+                        <c:set var="showTypeAcces"
+                               value="${entry.key == 'Repertoires de services' || entry.key == 'Repertoires fonctionnels / transverses'}" />
                         <div class="ressource-card">
                             <div class="ressource-title">${entry.key}</div>
                             <ul class="ressource-list">
                                 <c:forEach var="ressource" items="${entry.value}">
                                     <li class="ressource-item">
                                         <span class="ressource-name">${ressource.name}</span>
-                                        <span class="ressource-acces">${ressource.typeAcces}</span>
+                                        <c:if test="${showTypeAcces}">
+                                            <span class="ressource-acces">${ressource.typeAcces}</span>
+                                        </c:if>
                                     </li>
                                 </c:forEach>
                             </ul>

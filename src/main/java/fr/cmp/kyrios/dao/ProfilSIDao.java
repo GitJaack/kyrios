@@ -81,7 +81,7 @@ public class ProfilSIDao {
                 JOIN ressource_si r ON r.id = psr.ressource_id
                 JOIN categories c ON c.id = r.categorie_id
                 WHERE psr.profil_si_id = ?
-                ORDER BY c.name, r.name
+                ORDER BY c.id, r.id
                 """;
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> new RessourceReadRow(
