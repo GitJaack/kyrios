@@ -27,7 +27,7 @@ public class AppDao {
                        a.description,
                        a.date_created
                 FROM applications a
-                JOIN directions d ON d.id = a.direction_id
+                  LEFT JOIN directions d ON d.id = a.direction_id
                 ORDER BY a.id
                 """;
 
@@ -49,7 +49,7 @@ public class AppDao {
                        a.description,
                        a.date_created
                 FROM applications a
-                JOIN directions d ON d.id = a.direction_id
+                  LEFT JOIN directions d ON d.id = a.direction_id
                 WHERE a.id = ?
                 """;
 

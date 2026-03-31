@@ -45,12 +45,15 @@
         <div class="card-container">
             <div class="card-title">Ressources associées</div>
             <div class="ressources-list">
-                <c:forEach var="ressourceName" items="${profilApp.ressourcesApp}">
+                <c:forEach var="ressource" items="${profilApp.ressourcesAppDetails}">
                     <div class="ressource-item">
-                        <span class="ressource-name">${ressourceName}</span>
+                        <span class="ressource-name">${ressource.name}</span>
+                        <c:if test="${not empty ressource.description}">
+                            <span class="ressource-description"> - ${ressource.description}</span>
+                        </c:if>
                     </div>
                 </c:forEach>
-                <c:if test="${empty profilApp.ressourcesApp}">
+                <c:if test="${empty profilApp.ressourcesAppDetails}">
                     <p class="empty-message">Aucune ressource associee</p>
                 </c:if>
             </div>

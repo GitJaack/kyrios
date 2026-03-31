@@ -33,6 +33,9 @@ public class ProfilAppDTOResponse {
     @Schema(description = "Liste des noms des ressources d'application associées", example = "[BTSY, BTAC]")
     private List<String> ressourcesApp;
 
+    @Schema(description = "Liste detaillee des ressources d'application associees")
+    private List<RessourceAppDTOResponse> ressourcesAppDetails;
+
     @Schema(description = "Date de création du profil d'application", example = "2026-01-15T10:00:00")
     private LocalDateTime dateCreated;
 

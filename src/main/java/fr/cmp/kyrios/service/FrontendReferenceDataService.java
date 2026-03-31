@@ -43,7 +43,7 @@ public class FrontendReferenceDataService {
                        r.name AS ressource_name
                 FROM categories c
                 LEFT JOIN ressource_si r ON r.categorie_id = c.id
-                ORDER BY c.name, r.name
+                  ORDER BY c.id, r.id
                 """;
 
         Map<Integer, Map<String, Object>> categories = new LinkedHashMap<>();

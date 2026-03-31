@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import fr.cmp.kyrios.dao.ReferenceDao;
 import fr.cmp.kyrios.dao.ProfilSIDao;
-import fr.cmp.kyrios.model.App.dto.ProfilAppDTOSimple;
+import fr.cmp.kyrios.mapper.ProfilSIMapper;
 import fr.cmp.kyrios.model.Si.RessourceSIModel;
 import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTO;
 import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTOCreate;
@@ -21,7 +20,6 @@ import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTOCreateResponse;
 import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTODeleteResponse;
 import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTOResponse;
 import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIUpdateDTO;
-import fr.cmp.kyrios.model.Si.dto.ressourceSI.RessourceSIDTO;
 
 @Service
 public class ProfilSIService {
@@ -33,7 +31,7 @@ public class ProfilSIService {
 
     public List<ProfilSIDTOResponse> listAll() {
         return profilSIJdbcRepository.findAll().stream()
-                .map(this::toResponseDTOFromJdbcRow)
+                .map(row -> ProfilSIMapper.toDto(row, profilSIJdbcRepository))
                 .toList();
     }
 
@@ -42,14 +40,14 @@ public class ProfilSIService {
             throw new IllegalArgumentException("Direction avec l'ID " + directionId + " non trouvee");
         }
         return profilSIJdbcRepository.findByDirectionId(directionId).stream()
-                .map(this::toResponseDTOFromJdbcRow)
+                .map(row -> ProfilSIMapper.toDto(row, profilSIJdbcRepository))
                 .toList();
     }
 
     public ProfilSIDTOResponse getById(int id) {
         ProfilSIDao.ProfilSIReadRow row = profilSIJdbcRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Profil SI avec l'ID " + id + " non trouvé"));
-        return toResponseDTOFromJdbcRow(row);
+        return ProfilSIMapper.toDto(row, profilSIJdbcRepository);
     }
 
     @Transactional
@@ -223,41 +221,4 @@ public class ProfilSIService {
                 .build();
     }
 
-    private ProfilSIDTOResponse toResponseDTOFromJdbcRow(ProfilSIDao.ProfilSIReadRow row) {
-        List<RessourceSIDTO> ressourcesDTO = profilSIJdbcRepository.findRessourcesByProfilSIId(row.id()).stream()
-                .map(r -> RessourceSIDTO.builder()
-                        .id(r.id())
-                        .categorie(r.categorie())
-                        .name(r.name())
-                        .typeAcces(fr.cmp.kyrios.model.Si.RessourceSIModel.TypeAcces.valueOf(r.typeAcces()))
-                        .build())
-                .collect(Collectors.toList());
-
-        List<ProfilAppDTOSimple> profilAppsDTO = profilSIJdbcRepository.findProfilAppsByProfilSIId(row.id()).stream()
-                .map(p -> ProfilAppDTOSimple.builder()
-                        .id(p.id())
-                        .name(p.name())
-                        .application(p.application())
-                        .build())
-                .collect(Collectors.toList());
-
-        List<ProfilSIDTOResponse.EmploiInfo> emploisDTO = profilSIJdbcRepository.findEmploisByProfilSIId(row.id())
-                .stream()
-                .map(e -> ProfilSIDTOResponse.EmploiInfo.builder()
-                        .id(e.id())
-                        .emploiName(e.emploiName())
-                        .build())
-                .collect(Collectors.toList());
-
-        return ProfilSIDTOResponse.builder()
-                .idProfilSI(row.id())
-                .name(row.name())
-                .direction(row.direction())
-                .ressources(ressourcesDTO)
-                .profilApps(profilAppsDTO)
-                .emplois(emploisDTO)
-                .dateCreated(row.dateCreated())
-                .dateUpdated(row.dateUpdated())
-                .build();
-    }
 }

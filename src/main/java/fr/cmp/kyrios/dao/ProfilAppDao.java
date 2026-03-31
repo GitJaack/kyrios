@@ -162,16 +162,24 @@ public class ProfilAppDao {
                 rs.getString("name")), profilAppId);
     }
 
-    public List<String> findRessourcesByProfilAppId(int profilAppId) {
+    public List<RessourceAppReadRow> findRessourcesByProfilAppId(int profilAppId) {
         String sql = """
-                SELECT ra.name
+                SELECT ra.id,
+                       ra.name,
+                       ra.description,
+                       a.name AS application_name
                 FROM profil_app_ressources par
                 JOIN ressource_app ra ON ra.id = par.ressource_app_id
+                JOIN applications a ON a.id = ra.application_id
                 WHERE par.profil_app_id = ?
                 ORDER BY ra.name
                 """;
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getString("name"), profilAppId);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new RessourceAppReadRow(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getString("description"),
+                rs.getString("application_name")), profilAppId);
     }
 
     public record ProfilAppReadRow(int id, String name, int applicationId, String applicationName,
@@ -179,5 +187,8 @@ public class ProfilAppDao {
     }
 
     public record ProfilSIReadRow(int id, String name) {
+    }
+
+    public record RessourceAppReadRow(int id, String name, String description, String applicationName) {
     }
 }

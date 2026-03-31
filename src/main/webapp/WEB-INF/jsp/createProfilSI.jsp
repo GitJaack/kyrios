@@ -146,6 +146,10 @@
                 <p class="form-description">Sélectionnez les ressources et leur type d'accès</p>
 
                 <c:forEach var="categorie" items="${categories}">
+                    <c:set var="showTypeAcces"
+                           value="${categorie.name == 'Repertoires de services'
+                                   || categorie.name == 'Repertoires fonctionnels / transverses' }"
+                    />
                     <div class="category-section" x-data="{ open: false, resourceIds: [<c:forEach var="ressource" items="${categorie.ressources}" varStatus="resStatus">${ressource.id}<c:if test="${!resStatus.last}">,</c:if></c:forEach>] }">
                         <div class="category-header" @click="open = !open">
                             <h4 class="category-title">${categorie.name}</h4>
@@ -170,12 +174,14 @@
                                         <label for="ressource_${ressource.id}">${ressource.name}</label>
                                     </div>
                                     
-                                    <select class="type-acces-select"
-                                            x-model="selectedRessources[${ressource.id}].typeAcces"
-                                            :disabled="!selectedRessources[${ressource.id}].checked">
-                                        <option value="LECTURE">Lecture</option>
-                                        <option value="LECTURE_ECRITURE">Lecture/Écriture</option>
-                                    </select>
+                                    <c:if test="${showTypeAcces}">
+                                        <select class="type-acces-select"
+                                                x-model="selectedRessources[${ressource.id}].typeAcces"
+                                                :disabled="!selectedRessources[${ressource.id}].checked">
+                                            <option value="LECTURE">Lecture</option>
+                                            <option value="LECTURE_ECRITURE">Lecture/Écriture</option>
+                                        </select>
+                                    </c:if>
                                 </label>
                             </c:forEach>
                         </div>

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import fr.cmp.kyrios.dao.ReferenceDao;
 import fr.cmp.kyrios.dao.ProfilAppDao;
@@ -18,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import fr.cmp.kyrios.model.App.dto.ProfilAppDTOCreate;
 import fr.cmp.kyrios.model.App.dto.ProfilAppDTODeleteResponse;
 import fr.cmp.kyrios.model.App.dto.ProfilAppDTOResponse;
-import fr.cmp.kyrios.model.Emploi.dto.ProfilSISimpleDTO;
+import fr.cmp.kyrios.mapper.ProfilAppMapper;
 
 @Service
 public class ProfilAppService {
@@ -30,7 +29,7 @@ public class ProfilAppService {
 
     public List<ProfilAppDTOResponse> listAll() {
         return profilAppJdbcRepository.findAll().stream()
-                .map(this::toDTOFromJdbcRow)
+                .map(row -> ProfilAppMapper.toDto(row, profilAppJdbcRepository))
                 .toList();
     }
 
@@ -39,14 +38,14 @@ public class ProfilAppService {
             throw new IllegalArgumentException("Application avec l'ID " + applicationId + " non trouvee");
         }
         return profilAppJdbcRepository.findByApplicationId(applicationId).stream()
-                .map(this::toDTOFromJdbcRow)
+                .map(row -> ProfilAppMapper.toDto(row, profilAppJdbcRepository))
                 .toList();
     }
 
     public ProfilAppDTOResponse getById(int id) {
         ProfilAppDao.ProfilAppReadRow row = profilAppJdbcRepository.findById(id)
                 .orElseThrow(() -> new ProfilAppNotFoundException("Profil App avec l'ID " + id + " non trouvé"));
-        return toDTOFromJdbcRow(row);
+        return ProfilAppMapper.toDto(row, profilAppJdbcRepository);
     }
 
     @Transactional
@@ -219,21 +218,6 @@ public class ProfilAppService {
         return ProfilAppDTODeleteResponse.builder()
                 .message(message)
                 .profilsSIDetaches(profilSIDetaches)
-                .build();
-    }
-
-    private ProfilAppDTOResponse toDTOFromJdbcRow(ProfilAppDao.ProfilAppReadRow row) {
-        return ProfilAppDTOResponse.builder()
-                .id(row.id())
-                .name(row.name())
-                .application(row.applicationName())
-                .applicationId(row.applicationId())
-                .profilSI(profilAppJdbcRepository.findProfilSIByProfilAppId(row.id()).stream()
-                        .map(profilSI -> new ProfilSISimpleDTO(profilSI.id(), profilSI.name()))
-                        .collect(Collectors.toList()))
-                .ressourcesApp(profilAppJdbcRepository.findRessourcesByProfilAppId(row.id()))
-                .dateCreated(row.dateCreated())
-                .dateUpdated(row.dateUpdated())
                 .build();
     }
 

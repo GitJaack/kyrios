@@ -9,10 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import fr.cmp.kyrios.dao.EmploiDao;
 import fr.cmp.kyrios.dao.ReferenceDao;
-import fr.cmp.kyrios.model.Emploi.EmploiModel;
 import fr.cmp.kyrios.model.Emploi.dto.EmploiDTOCreate;
 import fr.cmp.kyrios.model.Emploi.dto.EmploiDTOResponse;
-import fr.cmp.kyrios.model.Emploi.dto.ProfilSISimpleDTO;
+import fr.cmp.kyrios.mapper.EmploiMapper;
 
 @Service
 public class EmploiService {
@@ -24,14 +23,14 @@ public class EmploiService {
 
     public List<EmploiDTOResponse> listAll() {
         return emploiJdbcRepository.findAll().stream()
-                .map(this::toDTOFromJdbcRow)
+                .map(EmploiMapper::toDto)
                 .toList();
     }
 
     public EmploiDTOResponse getById(int id) {
         var row = emploiJdbcRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Emploi avec l'ID " + id + " non trouvé"));
-        return toDTOFromJdbcRow(row);
+        return EmploiMapper.toDto(row);
     }
 
     @Transactional
@@ -112,22 +111,4 @@ public class EmploiService {
         emploiJdbcRepository.deleteById(id);
     }
 
-    private EmploiDTOResponse toDTOFromJdbcRow(EmploiDao.EmploiReadRow row) {
-        ProfilSISimpleDTO profilDTO = null;
-        if (row.profilSIId() != null) {
-            profilDTO = new ProfilSISimpleDTO(row.profilSIId(), row.profilSIName());
-        }
-
-        return EmploiDTOResponse.builder()
-                .id(row.id())
-                .emploi(row.emploiName())
-                .direction(row.direction())
-                .service(row.service())
-                .domaine(row.domaine())
-                .status(EmploiModel.Status.valueOf(row.status()))
-                .profilSI(profilDTO)
-                .dateCreated(row.dateCreated())
-                .dateUpdated(row.dateUpdated())
-                .build();
-    }
 }
