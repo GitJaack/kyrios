@@ -39,6 +39,15 @@
                     <img src="/images/log-in.svg" alt="login icon" class="icon">
                     Connexion</a></li>
                 </c:if>
+
+                <c:if test="${pageContext.request.userPrincipal != null}">
+                    <form action="/logout" method="post" class="logout-form">
+                        <button type="submit">
+                            <img src="/images/log-out.svg" alt="log-out icon" class="icon">
+                            <span>Déconnexion</span>
+                        </button>
+                    </form>
+                </c:if>
             </ul>
         </div>
         

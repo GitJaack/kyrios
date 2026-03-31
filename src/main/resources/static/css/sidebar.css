@@ -39,7 +39,8 @@
     list-style: none;
 }
 
-.sidebar ul li a {
+.sidebar ul li a, 
+.logout-form button {
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -48,10 +49,15 @@
     font-size: var(--font-size-sm);
     padding: 10px 12px;
     border-radius: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 100%;
     transition: background-color 0.2s ease;
 }
 
-.sidebar ul li a .icon {
+.sidebar ul li a .icon,
+.logout-form button .icon {
     width: 24px;
     height: 24px;
     filter: invert(1);
@@ -59,7 +65,8 @@
     transition: opacity 0.2s ease;
 }
 
-.sidebar ul li a:hover .icon {
+.sidebar ul li a:hover .icon, 
+.logout-form button:hover .icon {
     opacity: 0.8;
 }
 
@@ -68,7 +75,8 @@
     filter: invert(1);
 }
 
-.sidebar ul li a:hover {
+.sidebar ul li a:hover,
+.logout-form button:hover {
     background-color: hsl(220, 25%, 30%);
 }
 
@@ -87,4 +95,3 @@
     border-top: 1px solid hsla(220, 25%, 30%, 1);
     padding: 24px;
 }
-
