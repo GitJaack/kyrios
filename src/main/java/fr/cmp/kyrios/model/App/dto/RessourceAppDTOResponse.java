@@ -28,4 +28,7 @@ public class RessourceAppDTOResponse {
 
     @Schema(description = "Description de la ressource", example = "Acces Synthese Client")
     private String description;
+
+    @Schema(description = "Niveau de permission applique a cette ressource dans le contexte d'un profil app", example = "3")
+    private Integer permissionLevel;
 }

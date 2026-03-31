@@ -64,7 +64,7 @@ public class CategorieSIDao {
         jdbcTemplate.update("UPDATE categories SET name = ? WHERE id = ?", name, id);
     }
 
-    public void deleteDefaultRessourceLinksByCategorieId(int categorieId) {
+    public void deleteDefaultRessourceByCategorieId(int categorieId) {
         String sql = """
                 DELETE FROM direction_ressources_default
                 WHERE ressource_id IN (SELECT id FROM ressource_si WHERE categorie_id = ?)
@@ -72,7 +72,7 @@ public class CategorieSIDao {
         jdbcTemplate.update(sql, categorieId);
     }
 
-    public void deleteProfilRessourceLinksByCategorieId(int categorieId) {
+    public void deleteProfilRessourceByCategorieId(int categorieId) {
         String sql = """
                 DELETE FROM profil_si_ressources
                 WHERE ressource_id IN (SELECT id FROM ressource_si WHERE categorie_id = ?)

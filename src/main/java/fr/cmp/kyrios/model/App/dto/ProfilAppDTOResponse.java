@@ -36,6 +36,9 @@ public class ProfilAppDTOResponse {
     @Schema(description = "Liste detaillee des ressources d'application associees")
     private List<RessourceAppDTOResponse> ressourcesAppDetails;
 
+    @Schema(description = "Niveau de permission (0 a 6) si la ressource 'Niveau de permission' est associee", example = "3")
+    private Integer permissionLevel;
+
     @Schema(description = "Date de création du profil d'application", example = "2026-01-15T10:00:00")
     private LocalDateTime dateCreated;
 

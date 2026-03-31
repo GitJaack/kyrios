@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import fr.cmp.kyrios.model.Si.dto.profilSI.ProfilSIDTOResponse;
 import fr.cmp.kyrios.model.common.IdNameDTO;
-import fr.cmp.kyrios.service.FrontendReferenceDataService;
+import fr.cmp.kyrios.service.ReferenceDataService;
 import fr.cmp.kyrios.service.ProfilSIService;
 import fr.cmp.kyrios.util.DateTimeUtil;
 
@@ -21,12 +21,12 @@ public class UpdateProfilSIController {
     private ProfilSIService profilSIService;
 
     @Autowired
-    private FrontendReferenceDataService frontendReferenceDataService;
+    private ReferenceDataService referenceDataService;
 
     @GetMapping("/profilSI/edit/{id}")
     public String updateProfilSI(@PathVariable int id, Model model) {
         ProfilSIDTOResponse profil = profilSIService.getById(id);
-        List<IdNameDTO> directions = frontendReferenceDataService.getDirections();
+        List<IdNameDTO> directions = referenceDataService.getDirections();
         Integer directionId = resolveIdByName(directions, profil.getDirection());
 
         model.addAttribute("currentPage", "/profilSI");
@@ -38,8 +38,8 @@ public class UpdateProfilSIController {
         model.addAttribute("pageCss", "form");
         model.addAttribute("profilId", id);
         model.addAttribute("directionId", directionId != null ? directionId : 0);
-        model.addAttribute("categories", frontendReferenceDataService.getCategoriesWithRessources());
-        model.addAttribute("directions", frontendReferenceDataService.getDirectionsWithDefaultRessources());
+        model.addAttribute("categories", referenceDataService.getCategoriesWithRessources());
+        model.addAttribute("directions", referenceDataService.getDirectionsWithDefaultRessources());
 
         return "layout";
     }

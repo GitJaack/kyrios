@@ -64,7 +64,7 @@ public class ProfilAppController {
                         @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
         })
         public List<ProfilAppDTOResponse> listByApplication(@RequestParam int applicationId) {
-                return profilAppService.getByApplicationReadOnlyJdbc(applicationId);
+                return profilAppService.getByApplication(applicationId);
         }
 
         @PostMapping

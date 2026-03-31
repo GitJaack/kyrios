@@ -19,7 +19,7 @@ public class AppService {
     private AppDao appJdbcRepository;
 
     @Autowired
-    private ReferenceDao jdbcReferenceRepository;
+    private ReferenceDao referenceDao;
 
     public List<AppDTOResponse> listAll() {
         return appJdbcRepository.findAll().stream()
@@ -39,7 +39,7 @@ public class AppService {
             throw new IllegalArgumentException("Une application avec le nom '" + dto.getName() + "' existe déjà");
         }
 
-        if (!jdbcReferenceRepository.existsDirectionById(dto.getDirectionId())) {
+        if (!referenceDao.existsDirectionById(dto.getDirectionId())) {
             throw new IllegalArgumentException("Direction avec l'ID " + dto.getDirectionId() + " non trouvee");
         }
 
@@ -61,7 +61,7 @@ public class AppService {
             throw new IllegalArgumentException("Une application avec le nom '" + dto.getName() + "' existe déjà");
         }
 
-        if (!jdbcReferenceRepository.existsDirectionById(dto.getDirectionId())) {
+        if (!referenceDao.existsDirectionById(dto.getDirectionId())) {
             throw new IllegalArgumentException("Direction avec l'ID " + dto.getDirectionId() + " non trouvee");
         }
 

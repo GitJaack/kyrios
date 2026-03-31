@@ -120,6 +120,7 @@ CREATE TABLE IF NOT EXISTS profil_app_profil_si (
 CREATE TABLE IF NOT EXISTS profil_app_ressources (
     profil_app_id INT NOT NULL,
     ressource_app_id INT NOT NULL,
+    permission_level INT NULL,
     CONSTRAINT pk_profil_app_ressources PRIMARY KEY (
         profil_app_id,
         ressource_app_id

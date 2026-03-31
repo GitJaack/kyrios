@@ -21,41 +21,43 @@ import fr.cmp.kyrios.mapper.ProfilAppMapper;
 
 @Service
 public class ProfilAppService {
-    @Autowired
-    private ProfilAppDao profilAppJdbcRepository;
+    private static final String PERMISSION_RESOURCE_NAME = "Niveau de permission";
 
     @Autowired
-    private ReferenceDao jdbcReferenceRepository;
+    private ProfilAppDao profilAppDao;
+
+    @Autowired
+    private ReferenceDao referenceDao;
 
     public List<ProfilAppDTOResponse> listAll() {
-        return profilAppJdbcRepository.findAll().stream()
-                .map(row -> ProfilAppMapper.toDto(row, profilAppJdbcRepository))
+        return profilAppDao.findAll().stream()
+                .map(row -> ProfilAppMapper.toDto(row, profilAppDao))
                 .toList();
     }
 
-    public List<ProfilAppDTOResponse> getByApplicationReadOnlyJdbc(int applicationId) {
-        if (!jdbcReferenceRepository.existsApplicationById(applicationId)) {
+    public List<ProfilAppDTOResponse> getByApplication(int applicationId) {
+        if (!referenceDao.existsApplicationById(applicationId)) {
             throw new IllegalArgumentException("Application avec l'ID " + applicationId + " non trouvee");
         }
-        return profilAppJdbcRepository.findByApplicationId(applicationId).stream()
-                .map(row -> ProfilAppMapper.toDto(row, profilAppJdbcRepository))
+        return profilAppDao.findByApplicationId(applicationId).stream()
+                .map(row -> ProfilAppMapper.toDto(row, profilAppDao))
                 .toList();
     }
 
     public ProfilAppDTOResponse getById(int id) {
-        ProfilAppDao.ProfilAppReadRow row = profilAppJdbcRepository.findById(id)
+        ProfilAppDao.ProfilAppReadRow row = profilAppDao.findById(id)
                 .orElseThrow(() -> new ProfilAppNotFoundException("Profil App avec l'ID " + id + " non trouvé"));
-        return ProfilAppMapper.toDto(row, profilAppJdbcRepository);
+        return ProfilAppMapper.toDto(row, profilAppDao);
     }
 
     @Transactional
     public ProfilAppDTOResponse create(ProfilAppDTOCreate dto) {
-        if (profilAppJdbcRepository.existsByNameAndApplicationId(dto.getName(), dto.getApplicationId())) {
+        if (profilAppDao.existsByNameAndApplicationId(dto.getName(), dto.getApplicationId())) {
             throw new IllegalArgumentException(
                     "Un profil d'application avec le nom '" + dto.getName() + "' existe déjà dans cette application");
         }
 
-        String applicationName = jdbcReferenceRepository.findApplicationNameById(dto.getApplicationId())
+        String applicationName = referenceDao.findApplicationNameById(dto.getApplicationId())
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Application avec l'ID " + dto.getApplicationId() + " non trouvee"));
 
@@ -68,11 +70,11 @@ public class ProfilAppService {
         }
 
         for (Integer profilSIId : dto.getProfilSIIds()) {
-            String profilSIName = jdbcReferenceRepository.findProfilSINameById(profilSIId)
+            String profilSIName = referenceDao.findProfilSINameById(profilSIId)
                     .orElseThrow(() -> new IllegalArgumentException(
                             "Profil SI avec l'ID " + profilSIId + " non trouve"));
 
-            if (profilAppJdbcRepository.existsProfilSIInApplication(dto.getApplicationId(), profilSIId)) {
+            if (profilAppDao.existsProfilSIInApplication(dto.getApplicationId(), profilSIId)) {
                 throw new IllegalArgumentException(
                         "Le profil SI '" + profilSIName
                                 + "' est déjà associé à un profil applicatif dans l'application '"
@@ -81,8 +83,9 @@ public class ProfilAppService {
         }
 
         if (dto.getRessourceAppIds() != null && !dto.getRessourceAppIds().isEmpty()) {
+            boolean permissionResourceSelected = false;
             for (Integer ressourceAppId : dto.getRessourceAppIds()) {
-                ReferenceDao.RessourceAppRef ressourceApp = jdbcReferenceRepository
+                ReferenceDao.RessourceAppRef ressourceApp = referenceDao
                         .findRessourceAppById(ressourceAppId)
                         .orElseThrow(() -> new IllegalArgumentException(
                                 "Ressource App avec l'ID " + ressourceAppId + " non trouvee"));
@@ -91,19 +94,37 @@ public class ProfilAppService {
                             "La ressource '" + ressourceApp.name() + "' n'appartient pas à l'application '"
                                     + applicationName + "'");
                 }
+                if (PERMISSION_RESOURCE_NAME.equals(ressourceApp.name())) {
+                    permissionResourceSelected = true;
+                }
+            }
+
+            if (permissionResourceSelected) {
+                if (dto.getPermissionLevel() == null || dto.getPermissionLevel() < 0 || dto.getPermissionLevel() > 6) {
+                    throw new IllegalArgumentException("Le niveau de permission doit etre compris entre 0 et 6");
+                }
             }
         }
 
-        int newProfilAppId = profilAppJdbcRepository.insertProfilApp(dto.getName(), dto.getApplicationId(),
+        int newProfilAppId = profilAppDao.insertProfilApp(dto.getName(), dto.getApplicationId(),
                 LocalDateTime.now());
 
         for (Integer profilSIId : dto.getProfilSIIds()) {
-            profilAppJdbcRepository.insertProfilSILink(newProfilAppId, profilSIId, dto.getApplicationId());
+            profilAppDao.insertProfilSILink(newProfilAppId, profilSIId, dto.getApplicationId());
         }
 
         if (dto.getRessourceAppIds() != null && !dto.getRessourceAppIds().isEmpty()) {
             for (Integer ressourceAppId : dto.getRessourceAppIds()) {
-                profilAppJdbcRepository.insertRessourceLink(newProfilAppId, ressourceAppId);
+                ReferenceDao.RessourceAppRef ressourceApp = referenceDao
+                        .findRessourceAppById(ressourceAppId)
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Ressource App avec l'ID " + ressourceAppId + " non trouvee"));
+
+                Integer permissionLevel = PERMISSION_RESOURCE_NAME.equals(ressourceApp.name())
+                        ? dto.getPermissionLevel()
+                        : null;
+
+                profilAppDao.insertRessourceLink(newProfilAppId, ressourceAppId, permissionLevel);
             }
         }
 
@@ -112,7 +133,7 @@ public class ProfilAppService {
 
     @Transactional
     public ProfilAppDTOResponse update(int id, ProfilAppDTOCreate dto) {
-        ProfilAppDao.ProfilAppReadRow currentProfilApp = profilAppJdbcRepository.findById(id)
+        ProfilAppDao.ProfilAppReadRow currentProfilApp = profilAppDao.findById(id)
                 .orElseThrow(() -> new ProfilAppNotFoundException("Profil App avec l'ID " + id + " non trouvé"));
 
         if (currentProfilApp.applicationId() != dto.getApplicationId()) {
@@ -120,12 +141,12 @@ public class ProfilAppService {
                     "Impossible de changer l'application d'un profil applicatif");
         }
 
-        String applicationName = jdbcReferenceRepository.findApplicationNameById(dto.getApplicationId())
+        String applicationName = referenceDao.findApplicationNameById(dto.getApplicationId())
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Application avec l'ID " + dto.getApplicationId() + " non trouvee"));
 
         if (!currentProfilApp.name().equals(dto.getName())) {
-            if (profilAppJdbcRepository.existsByNameAndApplicationIdExcludingId(dto.getName(), dto.getApplicationId(),
+            if (profilAppDao.existsByNameAndApplicationIdExcludingId(dto.getName(), dto.getApplicationId(),
                     id)) {
                 throw new IllegalArgumentException(
                         "Un profil d'application avec le nom '" + dto.getName()
@@ -142,11 +163,11 @@ public class ProfilAppService {
         }
 
         for (Integer profilSIId : targetProfilSIIds) {
-            String profilSIName = jdbcReferenceRepository.findProfilSINameById(profilSIId)
+            String profilSIName = referenceDao.findProfilSINameById(profilSIId)
                     .orElseThrow(() -> new IllegalArgumentException(
                             "Profil SI avec l'ID " + profilSIId + " non trouve"));
 
-            boolean linkedToAnotherProfilApp = profilAppJdbcRepository
+            boolean linkedToAnotherProfilApp = profilAppDao
                     .existsProfilSIInApplicationExcludingProfilApp(dto.getApplicationId(), profilSIId, id);
 
             if (linkedToAnotherProfilApp) {
@@ -158,8 +179,9 @@ public class ProfilAppService {
         }
 
         if (dto.getRessourceAppIds() != null && !dto.getRessourceAppIds().isEmpty()) {
+            boolean permissionResourceSelected = false;
             for (Integer ressourceAppId : dto.getRessourceAppIds()) {
-                ReferenceDao.RessourceAppRef ressourceApp = jdbcReferenceRepository
+                ReferenceDao.RessourceAppRef ressourceApp = referenceDao
                         .findRessourceAppById(ressourceAppId)
                         .orElseThrow(() -> new IllegalArgumentException(
                                 "Ressource App avec l'ID " + ressourceAppId + " non trouvee"));
@@ -168,21 +190,39 @@ public class ProfilAppService {
                             "La ressource '" + ressourceApp.name() + "' n'appartient pas à l'application '"
                                     + applicationName + "'");
                 }
+                if (PERMISSION_RESOURCE_NAME.equals(ressourceApp.name())) {
+                    permissionResourceSelected = true;
+                }
+            }
+
+            if (permissionResourceSelected) {
+                if (dto.getPermissionLevel() == null || dto.getPermissionLevel() < 0 || dto.getPermissionLevel() > 6) {
+                    throw new IllegalArgumentException("Le niveau de permission doit etre compris entre 0 et 6");
+                }
             }
         }
 
-        profilAppJdbcRepository.updateProfilApp(id, dto.getName(), LocalDateTime.now());
+        profilAppDao.updateProfilApp(id, dto.getName(), LocalDateTime.now());
 
-        profilAppJdbcRepository.deleteProfilSIByProfilAppId(id);
+        profilAppDao.deleteProfilSIByProfilAppId(id);
         for (Integer profilSIId : dto.getProfilSIIds()) {
-            profilAppJdbcRepository.insertProfilSILink(id, profilSIId, dto.getApplicationId());
+            profilAppDao.insertProfilSILink(id, profilSIId, dto.getApplicationId());
         }
 
-        profilAppJdbcRepository.deleteRessourcesByProfilAppId(id);
+        profilAppDao.deleteRessourcesByProfilAppId(id);
 
         if (dto.getRessourceAppIds() != null && !dto.getRessourceAppIds().isEmpty()) {
             for (Integer ressourceAppId : dto.getRessourceAppIds()) {
-                profilAppJdbcRepository.insertRessourceLink(id, ressourceAppId);
+                ReferenceDao.RessourceAppRef ressourceApp = referenceDao
+                        .findRessourceAppById(ressourceAppId)
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Ressource App avec l'ID " + ressourceAppId + " non trouvee"));
+
+                Integer permissionLevel = PERMISSION_RESOURCE_NAME.equals(ressourceApp.name())
+                        ? dto.getPermissionLevel()
+                        : null;
+
+                profilAppDao.insertRessourceLink(id, ressourceAppId, permissionLevel);
             }
         }
 
@@ -191,12 +231,12 @@ public class ProfilAppService {
 
     @Transactional
     public ProfilAppDTODeleteResponse delete(int id) {
-        ProfilAppDao.ProfilAppReadRow profilApp = profilAppJdbcRepository.findById(id)
+        ProfilAppDao.ProfilAppReadRow profilApp = profilAppDao.findById(id)
                 .orElseThrow(() -> new ProfilAppNotFoundException("Profil App avec l'ID " + id + " non trouvé"));
 
         List<ProfilAppDTODeleteResponse.ProfilSIInfo> profilSIDetaches = new ArrayList<>();
 
-        List<ProfilAppDao.ProfilSIReadRow> linkedProfilsSI = profilAppJdbcRepository
+        List<ProfilAppDao.ProfilSIReadRow> linkedProfilsSI = profilAppDao
                 .findProfilSIByProfilAppId(id);
         if (!linkedProfilsSI.isEmpty()) {
             for (ProfilAppDao.ProfilSIReadRow profilSI : linkedProfilsSI) {
@@ -207,9 +247,9 @@ public class ProfilAppService {
             }
         }
 
-        profilAppJdbcRepository.deleteRessourcesByProfilAppId(id);
-        profilAppJdbcRepository.deleteProfilSIByProfilAppId(id);
-        profilAppJdbcRepository.deleteProfilAppById(id);
+        profilAppDao.deleteRessourcesByProfilAppId(id);
+        profilAppDao.deleteProfilSIByProfilAppId(id);
+        profilAppDao.deleteProfilAppById(id);
 
         String message = profilSIDetaches.isEmpty()
                 ? "Profil d'application " + profilApp.name() + " supprimé avec succès. Aucun profil SI n'était lié."

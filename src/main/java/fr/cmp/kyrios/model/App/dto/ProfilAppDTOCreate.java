@@ -29,4 +29,7 @@ public class ProfilAppDTOCreate {
 
     @Schema(description = "Liste des IDs des ressources d'application associées (optionnel)", example = "[1, 2, 3]")
     private List<Integer> ressourceAppIds;
+
+    @Schema(description = "Niveau de permission (0 a 6) pour la ressource 'Niveau de permission'", example = "3")
+    private Integer permissionLevel;
 }

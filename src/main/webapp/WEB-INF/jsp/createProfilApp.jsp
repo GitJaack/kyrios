@@ -74,19 +74,46 @@
                         <p>Chargement des ressources...</p>
                     </div>
                     
-                    <div x-show="!loadingResources && groupedResources.length > 0" class="ressources-grid">
-                        <template x-for="group in groupedResources" :key="group.key">
-                            <div class="ressource-group">
-                                <div class="ressource-category" x-text="group.label"></div>
-                                <template x-for="resource in group.resources" :key="resource.id">
-                                    <label class="ressource-item" :for="'resource' + resource.id">
-                                        <div class="ressource-checkbox">
-                                            <input type="checkbox" :id="'resource' + resource.id" name="ressources" :value="resource.id">
-                                            <span x-text="resource.name"></span>
-                                            <span class="resource-description" x-show="resource.description" x-text="' - ' + resource.description"></span>
-                                        </div>
-                                    </label>
-                                </template>
+                    <div x-show="!loadingResources && groupedResources.length > 0">
+                        <template x-for="(group, index) in groupedResources" :key="group.key + '-' + index">
+                            <div class="category-section" x-data="{ open: false }">
+                                <div class="category-header" @click="open = !open">
+                                    <h4 class="category-title" x-text="group.label"></h4>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span class="category-count"
+                                              x-text="checkedCount(group.resourceIds) + ' / ' + group.resourceIds.length"></span>
+                                        <img x-show="!open" src="/images/chevron-down.svg" alt="chevron down icon">
+                                        </img>
+                                        <img x-show="open" src="/images/chevron-up.svg" alt="chevron up icon">
+                                        </img>
+                                    </div>
+                                </div>
+
+                                <div class="category-content" x-show="open" x-collapse>
+                                    <template x-for="(resource, resourceIndex) in group.resources" :key="String(resource.id) + '-' + index + '-' + resourceIndex">
+                                        <label class="ressource-item" :for="'resource' + resource.id">
+                                            <div class="ressource-checkbox">
+                                                <input type="checkbox" :id="'resource' + resource.id" name="ressources" :value="String(resource.id)" x-model="selectedRessourceIds">
+                                                <label :for="'resource' + resource.id" x-text="resource.name"></label>
+                                                <span class="resource-description" x-show="resource.description" x-text="' - ' + resource.description"></span>
+                                                <template x-if="resource.name === 'Niveau de permission'">
+                                                    <select class="type-acces-select"
+                                                            x-model="permissionLevel"
+                                                            :disabled="!selectedRessourceIds.includes(String(resource.id))"
+                                                            @click.stop>
+                                                        <option value="0">0</option>
+                                                        <option value="1">1</option>
+                                                        <option value="2">2</option>
+                                                        <option value="3">3</option>
+                                                        <option value="4">4</option>
+                                                        <option value="5">5</option>
+                                                        <option value="6">6</option>
+                                                    </select>
+                                                </template>
+                                            </div>
+                                        </label>
+                                    </template>
+                                </div>
                             </div>
                         </template>
                     </div>
@@ -118,47 +145,54 @@ function profilAppForm() {
         selectedApplicationId: '',
         resources: [],
         groupedResources: [],
+        selectedRessourceIds: [],
+        permissionLevel: '0',
         loadingResources: false,
 
-        buildGroupedResources(resources) {
-            const grouped = [];
-            let currentGroup = null;
-            resources.forEach(resource => {
-                const category = resource.category ? resource.category : 'Sans categorie';
-                if (!currentGroup || currentGroup.label !== category) {
-                    currentGroup = {
-                        key: `cat-${category}`,
-                        label: category,
-                        resources: []
-                    };
-                    grouped.push(currentGroup);
-                }
-                currentGroup.resources.push(resource);
+        normalizeGroupedResources(groups) {
+            return (groups || []).map(group => {
+                const label = group.name || group.categoryName || 'Sans categorie';
+                const resources = group.resources || [];
+                return {
+                    key: `cat-${label}`,
+                    label,
+                    resources,
+                    resourceIds: resources.map(resource => String(resource.id))
+                };
             });
-            return grouped;
+        },
+
+        checkedCount(resourceIds) {
+            return resourceIds.reduce((count, id) => {
+                return count + (this.selectedRessourceIds.includes(id) ? 1 : 0);
+            }, 0);
         },
         
         async loadResources() {
             if (!this.selectedApplicationId) {
                 this.resources = [];
                 this.groupedResources = [];
+                this.selectedRessourceIds = [];
                 return;
             }
             
             this.loadingResources = true;
             try {
-                const response = await fetch('/api/ressources-app/ressource-application/?id=' + this.selectedApplicationId);
+                const response = await fetch('/api/ressources-app/by-categorie?applicationId=' + this.selectedApplicationId);
                 if (!response.ok) {
                     throw new Error('Erreur lors du chargement des ressources');
                 }
-                this.resources = await response.json();
-                this.groupedResources = this.buildGroupedResources(this.resources);
+                const data = await response.json();
+                this.groupedResources = this.normalizeGroupedResources(data);
+                this.resources = this.groupedResources.flatMap(group => group.resources || []);
+                this.selectedRessourceIds = [];
             } catch (error) {
                 console.error('Erreur:', error);
                 this.message = 'Erreur lors du chargement des ressources: ' + error.message;
                 this.messageType = 'error';
                 this.resources = [];
                 this.groupedResources = [];
+                this.selectedRessourceIds = [];
             } finally {
                 this.loadingResources = false;
             }
@@ -176,7 +210,7 @@ function profilAppForm() {
 
                 const selectedProfilSIIds = Array.from(document.querySelectorAll('input[name="profilSI"]:checked')).map(cb => parseInt(cb.value));
 
-                const selectedRessourceIds = Array.from(document.querySelectorAll('input[name="ressources"]:checked')).map(cb => parseInt(cb.value));
+                const selectedRessourceIds = this.selectedRessourceIds.map(id => parseInt(id));
                 
                 if(!profilAppName.trim()) {
                     this.messageType = 'error';
@@ -203,7 +237,11 @@ function profilAppForm() {
                     name: profilAppName,
                     applicationId: parseInt(selectedApplicationId),
                     profilSIIds: selectedProfilSIIds,
-                    ressourceAppIds: selectedRessourceIds
+                    ressourceAppIds: selectedRessourceIds,
+                    permissionLevel: this.selectedRessourceIds.some(id => {
+                        const res = this.resources.find(r => String(r.id) === id);
+                        return res && res.name === 'Niveau de permission';
+                    }) ? parseInt(this.permissionLevel) : null
                 }
 
                 const response = await fetch('/api/profil-app', {

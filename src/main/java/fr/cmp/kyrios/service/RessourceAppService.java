@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import fr.cmp.kyrios.dao.ReferenceDao;
 import fr.cmp.kyrios.dao.RessourceAppDao;
 import fr.cmp.kyrios.mapper.RessourceAppMapper;
+import fr.cmp.kyrios.model.App.dto.RessourceAppCategoryDTO;
 import fr.cmp.kyrios.model.App.dto.RessourceAppDTOCreate;
 import fr.cmp.kyrios.model.App.dto.RessourceAppDTOResponse;
 import fr.cmp.kyrios.model.App.dto.RessourceAppDTOUpdate;
@@ -16,46 +17,74 @@ import fr.cmp.kyrios.model.App.dto.RessourceAppDTOUpdate;
 @Service
 public class RessourceAppService {
     @Autowired
-    private ReferenceDao jdbcReferenceRepository;
+    private ReferenceDao referenceDao;
 
     @Autowired
-    private RessourceAppDao ressourceAppJdbcRepository;
+    private RessourceAppDao ressourceAppDao;
 
     public List<RessourceAppDTOResponse> listAll() {
-        return ressourceAppJdbcRepository.findAll().stream()
+        return ressourceAppDao.findAll().stream()
                 .map(RessourceAppMapper::toDto)
                 .toList();
     }
 
     public RessourceAppDTOResponse getById(int id) {
-        RessourceAppDao.RessourceAppReadRow row = ressourceAppJdbcRepository.findById(id)
+        RessourceAppDao.RessourceAppReadRow row = ressourceAppDao.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Ressource App avec l'ID " + id + " non trouvee"));
         return RessourceAppMapper.toDto(row);
     }
 
-    public List<RessourceAppDTOResponse> getRessourcesByAppReadOnlyJdbc(int id) {
-        if (!jdbcReferenceRepository.existsApplicationById(id)) {
+    public List<RessourceAppDTOResponse> getRessourcesByApp(int id) {
+        if (!referenceDao.existsApplicationById(id)) {
             throw new IllegalArgumentException("Application avec l'ID " + id + " non trouvee");
         }
-        return ressourceAppJdbcRepository.findByApplicationId(id).stream()
+        return ressourceAppDao.findByApplicationId(id).stream()
                 .map(RessourceAppMapper::toDto)
                 .toList();
     }
 
+    public List<RessourceAppCategoryDTO> getRessourcesByCategorie(int applicationId) {
+        if (!referenceDao.existsApplicationById(applicationId)) {
+            throw new IllegalArgumentException("Application avec l'ID " + applicationId + " non trouvee");
+        }
+
+        var rows = ressourceAppDao.findByCategoryByApplicationId(applicationId);
+        var categories = new java.util.LinkedHashMap<Integer, RessourceAppCategoryDTO>();
+
+        for (RessourceAppDao.RessourceAppCategoryRow row : rows) {
+            RessourceAppCategoryDTO category = categories.computeIfAbsent(row.categoryId(),
+                    id -> RessourceAppCategoryDTO.builder()
+                            .id(row.categoryId())
+                            .name(row.categoryName())
+                            .resources(new java.util.ArrayList<>())
+                            .build());
+
+            if (row.ressourceId() != null) {
+                category.getResources().add(RessourceAppCategoryDTO.ResourceItem.builder()
+                        .id(row.ressourceId())
+                        .name(row.ressourceName())
+                        .description(row.ressourceDescription())
+                        .build());
+            }
+        }
+
+        return new java.util.ArrayList<>(categories.values());
+    }
+
     @Transactional
     public RessourceAppDTOResponse create(RessourceAppDTOCreate dto) {
-        if (ressourceAppJdbcRepository.existsByNameAndApplicationId(dto.getName(), dto.getApplicationId())) {
+        if (ressourceAppDao.existsByNameAndApplicationId(dto.getName(), dto.getApplicationId())) {
             throw new IllegalArgumentException("Une ressource d'application avec le nom '" + dto.getName()
                     + "' existe déjà dans cette application.");
         }
 
-        if (!jdbcReferenceRepository.existsApplicationById(dto.getApplicationId())) {
+        if (!referenceDao.existsApplicationById(dto.getApplicationId())) {
             throw new IllegalArgumentException(
                     "Application avec l'ID " + dto.getApplicationId() + " non trouvee");
         }
 
         if (dto.getCategoryId() != null) {
-            ReferenceDao.RessourceAppCategorieRef category = jdbcReferenceRepository
+            ReferenceDao.RessourceAppCategorieRef category = referenceDao
                     .findRessourceAppCategorieById(dto.getCategoryId())
                     .orElseThrow(() -> new IllegalArgumentException(
                             "Categorie avec l'ID " + dto.getCategoryId() + " non trouvee"));
@@ -65,18 +94,18 @@ public class RessourceAppService {
             }
         }
 
-        int ressourceId = ressourceAppJdbcRepository.insert(dto.getName(), dto.getDescription(),
+        int ressourceId = ressourceAppDao.insert(dto.getName(), dto.getDescription(),
                 dto.getCategoryId(), dto.getApplicationId());
         return getById(ressourceId);
     }
 
     @Transactional
     public RessourceAppDTOResponse update(int id, RessourceAppDTOUpdate dto) {
-        RessourceAppDao.RessourceAppReadRow ressourceApp = ressourceAppJdbcRepository.findById(id)
+        RessourceAppDao.RessourceAppReadRow ressourceApp = ressourceAppDao.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Ressource App avec l'ID " + id + " non trouvee"));
 
         if (!ressourceApp.name().equals(dto.getName())
-                && ressourceAppJdbcRepository.existsByNameAndApplicationIdExcludingId(
+                && ressourceAppDao.existsByNameAndApplicationIdExcludingId(
                         dto.getName(),
                         ressourceApp.applicationId(),
                         id)) {
@@ -85,7 +114,7 @@ public class RessourceAppService {
         }
 
         if (dto.getCategoryId() != null) {
-            ReferenceDao.RessourceAppCategorieRef category = jdbcReferenceRepository
+            ReferenceDao.RessourceAppCategorieRef category = referenceDao
                     .findRessourceAppCategorieById(dto.getCategoryId())
                     .orElseThrow(() -> new IllegalArgumentException(
                             "Categorie avec l'ID " + dto.getCategoryId() + " non trouvee"));
@@ -95,17 +124,17 @@ public class RessourceAppService {
             }
         }
 
-        ressourceAppJdbcRepository.update(id, dto.getName(), dto.getDescription(), dto.getCategoryId());
+        ressourceAppDao.update(id, dto.getName(), dto.getDescription(), dto.getCategoryId());
 
         return getById(id);
     }
 
     @Transactional
     public void delete(int id) {
-        if (ressourceAppJdbcRepository.findById(id).isEmpty()) {
+        if (ressourceAppDao.findById(id).isEmpty()) {
             throw new IllegalArgumentException("Ressource App avec l'ID " + id + " non trouvee");
         }
-        ressourceAppJdbcRepository.deleteById(id);
+        ressourceAppDao.deleteById(id);
     }
 
 }

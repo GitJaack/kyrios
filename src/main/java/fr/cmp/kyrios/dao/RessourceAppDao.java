@@ -95,6 +95,38 @@ public class RessourceAppDao {
                 rs.getString("category_name")), applicationId);
     }
 
+    public List<RessourceAppCategoryRow> findByCategoryByApplicationId(int applicationId) {
+        String sql = """
+                SELECT ca.id AS category_id,
+                             ca.name AS category_name,
+                             ra.id AS ressource_id,
+                             ra.name AS ressource_name,
+                             ra.description AS ressource_description
+                FROM categories_app ca
+                LEFT JOIN ressource_app ra ON ra.category_id = ca.id
+                WHERE ca.application_id = ?
+                UNION ALL
+                SELECT 0 AS category_id,
+                             'Sans categorie' AS category_name,
+                             ra.id AS ressource_id,
+                             ra.name AS ressource_name,
+                             ra.description AS ressource_description
+                FROM ressource_app ra
+                WHERE ra.application_id = ?
+                    AND ra.category_id IS NULL
+                ORDER BY category_name, ressource_id
+                """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new RessourceAppCategoryRow(
+                rs.getInt("category_id"),
+                rs.getString("category_name"),
+                (Integer) rs.getObject("ressource_id"),
+                rs.getString("ressource_name"),
+                rs.getString("ressource_description")),
+                applicationId,
+                applicationId);
+    }
+
     public boolean existsByNameAndApplicationId(String name, int applicationId) {
         String sql = "SELECT COUNT(1) FROM ressource_app WHERE name = ? AND application_id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, name, applicationId);
@@ -142,5 +174,9 @@ public class RessourceAppDao {
 
     public record RessourceAppReadRow(int id, String name, String description, int applicationId,
             String applicationName, Integer categoryId, String categoryName) {
+    }
+
+    public record RessourceAppCategoryRow(int categoryId, String categoryName, Integer ressourceId,
+            String ressourceName, String ressourceDescription) {
     }
 }

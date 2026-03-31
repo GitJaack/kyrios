@@ -12,7 +12,7 @@ import fr.cmp.kyrios.model.Emploi.EmploiModel.Status;
 import fr.cmp.kyrios.model.Emploi.dto.EmploiDTOResponse;
 import fr.cmp.kyrios.model.common.IdNameDTO;
 import fr.cmp.kyrios.service.EmploiService;
-import fr.cmp.kyrios.service.FrontendReferenceDataService;
+import fr.cmp.kyrios.service.ReferenceDataService;
 import fr.cmp.kyrios.util.DateTimeUtil;
 
 @Controller
@@ -21,16 +21,16 @@ public class UpdateEmploiController {
     private EmploiService emploiService;
 
     @Autowired
-    private FrontendReferenceDataService frontendReferenceDataService;
+    private ReferenceDataService referenceDataService;
 
     @GetMapping("/emploi/edit/{id}")
     public String updateEmploi(Model model, @PathVariable int id) {
         EmploiDTOResponse emploi = emploiService.getById(id);
 
-        List<IdNameDTO> directions = frontendReferenceDataService.getDirections();
-        List<IdNameDTO> services = frontendReferenceDataService.getServices();
-        List<IdNameDTO> domaines = frontendReferenceDataService.getDomaines();
-        List<IdNameDTO> profilsSI = frontendReferenceDataService.getProfilsSI();
+        List<IdNameDTO> directions = referenceDataService.getDirections();
+        List<IdNameDTO> services = referenceDataService.getServices();
+        List<IdNameDTO> domaines = referenceDataService.getDomaines();
+        List<IdNameDTO> profilsSI = referenceDataService.getProfilsSI();
 
         Integer selectedDirectionId = resolveIdByName(directions, emploi.getDirection());
         Integer selectedServiceId = resolveIdByName(services, emploi.getService());

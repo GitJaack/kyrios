@@ -6,12 +6,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import fr.cmp.kyrios.model.Emploi.EmploiModel;
-import fr.cmp.kyrios.service.FrontendReferenceDataService;
+import fr.cmp.kyrios.service.ReferenceDataService;
 
 @Controller
 public class CreateProfilSIController {
     @Autowired
-    private FrontendReferenceDataService frontendReferenceDataService;
+    private ReferenceDataService referenceDataService;
 
     @GetMapping("/profilSI/create")
     public String createProfilSI(Model model) {
@@ -21,12 +21,12 @@ public class CreateProfilSIController {
         model.addAttribute("contentPage", "createProfilSI.jsp");
         model.addAttribute("pageCss", "form");
 
-        model.addAttribute("directions", frontendReferenceDataService.getDirectionsWithDefaultRessources());
-        model.addAttribute("services", frontendReferenceDataService.getServices());
-        model.addAttribute("domaines", frontendReferenceDataService.getDomaines());
+        model.addAttribute("directions", referenceDataService.getDirectionsWithDefaultRessources());
+        model.addAttribute("services", referenceDataService.getServices());
+        model.addAttribute("domaines", referenceDataService.getDomaines());
         model.addAttribute("statusOptions", EmploiModel.Status.values());
 
-        model.addAttribute("categories", frontendReferenceDataService.getCategoriesWithRessources());
+        model.addAttribute("categories", referenceDataService.getCategoriesWithRessources());
 
         return "layout";
     }

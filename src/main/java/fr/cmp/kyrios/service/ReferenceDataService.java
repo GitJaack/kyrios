@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
 import fr.cmp.kyrios.model.common.IdNameDTO;
 
 @Service
-public class FrontendReferenceDataService {
+public class ReferenceDataService {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public FrontendReferenceDataService(JdbcTemplate jdbcTemplate) {
+    public ReferenceDataService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

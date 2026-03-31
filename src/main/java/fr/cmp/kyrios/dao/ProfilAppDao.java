@@ -139,9 +139,9 @@ public class ProfilAppDao {
         jdbcTemplate.update("DELETE FROM profil_app_ressources WHERE profil_app_id = ?", profilAppId);
     }
 
-    public void insertRessourceLink(int profilAppId, int ressourceAppId) {
-        String sql = "INSERT INTO profil_app_ressources (profil_app_id, ressource_app_id) VALUES (?, ?)";
-        jdbcTemplate.update(sql, profilAppId, ressourceAppId);
+    public void insertRessourceLink(int profilAppId, int ressourceAppId, Integer permissionLevel) {
+        String sql = "INSERT INTO profil_app_ressources (profil_app_id, ressource_app_id, permission_level) VALUES (?, ?, ?)";
+        jdbcTemplate.update(sql, profilAppId, ressourceAppId, permissionLevel);
     }
 
     public void deleteProfilAppById(int profilAppId) {
@@ -169,7 +169,8 @@ public class ProfilAppDao {
                            ra.description,
                        a.name AS application_name,
                        ra.category_id,
-                       ca.name AS category_name
+                       ca.name AS category_name,
+                       par.permission_level
                     FROM profil_app_ressources par
                     JOIN ressource_app ra ON ra.id = par.ressource_app_id
                     JOIN applications a ON a.id = ra.application_id
@@ -184,7 +185,8 @@ public class ProfilAppDao {
                 rs.getString("description"),
                 rs.getString("application_name"),
                 (Integer) rs.getObject("category_id"),
-                rs.getString("category_name")), profilAppId);
+                rs.getString("category_name"),
+                (Integer) rs.getObject("permission_level")), profilAppId);
     }
 
     public record ProfilAppReadRow(int id, String name, int applicationId, String applicationName,
@@ -195,6 +197,6 @@ public class ProfilAppDao {
     }
 
     public record RessourceAppReadRow(int id, String name, String description, String applicationName,
-            Integer categoryId, String categoryName) {
+            Integer categoryId, String categoryName, Integer permissionLevel) {
     }
 }

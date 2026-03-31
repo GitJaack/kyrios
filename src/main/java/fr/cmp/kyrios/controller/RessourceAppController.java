@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import fr.cmp.kyrios.model.App.dto.RessourceAppDTOCreate;
+import fr.cmp.kyrios.model.App.dto.RessourceAppCategoryDTO;
 import fr.cmp.kyrios.model.App.dto.RessourceAppDTOResponse;
 import fr.cmp.kyrios.service.RessourceAppService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,7 +62,18 @@ public class RessourceAppController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public List<RessourceAppDTOResponse> getByApplicationId(@RequestParam int id) {
-        return ressourceAppService.getRessourcesByAppReadOnlyJdbc(id);
+        return ressourceAppService.getRessourcesByApp(id);
+    }
+
+    @GetMapping("/by-categorie")
+    @Operation(summary = "Récupérer les ressources App groupées par catégorie")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ressources groupées récupérées"),
+            @ApiResponse(responseCode = "404", description = "Application non trouvée", content = @Content()),
+            @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
+    })
+    public List<RessourceAppCategoryDTO> getByCategorie(@RequestParam int applicationId) {
+        return ressourceAppService.getRessourcesByCategorie(applicationId);
     }
 
     @PostMapping()

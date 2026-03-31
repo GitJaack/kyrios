@@ -12,8 +12,9 @@ public final class ProfilAppMapper {
     }
 
     public static ProfilAppDTOResponse toDto(ProfilAppDao.ProfilAppReadRow row, ProfilAppDao profilAppDao) {
-        List<RessourceAppDTOResponse> ressourcesAppDetails = profilAppDao
-                .findRessourcesByProfilAppId(row.id()).stream()
+        List<ProfilAppDao.RessourceAppReadRow> ressourcesRows = profilAppDao.findRessourcesByProfilAppId(row.id());
+
+        List<RessourceAppDTOResponse> ressourcesAppDetails = ressourcesRows.stream()
                 .map(ressource -> RessourceAppDTOResponse.builder()
                         .id(ressource.id())
                         .name(ressource.name())
@@ -21,8 +22,16 @@ public final class ProfilAppMapper {
                         .application(ressource.applicationName())
                         .categoryId(ressource.categoryId())
                         .category(ressource.categoryName())
+                        .permissionLevel(ressource.permissionLevel())
                         .build())
                 .toList();
+
+        Integer permissionLevel = ressourcesRows.stream()
+                .filter(ressource -> "Niveau de permission".equals(ressource.name()))
+                .map(ProfilAppDao.RessourceAppReadRow::permissionLevel)
+                .filter(level -> level != null)
+                .findFirst()
+                .orElse(null);
 
         return ProfilAppDTOResponse.builder()
                 .id(row.id())
@@ -36,6 +45,7 @@ public final class ProfilAppMapper {
                         .map(RessourceAppDTOResponse::getName)
                         .toList())
                 .ressourcesAppDetails(ressourcesAppDetails)
+                .permissionLevel(permissionLevel)
                 .dateCreated(row.dateCreated())
                 .dateUpdated(row.dateUpdated())
                 .build();

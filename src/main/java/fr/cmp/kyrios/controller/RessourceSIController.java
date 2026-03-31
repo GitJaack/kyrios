@@ -62,7 +62,7 @@ public class RessourceSIController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public List<RessourceSIDTO> getRessourcesDefaut(@RequestParam int id) {
-        return ressourceSIService.getRessourcesParDefautByDirectionReadOnlyJdbc(id);
+        return ressourceSIService.getRessourcesParDefautByDirection(id);
     }
 
     @GetMapping("/by-categorie")
@@ -73,7 +73,7 @@ public class RessourceSIController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur", content = @Content())
     })
     public List<RessourceSIDTO> getByCategorie(@RequestParam int id) {
-        return ressourceSIService.getRessourcesByCategorieReadOnlyJdbc(id);
+        return ressourceSIService.getRessourcesByCategorie(id);
     }
 
     @PostMapping

@@ -44,7 +44,7 @@ public class ProfilSIController {
         })
         public List<ProfilSIDTOResponse> list(@RequestParam(required = false) Integer directionId) {
                 if (directionId != null) {
-                        return profilSIService.getByDirectionReadOnlyJdbc(directionId);
+                        return profilSIService.getByDirection(directionId);
                 }
 
                 return profilSIService.listAll();

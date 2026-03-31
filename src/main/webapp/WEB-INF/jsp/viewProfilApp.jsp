@@ -54,6 +54,9 @@
                     </c:if>
                     <div class="ressource-item">
                         <span class="ressource-name">${ressource.name}</span>
+                        <c:if test="${ressource.name == 'Niveau de permission' && ressource.permissionLevel != null}">
+                            <span class="ressource-description"> - Niveau ${ressource.permissionLevel}</span>
+                        </c:if>
                         <c:if test="${not empty ressource.description}">
                             <span class="ressource-description"> - ${ressource.description}</span>
                         </c:if>
