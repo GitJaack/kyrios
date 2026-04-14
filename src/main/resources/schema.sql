@@ -92,6 +92,7 @@ CREATE TABLE IF NOT EXISTS emplois (
 CREATE TABLE IF NOT EXISTS direction_ressources_default (
     direction_id INT NOT NULL,
     ressource_id INT NOT NULL,
+    type_acces VARCHAR(32) NOT NULL,
     CONSTRAINT pk_direction_ressources_default PRIMARY KEY (direction_id, ressource_id),
     CONSTRAINT fk_drd_direction FOREIGN KEY (direction_id) REFERENCES directions (id),
     CONSTRAINT fk_drd_ressource FOREIGN KEY (ressource_id) REFERENCES ressource_si (id)

@@ -79,7 +79,7 @@ public class ReferenceDataService {
                 SELECT d.id AS direction_id,
                        d.name AS direction_name,
                        r.id AS ressource_id,
-                       r.type_acces AS type_acces
+                  COALESCE(drd.type_acces, r.type_acces) AS type_acces
                 FROM directions d
                 LEFT JOIN direction_ressources_default drd ON drd.direction_id = d.id
                 LEFT JOIN ressource_si r ON r.id = drd.ressource_id

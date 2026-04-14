@@ -174,7 +174,7 @@ public class ProfilSIDao {
 
     public List<RessourceSimpleRow> findDefaultRessourcesByDirectionId(int directionId) {
         String sql = """
-                SELECT r.id, r.type_acces
+                SELECT r.id, COALESCE(drd.type_acces, r.type_acces) AS type_acces
                 FROM direction_ressources_default drd
                 JOIN ressource_si r ON r.id = drd.ressource_id
                 WHERE drd.direction_id = ?

@@ -70,7 +70,8 @@ public class RessourceSIDao {
 
     public List<RessourceReadRow> findDefaultByDirectionId(int directionId) {
         String sql = """
-                SELECT r.id, r.categorie_id, c.name AS categorie_name, r.name, r.type_acces
+                SELECT r.id, r.categorie_id, c.name AS categorie_name, r.name,
+                       COALESCE(drd.type_acces, r.type_acces) AS type_acces
                 FROM direction_ressources_default drd
                 JOIN ressource_si r ON r.id = drd.ressource_id
                 JOIN categories c ON c.id = r.categorie_id

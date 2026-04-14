@@ -1,6 +1,17 @@
 package fr.cmp.kyrios.config;
 
+import java.io.BufferedReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.PreparedStatement;
+import java.nio.charset.Charset;
+import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Locale;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +29,15 @@ public class DataInitializer implements CommandLineRunner {
         @Value("${app.init-data:true}")
         private boolean initDataEnabled;
 
+        @Value("${app.ressource-direction.csv.enabled}")
+        private boolean ressourceDirectionCsvEnabled;
+
+        @Value("${app.ressource-direction.csv.path}")
+        private String ressourceDirectionCsvPath;
+
+        @Value("${app.referentiel.csv.path}")
+        private String referentielCsvPath;
+
         public DataInitializer(JdbcTemplate jdbcTemplate) {
                 this.jdbcTemplate = jdbcTemplate;
         }
@@ -31,12 +51,16 @@ public class DataInitializer implements CommandLineRunner {
 
                 // Keep persistent databases compatible with permission level feature.
                 jdbcTemplate.execute("ALTER TABLE profil_app_ressources ADD COLUMN IF NOT EXISTS permission_level INT");
+                jdbcTemplate.execute(
+                                "ALTER TABLE direction_ressources_default ADD COLUMN IF NOT EXISTS type_acces VARCHAR(32)");
 
                 Integer directionCount = jdbcTemplate.queryForObject("SELECT COUNT(1) FROM directions", Integer.class);
                 if (directionCount != null && directionCount > 0) {
                         System.out.println(
-                                        "[DATA_INIT] Donnees deja presentes, verification de la ressource Niveau de permission.");
+                                        "[DATA_INIT] Donnees deja presentes.");
                         ensureThemisPermissionLevelResources();
+                        ressourceSICsv();
+                        ressourceDirectionDefautCsv();
                         return;
                 }
 
@@ -54,7 +78,9 @@ public class DataInitializer implements CommandLineRunner {
                                 "Direction du Pret sur gage",
                                 "Direction Financiere",
                                 "Direction Generale",
-                                "Direction générale adjointe"
+                                "Direction Generale adjointe",
+                                "Direction Epargne",
+                                "Direction Juridique"
                 };
 
                 for (String direction : directions) {
@@ -128,312 +154,7 @@ public class DataInitializer implements CommandLineRunner {
                         }
                 }
 
-                int catRepertoireServices = insertAndGetId("INSERT INTO categories (name) VALUES (?)",
-                                "Repertoires de services");
-
-                String[] repertoireServiceRessources = {
-                                "SVC_Budget",
-                                "SVC_CI",
-                                "SVC_CI_Controle permanent",
-                                "SVC_CI_Gestion des risques et conformite",
-                                "SVC_CI_Inspection generale",
-                                "SVC_CI_LCB-FT",
-                                "SVC_COMM",
-                                "SVC_DF",
-                                "SVC_DF_Controle de gestion",
-                                "SVC_DF_Controle de gestion_Tableaux de bord",
-                                "SVC_DF_Epargne solidaire",
-                                "SVC_DF_Epargne solidaire_Numerisation",
-                                "SVC_DF_Tresorerie-ALM",
-                                "SVC_DICF",
-                                "SVC_DICF_CFC",
-                                "SVC_DICF_Parcours Budget Permanents",
-                                "SVC_DICF_Dossier de Direction DICF",
-                                "SVC_Direction de la Securite",
-                                "SVC_Direction de la Sécurité_Plannings",
-                                "SVC_Direction Generale",
-                                "SVC_DPO",
-                                "SVC_DRH",
-                                "SVC_DSI",
-                                "SVC_DST",
-                                "SVC_PSG",
-                                "SVC_PSG_Controles PSG",
-                                "SVC_PSG_Dossiers de Direction PSG",
-                                "SVC_PSG_Formatuteur",
-                                "SVC_PSG_Management PSG",
-                                "SVC_PSG_Pole relation à Distance ",
-                                "SVC_PSG_Formation",
-                                "SVC_PSG_RH & Plannings",
-                                "SVC_SJUR-MP",
-                                "SVC_SSI",
-                                "SVC_DVEC",
-                                "SVC_DVEC_CCART",
-                                "SVC_DVEC_Hotel des ventes"
-                };
-
-                for (String ressource : repertoireServiceRessources) {
-                        insertServiceResource(catRepertoireServices, ressource);
-                }
-
-                int catRepertoiresFonctionnelsTransverses = insertAndGetId("INSERT INTO categories (name) VALUES (?)",
-                                "Repertoires fonctionnels / transverses");
-
-                String[] repertoiresFonctionnelsTransversesRessources = {
-                                "FON_COMITES\\COS",
-                                "FON_COMITES\\COMITE ALM",
-                                "FON_COMITES\\COMITE D'AUDIT",
-                                "FON_COMITES\\COMITE DES PRESTATIONS EXTERNALISEES",
-                                "FON_COMITES\\COMITE DES RISQUES",
-                                "FON_COMITES\\COMITE DES RISQUES DE CREDITS",
-                                "FON_COMITES\\COMITE LCB-FT",
-                                "FON_CONTROLE",
-                                "FON_CONTROLE\\ALM",
-                                "FON_CONTROLE\\Extracts video",
-                                "FON_CONTROLE\\Reportings reglementaires",
-                                "FON_CONTROLE\\Reportings reglementaires\\Remises",
-                                "FON_CONTROLE\\Requisitions",
-                                "FON_DIRECTIONS",
-                                "FON_DIRECTIONS\\Agence comptable\\Boni PSG",
-                                "FON_DIRECTIONS\\Agence comptable\\Caisse PSG",
-                                "FON_DIRECTIONS\\Agence comptable\\Caisse PSG\\Virements en attente",
-                                "FON_DIRECTIONS\\Agence comptable\\Debiteurs divers",
-                                "FON_DIRECTIONS\\Agence comptable\\DSI",
-                                "FON_DIRECTIONS\\Agence comptable\\Epargne",
-                                "FON_DIRECTIONS\\Agence comptable\\Inventaires",
-                                "FON_DIRECTIONS\\Agence comptable\\locataires",
-                                "FON_DIRECTIONS\\Agence comptable\\Régie CCART",
-                                "FON_DIRECTIONS\\Arretes comptables",
-                                "FON_DIRECTIONS\\BUDGET",
-                                "FON_DIRECTIONS\\CONTROLE\\SJMP",
-                                "FON_DIRECTIONS\\CONTROLE\\Agence comptable",
-                                "FON_DIRECTIONS\\DCDM",
-                                "FON_DIRECTIONS\\DCDM\\DICF",
-                                "FON_DIRECTIONS\\DCDM\\DG",
-                                "FON_DIRECTIONS\\DCDM\\DRHM",
-                                "FON_DIRECTIONS\\DCDM\\DSI",
-                                "FON_DIRECTIONS\\DCDM\\HDV",
-                                "FON_DIRECTIONS\\DRHM\\PSG",
-                                "FON_DIRECTIONS\\DRHM\\CENTRALE-ACHAT-RIDF",
-                                "FON_DIRECTIONS\\DRHM-EAE",
-                                "FON_DIRECTIONS\\Magasins",
-                                "FON_DIRECTIONS\\Magasins\\Magasins PSG&HDV",
-                                "FON_DIRECTIONS\\Marchés Publics",
-                                "FON_DIRECTIONS\\PARAPHEUR BUDGET-DG",
-                                "FON_DIRECTIONS\\PARAPHEUR RH-DG",
-                                "FON_DIRECTIONS\\PROCEDURES",
-                                "FON_DIRECTIONS\\Projet Epargne Personnes Morales",
-                                "FON_Interfaces",
-                                "FON_Paie",
-                                "FON_REP-DIR",
-                                "GRH2000 et Arrêtés-PROD"
-                };
-
-                for (String ressource : repertoiresFonctionnelsTransversesRessources) {
-                        insertServiceResource(catRepertoiresFonctionnelsTransverses, ressource);
-                }
-
-                int catBoitesMessageriePartagees = insertAndGetId("INSERT INTO categories (name) VALUES (?)",
-                                "Boites de messagerie partagées");
-
-                String[] BoitesMessageriePartageesRessources = {
-                                "1pourcentmarchedelart@creditmunicipal.fr",
-                                "agencecomptable-cmp@creditmunicipal.fr",
-                                "boni@creditmunicipal.fr",
-                                "BUDGET-CMP@creditmunicipal.fr",
-                                "ccart@creditmunicipal.fr",
-                                "cgt@creditmunicipal.fr",
-                                "communication@creditmunicipal.fr",
-                                "conference@creditmunicipal.fr",
-                                "conformite@creditmunicipal.fr",
-                                "contact@ccart.paris",
-                                "compteurimprimantes@creditmunicipal.fr",
-                                "deontologue@creditmunicipal.fr",
-                                "direction-psg@creditmunicipal.fr",
-                                "dpo@creditmunicipal.fr",
-                                "droitdalerte-cmp@creditmunicipal.fr",
-                                "epargne-solidarité@creditmunicipal.fr",
-                                "expertise@creditmunicipal.fr",
-                                "exploitation@creditmunicipal.fr",
-                                "immobilier@creditmunicipal.fr",
-                                "innovation@creditmunicipal.fr",
-                                "labft-cmpbq@creditmunicipal.fr",
-                                "location@creditmunicipal.fr",
-                                "maintenance@creditmunicipal.fr",
-                                "microcredit-et-accompagnement@creditmunicipal.fr",
-                                "monobjet@creditmunicipal.fr",
-                                "moyensgeneraux@creditmunicipal.fr",
-                                "ne-pas-repondre@creditmunicipal.fr",
-                                "pcb@creditmunicipal.fr",
-                                "pointbudget@creditmunicipal.fr",
-                                "pret@ccart.paris",
-                                "pretsurgage@creditmunicipal.fr",
-                                "pretsurgage_archives@creditmunicipal.fr",
-                                "rapports-controles@creditmunicipal.fr",
-                                "rec.epargne-solidarite@creditmunicipal.fr",
-                                "reclamation@creditmunicipal.fr",
-                                "reclamationvente@creditmunicipal.fr",
-                                "recrutement-cmp@creditmunicipal.fr",
-                                "Restaurant-entreprise@creditmunicipal.fr",
-                                "rdvenligne@creditmunicipal.fr",
-                                "securite-cmp@creditmunicipal.fr",
-                                "securite.info@creditmunicipal.fr",
-                                "service-client.psg@creditmunicipal.fr",
-                                "service-it@creditmunicipal.fr",
-                                "service-marchespublics@creditmunicipal.fr",
-                                "sfact-cmp@creditmunicipal.fr",
-                                "stopviolences@creditmunicipal.fr",
-                                "test-kertios@creditmunicipal.fr",
-                                "voixduclient@creditmunicipal.fr",
-                                "zabbix@creditmunicipal.fr",
-                                "zextras@creditmunicipal.fr",
-                                "zextras_pretsurgage@creditmunicipal.fr"
-                };
-
-                for (String ressource : BoitesMessageriePartageesRessources) {
-                        insertServiceResource(catBoitesMessageriePartagees, ressource);
-                }
-
-                int catBureautiqueSpe = insertAndGetId("INSERT INTO categories (name) VALUES (?)",
-                                "Bureautique spe.");
-
-                String[] bureautiqueSpeRessources = {
-                                "3CX",
-                                "AutoCAD",
-                                "AutoCAD (viewer)",
-                                "DRIVE CMP",
-                                "MS Project",
-                                "Passbolt",
-                                "Visio 2016"
-                };
-
-                for (String ressource : bureautiqueSpeRessources) {
-                        insertServiceResource(catBureautiqueSpe, ressource);
-                }
-
-                int catApplicationsMetiers = insertAndGetId("INSERT INTO categories (name) VALUES (?)",
-                                "Applications métiers");
-
-                String[] applicationsMetiersRessources = {
-                                "ABIS Access V3",
-                                "AXWAY (secure transport et EBICS-TS)",
-                                "Back office metier site epargne",
-                                "CCSupervision",
-                                "CIVILNet RH",
-                                "DVP",
-                                "Encheres SVV (Innexa)",
-                                "Epsitronic (main courante)",
-                                "Espace de consultation de comptes clients (presta. Standard telephonique)",
-                                "E-temptation (Admin)",
-                                "FIS (tresorerie)",
-                                "FLUXA (gestion des virements)",
-                                "GLPI (Admin)",
-                                "Immos.net (production)",
-                                "Intranet (admin)",
-                                "IRIS",
-                                "Matomo",
-                                "METABASE (LCB-FT / DICF / BI)",
-                                "Milestone (videosurveillance IP)",
-                                "NOTITIA (Standard telephonique)",
-                                "Network (videosurveillance analogique)",
-                                "PEP (ex WINM9 de GFI)",
-                                "Themis",
-                                "Regie.net (prod)",
-                                "SAB (CMP Banque)",
-                                "SAB (Epargne)",
-                                "Site ccart.paris (admin)",
-                                "Site creditmunicipal.fr (admin)",
-                                "Site Epargne (Admin)",
-                                "Studio Protecsys 2 + P2 Web (badge d'acces)",
-                                "Support Espace Personnel",
-                                "Synapse (portail POBI de la BDF pour MAJ FICP)",
-                                "Testo Saveris",
-                                "Vbank"
-                };
-
-                for (String ressource : applicationsMetiersRessources) {
-                        insertServiceResource(catApplicationsMetiers, ressource);
-                }
-
-                int catApplicationsExterne = insertAndGetId("INSERT INTO categories (name) VALUES (?)",
-                                "Applications hebergees en externe");
-
-                String[] applicationsExterneRessources = {
-                                "CIVILNet RH (support My.cirilgroup)",
-                                "Horoquartz support (Etemptation et Protecsys)",
-                                "ADAPTEL",
-                                "ADOBE suite (Admin)",
-                                "APEC",
-                                "Arkea-Banque (Saas)",
-                                "Banque populaire Mediterranee (Saas)",
-                                "Banque populaire Rhone Alpes (Saas)",
-                                "BIP",
-                                "BOVP",
-                                "BOAMP",
-                                "CANVA",
-                                "Caisse Epargne IDF",
-                                "CDC banques des territoires / cdc.net (saas)",
-                                "CDC.net (Saas)",
-                                "CEGID (Saas)",
-                                "CIC Ouest (Saas)",
-                                "CIRCL (Saas)",
-                                "CJN (+ PROCONNECT?)",
-                                "CNAS (saas)",
-                                "CNRACL (Saas)",
-                                "COFFREO",
-                                "CPF",
-                                "crea-sol.credit (plateforme microcrédit CREASOL)",
-                                "Credit Agricole Paris (Saas)",
-                                "Credit Agricole Touraine Poitou (Saas)",
-                                "Dalloz",
-                                "Demarches simplifiees",
-                                "Digitouch (acces biometrique)",
-                                "EBALO",
-                                "Ebanks (Saas)",
-                                "EDENRED",
-                                "Emerit (montres connectees PTI)",
-                                "Ensemble des reseaux sociaux",
-                                "Etafi",
-                                "France Travail",
-                                "Google Ads",
-                                "Google Analytics",
-                                "Impot.gouv (Saas)",
-                                "Info greffe ",
-                                "Interencheres Atlas ",
-                                "Interencheres Pro",
-                                "LexisNexis (Saas)",
-                                "LexisNexis 360 Juridique",
-                                "Mailchimp (Saas)",
-                                "Mapping controle (geolocalisation)",
-                                "Maximilien (Marches publics)",
-                                "Maximilen (Pastell actes)",
-                                "Maximilien (Parapheur + clef RGS** Certeurope)",
-                                "Myatlas",
-                                "MySimplyAgenda",
-                                "Net.Entreprise (Saas)",
-                                "OneGate (Saas)",
-                                "ORIAS (Saas)",
-                                "Pasos.ecb.europa.ue (Saas Facturation BCE)",
-                                "Portail de la gestion publique",
-                                "Portail DGFIP",
-                                "Portail Web Epistronic (acces distance main courante)",
-                                "R Studio",
-                                "Securescharing.bnpparibas (Plateforme BNPP pour ABIS)",
-                                "Sendinblue.com ",
-                                "Societe Generale (compta)",
-                                "SOFAXIS",
-                                "SPC Connect (gestion des centrales d'alarme)",
-                                "SystemPay",
-                                "Target (Saas)",
-                                "Teambrain",
-                                "TITAN",
-                                "TRELLO",
-                                "URSSAF",
-                                "WILLIS TIXERS WATSON (Gras Savoye)"
-                };
-
-                for (String ressource : applicationsExterneRessources) {
-                        insertServiceResource(catApplicationsExterne, ressource);
-                }
+                ressourceSICsv();
 
                 int catThemisCodeEcran = insertAppCategory(appThemis, "Code ecran");
 
@@ -568,7 +289,676 @@ public class DataInitializer implements CommandLineRunner {
                                         themisDroitSP[1]);
                 }
 
+                ressourceDirectionDefautCsv();
+
                 System.out.println("[DATA_INIT] Donnees de test initialisees avec succes.");
+        }
+
+        private void ressourceSICsv() {
+                Path csvPath = Paths.get(referentielCsvPath);
+                if (!Files.exists(csvPath)) {
+                        System.out.println("[DATA_INIT] Referential CSV introuvable: " + csvPath.toAbsolutePath());
+                        return;
+                }
+
+                try (BufferedReader reader = Files.newBufferedReader(csvPath, Charset.forName("windows-1252"))) {
+                        List<List<String>> records = readCsvRecords(reader);
+                        if (records.size() < 4) {
+                                System.out.println("[DATA_INIT] Referential CSV invalide: en-tetes manquants.");
+                                return;
+                        }
+
+                        List<String> groupRow = records.get(1);
+                        List<String> subGroupRow = records.get(2);
+                        List<String> resourceRow = records.get(3);
+
+                        Map<String, Integer> categoryIdsByName = loadIdsByNormalizedName("categories");
+                        Map<String, Integer> resourceIdsByName = loadIdsByNormalizedName("ressource_si");
+
+                        String activeCategory = null;
+                        int createdCategories = 0;
+                        int createdResources = 0;
+
+                        for (int col = 0; col < resourceRow.size(); col++) {
+                                String groupCell = getCell(groupRow, col);
+                                String subGroupCell = getCell(subGroupRow, col);
+
+                                String categoryFromSubGroup = labelCategorieSI(subGroupCell);
+                                if (categoryFromSubGroup != null) {
+                                        activeCategory = categoryFromSubGroup;
+                                }
+
+                                String categoryFromGroup = labelCategorieSI(groupCell);
+                                if (categoryFromGroup != null) {
+                                        activeCategory = categoryFromGroup;
+                                }
+
+                                String resourceName = getCell(resourceRow, col);
+                                if (resourceName == null) {
+                                        continue;
+                                }
+
+                                String canonicalCategory = activeCategory;
+                                if (canonicalCategory == null) {
+                                        continue;
+                                }
+
+                                String normalizedCategory = normalizeForMatching(canonicalCategory);
+                                Integer categoryId = categoryIdsByName.get(normalizedCategory);
+                                if (categoryId == null) {
+                                        categoryId = insertAndGetId("INSERT INTO categories (name) VALUES (?)",
+                                                        canonicalCategory);
+                                        categoryIdsByName.put(normalizedCategory, categoryId);
+                                        createdCategories++;
+                                }
+
+                                String normalizedResource = normalizeForMatching(resourceName);
+                                if (resourceIdsByName.containsKey(normalizedResource)) {
+                                        continue;
+                                }
+
+                                int resourceId = insertProfilSIRessource(categoryId, resourceName);
+                                resourceIdsByName.put(normalizedResource, resourceId);
+                                createdResources++;
+                        }
+
+                        System.out.println("[DATA_INIT] Referential CSV charge: categories creees=" + createdCategories
+                                        + ", ressources creees=" + createdResources);
+                } catch (Exception e) {
+                        System.out.println("[DATA_INIT] Echec de lecture du referential CSV '" + referentielCsvPath
+                                        + "': " + e.getMessage());
+                }
+        }
+
+        private String labelCategorieSI(String label) {
+                if (label == null) {
+                        return null;
+                }
+
+                String normalized = normalizeForMatching(label);
+                if (normalized.contains("repertoires de services")) {
+                        return "Repertoires de services";
+                }
+                if (normalized.contains("repertoires fonctionnels / transverses")) {
+                        return "Repertoires fonctionnels / transverses";
+                }
+                if (normalized.contains("boites de messagerie partagees")) {
+                        return "Boites de messagerie partagées";
+                }
+                if (normalized.contains("bureautique spe")) {
+                        return "Bureautique spe.";
+                }
+                if (normalized.contains("applications metiers")
+                                || normalized.contains("applications hebergees en interne")) {
+                        return "Applications métiers";
+                }
+                if (normalized.contains("applications hebergees en externe")) {
+                        return "Applications hebergees en externe";
+                }
+                return null;
+        }
+
+        private void ressourceDirectionDefautCsv() {
+                if (!ressourceDirectionCsvEnabled) {
+                        return;
+                }
+
+                Path csvPath = Paths.get(ressourceDirectionCsvPath);
+                if (!Files.exists(csvPath)) {
+                        System.out.println("[DATA_INIT] Fichier CSV introuvable: " + csvPath.toAbsolutePath());
+                        return;
+                }
+
+                try (BufferedReader reader = Files.newBufferedReader(csvPath, Charset.forName("windows-1252"))) {
+                        List<List<String>> records = readCsvRecords(reader);
+                        int imports = importCsv(records);
+                        auditRessourceDirectionDefautCsv(records);
+                        System.out.println("[DATA_INIT] Import CSV des ressources par defaut: " + imports
+                                        + " liaison(s) direction/ressource appliquee(s).");
+                } catch (Exception e) {
+                        System.out.println("[DATA_INIT] Echec de lecture du fichier CSV '"
+                                        + ressourceDirectionCsvPath
+                                        + "': " + e.getMessage());
+                }
+        }
+
+        private int importCsv(List<List<String>> records) {
+                if (records.isEmpty()) {
+                        return 0;
+                }
+
+                List<String> header = records.get(0);
+                boolean tabular = isTabularHeader(header);
+
+                Map<String, Integer> directionIdsByName = loadIdsByNormalizedName("directions");
+                Map<String, Integer> ressourceIdsByName = loadIdsByNormalizedName("ressource_si");
+
+                if (tabular) {
+                        return importCsvTabular(records, directionIdsByName, ressourceIdsByName);
+                }
+                return importCsvMatrix(records, directionIdsByName, ressourceIdsByName);
+        }
+
+        private void auditRessourceDirectionDefautCsv(List<List<String>> records) {
+                if (records.isEmpty()) {
+                        return;
+                }
+
+                List<String> header = records.get(0);
+                boolean tabular = isTabularHeader(header);
+
+                Map<String, Integer> directionIdsByName = loadIdsByNormalizedName("directions");
+                Map<String, Integer> ressourceIdsByName = loadIdsByNormalizedName("ressource_si");
+
+                List<String> reportRows = new ArrayList<>();
+                reportRows.add("status;direction;ressource;expected_type;actual_type");
+
+                Map<LinkKey, String> expected = tabular
+                                ? collectExpectedFromCsvTabular(records, directionIdsByName, ressourceIdsByName,
+                                                reportRows)
+                                : collectExpectedFromCsvMatrix(records, directionIdsByName, ressourceIdsByName,
+                                                reportRows);
+
+                Map<LinkKey, String> actual = chargeRessourceDirectionDefaut();
+                Map<Integer, String> directionNamesById = loadNameById("directions");
+                Map<Integer, String> ressourceNamesById = loadNameById("ressource_si");
+
+                int missing = 0;
+                int mismatch = 0;
+                int extra = 0;
+                int unresolved = 0;
+
+                for (Map.Entry<LinkKey, String> entry : expected.entrySet()) {
+                        LinkKey key = entry.getKey();
+                        String expectedType = entry.getValue();
+                        String actualType = actual.get(key);
+
+                        if (actualType == null) {
+                                missing++;
+                                reportRows.add(String.join(";",
+                                                "MISSING",
+                                                csvSafe(directionNamesById.getOrDefault(key.directionId(),
+                                                                "<direction#" + key.directionId() + ">")),
+                                                csvSafe(ressourceNamesById.getOrDefault(key.ressourceId(),
+                                                                "<ressource#" + key.ressourceId() + ">")),
+                                                csvSafe(expectedType),
+                                                ""));
+                                continue;
+                        }
+
+                        if (!expectedType.equals(actualType)) {
+                                mismatch++;
+                                reportRows.add(String.join(";",
+                                                "TYPE_MISMATCH",
+                                                csvSafe(directionNamesById.getOrDefault(key.directionId(),
+                                                                "<direction#" + key.directionId() + ">")),
+                                                csvSafe(ressourceNamesById.getOrDefault(key.ressourceId(),
+                                                                "<ressource#" + key.ressourceId() + ">")),
+                                                csvSafe(expectedType),
+                                                csvSafe(actualType)));
+                        }
+                }
+
+                for (Map.Entry<LinkKey, String> entry : actual.entrySet()) {
+                        if (expected.containsKey(entry.getKey())) {
+                                continue;
+                        }
+                        LinkKey key = entry.getKey();
+                        extra++;
+                        reportRows.add(String.join(";",
+                                        "EXTRA_IN_DB",
+                                        csvSafe(directionNamesById.getOrDefault(key.directionId(),
+                                                        "<direction#" + key.directionId() + ">")),
+                                        csvSafe(ressourceNamesById.getOrDefault(key.ressourceId(),
+                                                        "<ressource#" + key.ressourceId() + ">")),
+                                        "",
+                                        csvSafe(entry.getValue())));
+                }
+
+                for (String row : reportRows) {
+                        if (row.startsWith("CSV_UNKNOWN_")) {
+                                unresolved++;
+                        }
+                }
+
+                System.out.println("[DATA_INIT][AUDIT] CSV attendu=" + expected.size()
+                                + " | DB actuel=" + actual.size()
+                                + " | manquants=" + missing
+                                + " | type_mismatch=" + mismatch
+                                + " | extra_db=" + extra
+                                + " | csv_non_resolus=" + unresolved);
+
+                if (missing == 0 && mismatch == 0 && extra == 0 && unresolved == 0) {
+                        System.out.println("[DATA_INIT][AUDIT] OK: aucun ecart detecte entre CSV et base.");
+                        return;
+                }
+
+                Path reportPath = Paths.get("data", "direction-defaults-audit.csv");
+                try {
+                        Files.write(reportPath, reportRows, Charset.forName("UTF-8"));
+                        System.out.println("[DATA_INIT][AUDIT] Rapport genere: " + reportPath.toAbsolutePath());
+                } catch (Exception e) {
+                        System.out.println("[DATA_INIT][AUDIT] Impossible d'ecrire le rapport: " + e.getMessage());
+                }
+        }
+
+        private Map<LinkKey, String> collectExpectedFromCsvTabular(List<List<String>> records,
+                        Map<String, Integer> directionIdsByName,
+                        Map<String, Integer> ressourceIdsByName,
+                        List<String> reportRows) {
+                Map<LinkKey, String> expected = new LinkedHashMap<>();
+                List<String> header = records.get(0);
+
+                int directionCol = -1;
+                int ressourceCol = -1;
+                int typeAccesCol = -1;
+
+                for (int col = 0; col < header.size(); col++) {
+                        String h = normalizeHeader(header.get(col));
+                        if ("direction".equals(h)) {
+                                directionCol = col;
+                        } else if ("ressource".equals(h) || "resource".equals(h)) {
+                                ressourceCol = col;
+                        } else if ("typeacces".equals(h) || "acces".equals(h) || "access".equals(h)
+                                        || "type".equals(h)) {
+                                typeAccesCol = col;
+                        }
+                }
+
+                if (directionCol < 0 || ressourceCol < 0) {
+                        return expected;
+                }
+
+                for (int rowIdx = 1; rowIdx < records.size(); rowIdx++) {
+                        List<String> row = records.get(rowIdx);
+                        String directionName = getCell(row, directionCol);
+                        String ressourceName = getCell(row, ressourceCol);
+                        String typeAccesRaw = typeAccesCol >= 0 ? getCell(row, typeAccesCol) : null;
+                        if (directionName == null || ressourceName == null) {
+                                continue;
+                        }
+
+                        Integer directionId = resolveIdByName(directionIdsByName, directionName);
+                        Integer ressourceId = resolveIdByName(ressourceIdsByName, ressourceName);
+                        if (directionId == null) {
+                                reportRows.add(String.join(";",
+                                                "CSV_UNKNOWN_DIRECTION",
+                                                csvSafe(directionName),
+                                                csvSafe(ressourceName),
+                                                "",
+                                                ""));
+                                continue;
+                        }
+                        if (ressourceId == null) {
+                                reportRows.add(String.join(";",
+                                                "CSV_UNKNOWN_RESOURCE",
+                                                csvSafe(directionName),
+                                                csvSafe(ressourceName),
+                                                "",
+                                                ""));
+                                continue;
+                        }
+
+                        String normalizedType = normalizeTypeAcces(typeAccesRaw);
+                        if (normalizedType == null) {
+                                normalizedType = "LECTURE_ECRITURE";
+                        }
+
+                        expected.put(new LinkKey(directionId, ressourceId), normalizedType);
+                }
+
+                return expected;
+        }
+
+        private Map<LinkKey, String> collectExpectedFromCsvMatrix(List<List<String>> records,
+                        Map<String, Integer> directionIdsByName,
+                        Map<String, Integer> ressourceIdsByName,
+                        List<String> reportRows) {
+                Map<LinkKey, String> expected = new LinkedHashMap<>();
+                if (records.size() < 2) {
+                        return expected;
+                }
+
+                List<String> header = records.get(0);
+                for (int rowIdx = 1; rowIdx < records.size(); rowIdx++) {
+                        List<String> row = records.get(rowIdx);
+                        String ressourceName = getCell(row, 0);
+                        if (ressourceName == null) {
+                                continue;
+                        }
+
+                        Integer ressourceId = resolveIdByName(ressourceIdsByName, ressourceName);
+                        if (ressourceId == null) {
+                                reportRows.add(String.join(";",
+                                                "CSV_UNKNOWN_RESOURCE",
+                                                "",
+                                                csvSafe(ressourceName),
+                                                "",
+                                                ""));
+                                continue;
+                        }
+
+                        for (int col = 1; col < header.size(); col++) {
+                                String directionName = trimToNull(header.get(col));
+                                String marker = getCell(row, col);
+                                if (directionName == null || marker == null) {
+                                        continue;
+                                }
+
+                                Integer directionId = resolveIdByName(directionIdsByName, directionName);
+                                if (directionId == null) {
+                                        reportRows.add(String.join(";",
+                                                        "CSV_UNKNOWN_DIRECTION",
+                                                        csvSafe(directionName),
+                                                        csvSafe(ressourceName),
+                                                        "",
+                                                        ""));
+                                        continue;
+                                }
+
+                                String normalizedType = normalizeTypeAcces(marker);
+                                if (normalizedType == null) {
+                                        normalizedType = "LECTURE_ECRITURE";
+                                }
+
+                                expected.put(new LinkKey(directionId, ressourceId), normalizedType);
+                        }
+                }
+
+                return expected;
+        }
+
+        private Map<LinkKey, String> chargeRessourceDirectionDefaut() {
+                Map<LinkKey, String> actual = new LinkedHashMap<>();
+                jdbcTemplate.query(
+                                "SELECT direction_id, ressource_id, COALESCE(type_acces, 'LECTURE_ECRITURE') AS type_acces FROM direction_ressources_default",
+                                rs -> {
+                                        LinkKey key = new LinkKey(rs.getInt("direction_id"), rs.getInt("ressource_id"));
+                                        actual.put(key, rs.getString("type_acces"));
+                                });
+                return actual;
+        }
+
+        private Map<Integer, String> loadNameById(String table) {
+                Map<Integer, String> names = new HashMap<>();
+                jdbcTemplate.query("SELECT id, name FROM " + table,
+                                rs -> {
+                                        names.put(rs.getInt("id"), rs.getString("name"));
+                                });
+                return names;
+        }
+
+        private String csvSafe(String value) {
+                if (value == null) {
+                        return "";
+                }
+                if (value.contains(";") || value.contains("\"") || value.contains("\n")) {
+                        return "\"" + value.replace("\"", "\"\"") + "\"";
+                }
+                return value;
+        }
+
+        private int importCsvTabular(List<List<String>> records, Map<String, Integer> directionIdsByName,
+                        Map<String, Integer> ressourceIdsByName) {
+                List<String> header = records.get(0);
+
+                int directionCol = -1;
+                int ressourceCol = -1;
+                int typeAccesCol = -1;
+
+                for (int col = 0; col < header.size(); col++) {
+                        String h = normalizeHeader(header.get(col));
+                        if ("direction".equals(h)) {
+                                directionCol = col;
+                        } else if ("ressource".equals(h) || "resource".equals(h)) {
+                                ressourceCol = col;
+                        } else if ("typeacces".equals(h) || "acces".equals(h) || "access".equals(h)
+                                        || "type".equals(h)) {
+                                typeAccesCol = col;
+                        }
+                }
+
+                if (directionCol < 0 || ressourceCol < 0) {
+                        return 0;
+                }
+
+                int applied = 0;
+                for (int rowIdx = 1; rowIdx < records.size(); rowIdx++) {
+                        List<String> row = records.get(rowIdx);
+                        String directionName = getCell(row, directionCol);
+                        String ressourceName = getCell(row, ressourceCol);
+                        String typeAccesRaw = typeAccesCol >= 0 ? getCell(row, typeAccesCol) : null;
+
+                        if (directionName == null || ressourceName == null) {
+                                continue;
+                        }
+
+                        Integer directionId = directionIdsByName.get(normalizeForMatching(directionName));
+                        Integer ressourceId = ressourceIdsByName.get(normalizeForMatching(ressourceName));
+                        if (directionId == null || ressourceId == null) {
+                                continue;
+                        }
+
+                        String normalizedType = normalizeTypeAcces(typeAccesRaw);
+                        if (normalizedType == null) {
+                                normalizedType = "LECTURE_ECRITURE";
+                        }
+
+                        if (upsertDirectionDefaultResource(directionId, ressourceId, normalizedType)) {
+                                applied++;
+                        }
+                }
+
+                return applied;
+        }
+
+        private int importCsvMatrix(List<List<String>> records, Map<String, Integer> directionIdsByName,
+                        Map<String, Integer> ressourceIdsByName) {
+                if (records.size() < 2) {
+                        return 0;
+                }
+
+                List<String> header = records.get(0);
+                if (header.size() <= 1) {
+                        return 0;
+                }
+
+                int applied = 0;
+                for (int rowIdx = 1; rowIdx < records.size(); rowIdx++) {
+                        List<String> row = records.get(rowIdx);
+                        String ressourceName = getCell(row, 0);
+                        if (ressourceName == null) {
+                                continue;
+                        }
+
+                        Integer ressourceId = ressourceIdsByName.get(normalizeForMatching(ressourceName));
+                        if (ressourceId == null) {
+                                continue;
+                        }
+
+                        for (int col = 1; col < header.size(); col++) {
+                                String directionName = trimToNull(header.get(col));
+                                if (directionName == null) {
+                                        continue;
+                                }
+
+                                String marker = getCell(row, col);
+                                if (marker == null) {
+                                        continue;
+                                }
+
+                                Integer directionId = directionIdsByName.get(normalizeForMatching(directionName));
+                                if (directionId == null) {
+                                        continue;
+                                }
+
+                                String normalizedType = normalizeTypeAcces(marker);
+                                if (normalizedType == null) {
+                                        normalizedType = "LECTURE_ECRITURE";
+                                }
+
+                                if (upsertDirectionDefaultResource(directionId, ressourceId, normalizedType)) {
+                                        applied++;
+                                }
+                        }
+                }
+
+                return applied;
+        }
+
+        private List<List<String>> readCsvRecords(BufferedReader reader) throws Exception {
+                List<List<String>> records = new java.util.ArrayList<>();
+                StringBuilder buffer = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                        if (buffer.length() > 0) {
+                                buffer.append("\n");
+                        }
+                        buffer.append(line);
+
+                        if (!hasBalancedQuotes(buffer.toString())) {
+                                continue;
+                        }
+
+                        records.add(parseCsvLine(buffer.toString()));
+                        buffer.setLength(0);
+                }
+
+                if (buffer.length() > 0) {
+                        records.add(parseCsvLine(buffer.toString()));
+                }
+
+                return records;
+        }
+
+        private boolean hasBalancedQuotes(String text) {
+                int quoteCount = 0;
+                for (int i = 0; i < text.length(); i++) {
+                        if (text.charAt(i) == '"') {
+                                quoteCount++;
+                        }
+                }
+                return (quoteCount % 2) == 0;
+        }
+
+        private List<String> parseCsvLine(String line) {
+                List<String> fields = new java.util.ArrayList<>();
+                StringBuilder current = new StringBuilder();
+                boolean inQuotes = false;
+
+                for (int i = 0; i < line.length(); i++) {
+                        char ch = line.charAt(i);
+                        if (ch == '"') {
+                                if (inQuotes && i + 1 < line.length() && line.charAt(i + 1) == '"') {
+                                        current.append('"');
+                                        i++;
+                                } else {
+                                        inQuotes = !inQuotes;
+                                }
+                        } else if (ch == ';' && !inQuotes) {
+                                fields.add(trimToNull(current.toString()));
+                                current.setLength(0);
+                        } else {
+                                current.append(ch);
+                        }
+                }
+
+                fields.add(trimToNull(current.toString()));
+                return fields;
+        }
+
+        private boolean isTabularHeader(List<String> header) {
+                boolean hasDirection = false;
+                boolean hasRessource = false;
+                for (String cell : header) {
+                        String h = normalizeHeader(cell);
+                        if ("direction".equals(h)) {
+                                hasDirection = true;
+                        }
+                        if ("ressource".equals(h) || "resource".equals(h)) {
+                                hasRessource = true;
+                        }
+                }
+                return hasDirection && hasRessource;
+        }
+
+        private String getCell(List<String> row, int index) {
+                if (index < 0 || index >= row.size()) {
+                        return null;
+                }
+                return trimToNull(row.get(index));
+        }
+
+        private String normalizeHeader(String header) {
+                if (header == null) {
+                        return "";
+                }
+                return header.replace(" ", "").replace("_", "").toLowerCase(Locale.ROOT);
+        }
+
+        private String normalizeForMatching(String value) {
+                if (value == null) {
+                        return "";
+                }
+
+                String cleaned = value
+                                .replace("\uFFFD", "")
+                                .replace("\uFEFF", "")
+                                .replace('\u00A0', ' ')
+                                .trim()
+                                .replaceAll("^[\"']+|[\"']+$", "")
+                                .replaceAll("[;]+$", "");
+
+                String stripped = Normalizer.normalize(cleaned, Normalizer.Form.NFD)
+                                .replaceAll("\\p{M}+", "");
+                return stripped.trim().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
+        }
+
+        private Integer resolveIdByName(Map<String, Integer> idsByName, String rawName) {
+                if (rawName == null) {
+                        return null;
+                }
+                String normalized = normalizeForMatching(rawName);
+                Integer id = idsByName.get(normalized);
+                if (id != null) {
+                        return id;
+                }
+
+                // Secondary normalization for common CSV corruption patterns.
+                String relaxed = normalizeForMatching(rawName.replace(",", "."));
+                return idsByName.get(relaxed);
+        }
+
+        private Map<String, Integer> loadIdsByNormalizedName(String table) {
+                String sql = "SELECT id, name FROM " + table;
+                Map<String, Integer> idsByName = new HashMap<>();
+                jdbcTemplate.query(sql, rs -> {
+                        int id = rs.getInt("id");
+                        String name = rs.getString("name");
+                        idsByName.putIfAbsent(normalizeForMatching(name), id);
+                });
+                return idsByName;
+        }
+
+        private String trimToNull(String value) {
+                if (value == null) {
+                        return null;
+                }
+                String trimmed = value.trim();
+                return trimmed.isEmpty() ? null : trimmed;
+        }
+
+        private String normalizeTypeAcces(String raw) {
+                if (raw == null) {
+                        return null;
+                }
+                String value = raw.trim().toUpperCase(Locale.ROOT);
+                return switch (value) {
+                        case "L" -> "LECTURE";
+                        case "E", "X" ->
+                                "LECTURE_ECRITURE";
+                        default -> null;
+                };
         }
 
         private int insertAndGetId(String sql, Object... params) {
@@ -594,12 +984,32 @@ public class DataInitializer implements CommandLineRunner {
                 return key.intValue();
         }
 
-        private int insertServiceResource(int categorieId, String name) {
+        private int insertProfilSIRessource(int categorieId, String name) {
+                return insertProfilSIRessource(categorieId, name, "LECTURE_ECRITURE");
+        }
+
+        private int insertProfilSIRessource(int categorieId, String name, String typeAcces) {
                 return insertAndGetId(
                                 "INSERT INTO ressource_si (categorie_id, name, type_acces) VALUES (?, ?, ?)",
                                 categorieId,
                                 name,
-                                "LECTURE_ECRITURE");
+                                typeAcces);
+        }
+
+        private boolean upsertDirectionDefaultResource(int directionId, int ressourceId, String typeAcces) {
+                int updated = jdbcTemplate.update(
+                                """
+                                                MERGE INTO direction_ressources_default (direction_id, ressource_id, type_acces)
+                                                KEY (direction_id, ressource_id)
+                                                VALUES (?, ?, ?)
+                                                """,
+                                directionId,
+                                ressourceId,
+                                typeAcces);
+                return updated > 0;
+        }
+
+        private record LinkKey(int directionId, int ressourceId) {
         }
 
         private int insertAppCategory(int applicationId, String name) {
